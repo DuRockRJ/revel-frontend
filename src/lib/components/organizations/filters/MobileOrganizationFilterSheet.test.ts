@@ -1,3 +1,7 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
@@ -25,10 +29,8 @@ describe('MobileOrganizationFilterSheet', () => {
 			props: defaultProps
 		});
 
-		expect(
-			screen.getByRole('dialog', { name: /mobile-organization-filter-title/i })
-		).toBeInTheDocument();
-		expect(screen.getByText('Filters')).toBeInTheDocument();
+		expect(screen.getByRole('dialog', { name: 'Filtros' })).toBeInTheDocument();
+		expect(screen.getByText('Filtros')).toBeInTheDocument();
 	});
 
 	it('does not render when isOpen is false', () => {
@@ -73,7 +75,7 @@ describe('MobileOrganizationFilterSheet', () => {
 			}
 		});
 
-		expect(screen.getByRole('button', { name: /clear all filters/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /limpar todos os filtros/i })).toBeInTheDocument();
 	});
 
 	it('calls onClose when backdrop is clicked', async () => {
@@ -87,7 +89,8 @@ describe('MobileOrganizationFilterSheet', () => {
 			}
 		});
 
-		const backdrop = screen.getByRole('presentation');
+		// aria-hidden keeps the backdrop out of the default a11y tree
+		const backdrop = screen.getByRole('presentation', { hidden: true });
 		await user.click(backdrop);
 
 		expect(onClose).toHaveBeenCalledTimes(1);
@@ -104,7 +107,7 @@ describe('MobileOrganizationFilterSheet', () => {
 			}
 		});
 
-		const closeButton = screen.getByRole('button', { name: 'Close filters' });
+		const closeButton = screen.getByRole('button', { name: 'Fechar filtros' });
 		await user.click(closeButton);
 
 		expect(onClose).toHaveBeenCalledTimes(1);
@@ -134,7 +137,7 @@ describe('MobileOrganizationFilterSheet', () => {
 			}
 		});
 
-		expect(screen.getByText('Show 42 organizations')).toBeInTheDocument();
+		expect(screen.getByText('Mostrar 42 organizações')).toBeInTheDocument();
 	});
 
 	it('uses singular form when count is 1', () => {
@@ -145,7 +148,7 @@ describe('MobileOrganizationFilterSheet', () => {
 			}
 		});
 
-		expect(screen.getByText('Show 1 organization')).toBeInTheDocument();
+		expect(screen.getByText('Mostrar 1 organização')).toBeInTheDocument();
 	});
 
 	it('calls onClose when apply button is clicked', async () => {
@@ -159,7 +162,7 @@ describe('MobileOrganizationFilterSheet', () => {
 			}
 		});
 
-		const applyButton = screen.getByRole('button', { name: /show.*organizations/i });
+		const applyButton = screen.getByRole('button', { name: /mostrar.*organizações/i });
 		await user.click(applyButton);
 
 		expect(onClose).toHaveBeenCalledTimes(1);
@@ -182,7 +185,7 @@ describe('MobileOrganizationFilterSheet', () => {
 			}
 		});
 
-		const clearButton = screen.getByRole('button', { name: /clear all filters/i });
+		const clearButton = screen.getByRole('button', { name: /limpar todos os filtros/i });
 		await user.click(clearButton);
 
 		expect(onClearFilters).toHaveBeenCalledTimes(1);

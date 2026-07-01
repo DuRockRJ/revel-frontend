@@ -1,6 +1,11 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+import { QueryClient } from '@tanstack/svelte-query';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 import BillingProfileForm from './BillingProfileForm.svelte';
 
 // Mock API functions
@@ -53,9 +58,12 @@ function renderWithQueryClient(props: Record<string, unknown>) {
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { retry: false } }
 	});
-	return render(BillingProfileForm, {
-		props,
-		context: new Map([['$$_queryClient', queryClient]])
+	return render(QueryClientTestWrapper, {
+		props: {
+			client: queryClient,
+			component: BillingProfileForm,
+			props
+		}
 	});
 }
 
@@ -64,9 +72,11 @@ describe('BillingProfileForm', () => {
 		vi.clearAllMocks();
 	});
 
-	it('renders the form heading', async () => {
+	it('exposes the form title as the accessible name', async () => {
+		// The visible page heading lives in the parent route; the component itself
+		// only carries the title via aria-label on the <form>.
 		renderWithQueryClient({ authToken: 'test-token' });
-		expect(screen.getByText('Billing Information')).toBeInTheDocument();
+		expect(screen.getByRole('form', { name: 'Billing Information' })).toBeInTheDocument();
 	});
 
 	it('renders all required form fields', async () => {
@@ -111,12 +121,14 @@ describe('BillingProfileForm', () => {
 		expect(screen.getByRole('form', { name: /Billing Information/i })).toBeInTheDocument();
 	});
 
-	it('does not show VAT ID section when no billing profile exists', async () => {
+	it('shows only the VAT ID hint (no input) when no billing profile exists', async () => {
 		renderWithQueryClient({ authToken: 'test-token' });
-		// VAT ID section only appears after profile exists (hasBillingProfile = true)
-		// With 404 response (null profile), the section should not be present
+		// With a 404 (null profile) the VAT ID section falls back to the
+		// "complete billing info first" hint: heading + description, no input.
 		await waitFor(() => {
-			expect(screen.queryByText('VAT ID')).not.toBeInTheDocument();
+			expect(screen.getByText('VAT ID')).toBeInTheDocument();
+			expect(screen.getByText('Please complete all required fields.')).toBeInTheDocument();
+			expect(screen.queryByRole('textbox', { name: 'VAT ID' })).not.toBeInTheDocument();
 		});
 	});
 

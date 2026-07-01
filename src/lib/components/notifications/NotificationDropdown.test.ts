@@ -1,8 +1,13 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import NotificationDropdown from './NotificationDropdown.svelte';
-import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+import { QueryClient } from '@tanstack/svelte-query';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 
 // Mock the API
 vi.mock('$lib/api/generated', () => ({
@@ -58,12 +63,12 @@ describe('NotificationDropdown', () => {
 		vi.clearAllMocks();
 	});
 
-	function renderWithQuery(props: any = {}) {
-		return render(QueryClientProvider, {
+	function renderWithQuery(props: Record<string, unknown> = {}) {
+		return render(QueryClientTestWrapper, {
 			props: {
 				client: queryClient,
-				children: NotificationDropdown,
-				childProps: {
+				component: NotificationDropdown,
+				props: {
 					authToken: 'test-token',
 					...props
 				}
@@ -73,7 +78,7 @@ describe('NotificationDropdown', () => {
 
 	it('renders bell icon button', () => {
 		renderWithQuery();
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		expect(button).toBeInTheDocument();
 	});
 
@@ -88,22 +93,22 @@ describe('NotificationDropdown', () => {
 	});
 
 	it('opens dropdown when button is clicked', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup({ pointerEventsCheck: 0 });
 		renderWithQuery();
 
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		await user.click(button);
 
 		await waitFor(() => {
-			expect(screen.getByText(/notifications/i)).toBeInTheDocument();
+			expect(screen.getByText('Notificações')).toBeInTheDocument();
 		});
 	});
 
 	it('shows notification list in compact mode', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup({ pointerEventsCheck: 0 });
 		renderWithQuery();
 
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		await user.click(button);
 
 		await waitFor(() => {
@@ -113,49 +118,49 @@ describe('NotificationDropdown', () => {
 	});
 
 	it('shows "View all notifications" link', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup({ pointerEventsCheck: 0 });
 		renderWithQuery();
 
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		await user.click(button);
 
 		await waitFor(() => {
-			expect(screen.getByText(/view all notifications/i)).toBeInTheDocument();
+			expect(screen.getByText('Ver todas as notificações')).toBeInTheDocument();
 		});
 	});
 
 	it('navigates to notifications page when "View all" is clicked', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup({ pointerEventsCheck: 0 });
 		renderWithQuery();
 
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		await user.click(button);
 
 		await waitFor(() => {
-			const viewAllButton = screen.getByText(/view all notifications/i);
+			const viewAllButton = screen.getByText('Ver todas as notificações');
 			expect(viewAllButton).toBeInTheDocument();
 		});
 
-		const viewAllButton = screen.getByText(/view all notifications/i);
+		const viewAllButton = screen.getByText('Ver todas as notificações');
 		await user.click(viewAllButton);
 
 		expect(mockGoto).toHaveBeenCalledWith('/account/notifications');
 	});
 
 	it('is keyboard accessible', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup({ pointerEventsCheck: 0 });
 		renderWithQuery();
 
 		// Tab to button
 		await user.tab();
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		expect(button).toHaveFocus();
 
 		// Enter to open
 		await user.keyboard('{Enter}');
 
 		await waitFor(() => {
-			expect(screen.getByText(/notifications/i)).toBeInTheDocument();
+			expect(screen.getByText('Notificações')).toBeInTheDocument();
 		});
 
 		// Escape to close
@@ -168,16 +173,16 @@ describe('NotificationDropdown', () => {
 
 	it('passes custom polling interval to NotificationBadge', () => {
 		renderWithQuery({ pollingInterval: 30000 });
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		expect(button).toBeInTheDocument();
 		// Badge will use the custom polling interval internally
 	});
 
 	it('passes custom maxItems to NotificationList', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup({ pointerEventsCheck: 0 });
 		renderWithQuery({ maxItems: 10 });
 
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		await user.click(button);
 
 		await waitFor(() => {
@@ -188,7 +193,7 @@ describe('NotificationDropdown', () => {
 
 	it('has proper ARIA attributes', () => {
 		renderWithQuery();
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 
 		// Button should have proper aria-label
 		expect(button).toHaveAttribute('aria-label');
@@ -201,7 +206,7 @@ describe('NotificationDropdown', () => {
 
 	it('applies custom className', () => {
 		renderWithQuery({ class: 'custom-class' });
-		const button = screen.getByRole('button', { name: /open notifications/i });
+		const button = screen.getByRole('button', { name: 'Abrir notificações' });
 		// Custom class is applied to the dropdown root, not the button directly
 		expect(button).toBeInTheDocument();
 	});

@@ -1,3 +1,7 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
@@ -30,32 +34,32 @@ describe('EmailChangeCard', () => {
 	it('renders the current email in resting state', () => {
 		render(EmailChangeCard, { user: baseUser, form: null });
 		expect(screen.getByText('current@example.com')).toBeTruthy();
-		expect(screen.getByRole('button', { name: /change email/i })).toBeTruthy();
+		expect(screen.getByRole('button', { name: /alterar e-mail/i })).toBeTruthy();
 	});
 
 	it('reveals the form when the change-email button is clicked', async () => {
 		const user = userEvent.setup();
 		render(EmailChangeCard, { user: baseUser, form: null });
-		await user.click(screen.getByRole('button', { name: /change email/i }));
-		expect(screen.getByLabelText(/new email address/i)).toBeTruthy();
-		expect(screen.getByLabelText(/current password/i)).toBeTruthy();
+		await user.click(screen.getByRole('button', { name: /alterar e-mail/i }));
+		expect(screen.getByLabelText(/novo endereço de e-mail/i)).toBeTruthy();
+		expect(screen.getByLabelText(/senha atual/i)).toBeTruthy();
 	});
 
 	it('cancel closes the form when fields are empty', async () => {
 		const user = userEvent.setup();
 		render(EmailChangeCard, { user: baseUser, form: null });
-		await user.click(screen.getByRole('button', { name: /change email/i }));
-		await user.click(screen.getByRole('button', { name: /cancel/i }));
-		expect(screen.queryByLabelText(/new email address/i)).toBeNull();
+		await user.click(screen.getByRole('button', { name: /alterar e-mail/i }));
+		await user.click(screen.getByRole('button', { name: /cancelar/i }));
+		expect(screen.queryByLabelText(/novo endereço de e-mail/i)).toBeNull();
 	});
 
 	it('cancel opens the discard dialog when fields have input', async () => {
 		const user = userEvent.setup();
 		render(EmailChangeCard, { user: baseUser, form: null });
-		await user.click(screen.getByRole('button', { name: /change email/i }));
-		await user.type(screen.getByLabelText(/new email address/i), 'new@example.com');
-		await user.click(screen.getByRole('button', { name: /cancel/i }));
-		expect(await screen.findByText(/discard your changes\?/i)).toBeTruthy();
+		await user.click(screen.getByRole('button', { name: /alterar e-mail/i }));
+		await user.type(screen.getByLabelText(/novo endereço de e-mail/i), 'new@example.com');
+		await user.click(screen.getByRole('button', { name: /cancelar/i }));
+		expect(await screen.findByText(/descartar suas alterações\?/i)).toBeTruthy();
 	});
 
 	it('shows the success state when the form returns a new email and no failure', () => {
@@ -63,9 +67,9 @@ describe('EmailChangeCard', () => {
 			user: baseUser,
 			form: { emailChange: { new_email: 'new@example.com' } }
 		});
-		expect(screen.getByText(/check your inbox/i)).toBeTruthy();
+		expect(screen.getByText(/verifique sua caixa de entrada/i)).toBeTruthy();
 		expect(screen.getByText(/new@example\.com/)).toBeTruthy();
-		expect(screen.getByText(/15 minutes/i)).toBeTruthy();
+		expect(screen.getByText(/15 minutos/i)).toBeTruthy();
 	});
 
 	it.todo('shows wrong-password inline error after re-opening the form on failure');

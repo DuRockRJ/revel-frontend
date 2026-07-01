@@ -1,7 +1,13 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen } from '@testing-library/svelte';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
+import { QueryClient } from '@tanstack/svelte-query';
 import EventActionSidebar from './EventActionSidebar.svelte';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 import type { EventDetailSchema } from '$lib/api/generated/types.gen';
 import type {
 	EventRsvpSchema,
@@ -9,6 +15,16 @@ import type {
 	EventUserEligibility
 } from '$lib/api/generated/types.gen';
 import type { TierSchemaWithId } from '$lib/types/tickets';
+
+// Mock the auth store (plain object; component reads accessToken for tier queries)
+vi.mock('$lib/stores/auth.svelte', () => ({
+	authStore: { accessToken: null as string | null }
+}));
+
+// Mock SvelteKit navigation (invalidateAll runs on RSVP success)
+vi.mock('$app/navigation', () => ({
+	invalidateAll: vi.fn()
+}));
 
 // Mock event helper
 function createMockEvent(overrides: Partial<EventDetailSchema> = {}): EventDetailSchema {
@@ -39,14 +55,34 @@ function createMockEvent(overrides: Partial<EventDetailSchema> = {}): EventDetai
 }
 
 describe('EventActionSidebar', () => {
+	let queryClient: QueryClient;
+
+	beforeEach(() => {
+		queryClient = new QueryClient({
+			defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
+		});
+		// Fixture events are dated 2025-12-01; pin "now" to just before that so
+		// `eventHasEnded` stays false and the "attending" secondary actions render.
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date('2025-11-25T10:00:00Z'));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
 	describe('Rendering', () => {
 		it('renders with event status badge', () => {
 			const event = createMockEvent();
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false
+					}
 				}
 			});
 
@@ -56,26 +92,36 @@ describe('EventActionSidebar', () => {
 
 		it('renders quick info section', () => {
 			const event = createMockEvent();
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false
+					}
 				}
 			});
 
 			// Quick info uses role="list"
-			expect(screen.getByRole('list', { name: /event quick information/i })).toBeInTheDocument();
+			expect(
+				screen.getByRole('list', { name: /Informações rápidas do evento/i })
+			).toBeInTheDocument();
 		});
 
 		it('applies sidebar variant classes', () => {
 			const event = createMockEvent();
-			const { container } = render(EventActionSidebar, {
+			const { container } = render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false,
-					variant: 'sidebar'
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false,
+						variant: 'sidebar'
+					}
 				}
 			});
 
@@ -85,12 +131,16 @@ describe('EventActionSidebar', () => {
 
 		it('applies card variant classes', () => {
 			const event = createMockEvent();
-			const { container } = render(EventActionSidebar, {
+			const { container } = render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false,
-					variant: 'card'
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false,
+						variant: 'card'
+					}
 				}
 			});
 
@@ -100,12 +150,16 @@ describe('EventActionSidebar', () => {
 
 		it('applies custom class', () => {
 			const event = createMockEvent();
-			const { container } = render(EventActionSidebar, {
+			const { container } = render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false,
-					class: 'custom-class'
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false,
+						class: 'custom-class'
+					}
 				}
 			});
 
@@ -117,108 +171,144 @@ describe('EventActionSidebar', () => {
 	describe('Unauthenticated User', () => {
 		it('shows sign in button when not authenticated', () => {
 			const event = createMockEvent();
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false
+					}
 				}
 			});
 
-			expect(screen.getByRole('button', { name: /sign in to attend/i })).toBeInTheDocument();
+			// Free events render EventRSVP's login prompt, which is a link
+			expect(
+				screen.getByRole('link', { name: 'Entre para confirmar presença' })
+			).toBeInTheDocument();
 		});
 
 		it('does not show attendance status when not authenticated', () => {
 			const event = createMockEvent();
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false
+					}
 				}
 			});
 
-			expect(screen.queryByText(/you're attending/i)).not.toBeInTheDocument();
+			expect(screen.queryByText('Você vai participar')).not.toBeInTheDocument();
 		});
 	});
 
 	describe('Authenticated User - No Status', () => {
-		it('shows RSVP button for free event', () => {
+		it('shows RSVP buttons for free event when user is eligible', () => {
 			const event = createMockEvent({ requires_ticket: false });
-			render(EventActionSidebar, {
+			const userStatus: EventUserEligibility = {
+				allowed: true,
+				event_id: 'event-id',
+				next_step: 'rsvp'
+			};
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.getByRole('button', { name: /rsvp/i })).toBeInTheDocument();
+			expect(screen.getByRole('group', { name: 'Opções de RSVP' })).toBeInTheDocument();
 		});
 
 		it('shows buy tickets button for ticketed event', () => {
 			const event = createMockEvent({ requires_ticket: true });
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.getByRole('button', { name: /buy tickets/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: 'Obter ingressos' })).toBeInTheDocument();
 		});
 	});
 
 	describe('User with Approved RSVP', () => {
 		it('shows attendance confirmation', () => {
 			const event = createMockEvent();
-			const userStatus: EventRsvpSchema = {
+			const userStatus = {
 				event_id: 'event-id',
-				status: 'approved'
-			};
+				status: 'yes'
+			} as unknown as EventRsvpSchema;
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.getByText(/you're attending/i)).toBeInTheDocument();
+			expect(screen.getByText('Você vai participar')).toBeInTheDocument();
 		});
 
 		it('shows manage RSVP button', () => {
 			const event = createMockEvent();
-			const userStatus: EventRsvpSchema = {
+			const userStatus = {
 				event_id: 'event-id',
-				status: 'approved'
-			};
+				status: 'yes'
+			} as unknown as EventRsvpSchema;
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.getByRole('button', { name: /manage rsvp/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: 'Alterar RSVP' })).toBeInTheDocument();
 		});
 
 		it('does not show primary action button', () => {
 			const event = createMockEvent();
-			const userStatus: EventRsvpSchema = {
+			const userStatus = {
 				event_id: 'event-id',
-				status: 'approved'
-			};
+				status: 'yes'
+			} as unknown as EventRsvpSchema;
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
@@ -243,15 +333,19 @@ describe('EventActionSidebar', () => {
 				} as TierSchemaWithId
 			};
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.getByText(/you have a ticket/i)).toBeInTheDocument();
+			expect(screen.getByText('Você tem um ingresso')).toBeInTheDocument();
 		});
 
 		it('shows ticket tier name', () => {
@@ -270,11 +364,15 @@ describe('EventActionSidebar', () => {
 				} as TierSchemaWithId
 			};
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
@@ -295,15 +393,19 @@ describe('EventActionSidebar', () => {
 				}
 			};
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.getByRole('button', { name: /view ticket/i })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: 'Mostrar ingresso' })).toBeInTheDocument();
 		});
 
 		it('shows checked in status', () => {
@@ -320,21 +422,27 @@ describe('EventActionSidebar', () => {
 				}
 			};
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.getByText(/you're checked in/i)).toBeInTheDocument();
+			expect(screen.getByText('Você fez check-in')).toBeInTheDocument();
 		});
 	});
 
 	describe('User Not Eligible', () => {
 		it('shows eligibility status when not allowed', () => {
-			const event = createMockEvent();
+			// The standalone eligibility panel only renders on the ticketed branch;
+			// free events delegate ineligibility display to EventRSVP.
+			const event = createMockEvent({ requires_ticket: true });
 			const userStatus: EventUserEligibility = {
 				allowed: false,
 				event_id: 'event-id',
@@ -342,54 +450,65 @@ describe('EventActionSidebar', () => {
 				next_step: 'become_member'
 			};
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.getByText(/eligibility status/i)).toBeInTheDocument();
-			expect(screen.getByText(/this is a members-only event/i)).toBeInTheDocument();
+			expect(screen.getByText('Status de elegibilidade')).toBeInTheDocument();
 		});
 
 		it('does not show eligibility when allowed', () => {
-			const event = createMockEvent();
+			const event = createMockEvent({ requires_ticket: true });
 			const userStatus: EventUserEligibility = {
 				allowed: true,
 				event_id: 'event-id',
 				next_step: 'rsvp'
 			};
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			expect(screen.queryByText(/eligibility status/i)).not.toBeInTheDocument();
+			expect(screen.queryByText('Status de elegibilidade')).not.toBeInTheDocument();
 		});
 	});
 
 	describe('Accessibility', () => {
 		it('has proper ARIA label on container', () => {
 			const event = createMockEvent();
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false
+					}
 				}
 			});
 
-			expect(screen.getByRole('complementary', { name: /event actions/i })).toBeInTheDocument();
+			expect(screen.getByRole('complementary', { name: 'Ações do evento' })).toBeInTheDocument();
 		});
 
 		it('has proper heading hierarchy', () => {
-			const event = createMockEvent();
+			const event = createMockEvent({ requires_ticket: true });
 			const userStatus: EventUserEligibility = {
 				allowed: false,
 				event_id: 'event-id',
@@ -397,30 +516,38 @@ describe('EventActionSidebar', () => {
 				next_step: 'become_member'
 			};
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
 			// Check for heading
-			expect(screen.getByText(/eligibility status/i)).toBeInTheDocument();
+			expect(screen.getByText('Status de elegibilidade')).toBeInTheDocument();
 		});
 
 		it('attendance status has live region', () => {
 			const event = createMockEvent();
-			const userStatus: EventRsvpSchema = {
+			const userStatus = {
 				event_id: 'event-id',
-				status: 'approved'
-			};
+				status: 'yes'
+			} as unknown as EventRsvpSchema;
 
-			const { container } = render(EventActionSidebar, {
+			const { container } = render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
@@ -431,43 +558,51 @@ describe('EventActionSidebar', () => {
 
 	describe('Keyboard Navigation', () => {
 		it('buttons are keyboard accessible', async () => {
-			const user = userEvent.setup();
+			// Fake timers are active (see beforeEach); let userEvent drive them
+			const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 			const event = createMockEvent();
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus: null,
-					isAuthenticated: false
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus: null,
+						isAuthenticated: false
+					}
 				}
 			});
 
-			const button = screen.getByRole('button', { name: /sign in to attend/i });
+			const link = screen.getByRole('link', { name: 'Entre para confirmar presença' });
 
-			// Tab to button
+			// Tab to the first interactive element
 			await user.tab();
-			expect(button).toHaveFocus();
-
-			// Enter or Space should work (testing handled by ActionButton component)
+			expect(link).toHaveFocus();
 		});
 
 		it('secondary action button is keyboard accessible', async () => {
-			const user = userEvent.setup();
+			// Fake timers are active (see beforeEach); let userEvent drive them
+			const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 			const event = createMockEvent();
-			const userStatus: EventRsvpSchema = {
+			const userStatus = {
 				event_id: 'event-id',
-				status: 'approved'
-			};
+				status: 'yes'
+			} as unknown as EventRsvpSchema;
 
-			render(EventActionSidebar, {
+			render(QueryClientTestWrapper, {
 				props: {
-					event,
-					userStatus,
-					isAuthenticated: true
+					client: queryClient,
+					component: EventActionSidebar,
+					props: {
+						event,
+						userStatus,
+						isAuthenticated: true
+					}
 				}
 			});
 
-			const button = screen.getByRole('button', { name: /manage rsvp/i });
+			const button = screen.getByRole('button', { name: 'Alterar RSVP' });
 
 			// Tab to button
 			await user.tab();

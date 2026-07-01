@@ -54,21 +54,17 @@ describe('EventStatusBadge', () => {
 	});
 
 	describe('Cancelled Status', () => {
-		it('shows "Cancelled" when event status is rejected', () => {
-			// Pre-existing bug, unrelated to i18n: 'rejected' is not a valid EventStatus
-			// ('open' | 'closed' | 'draft' | 'cancelled'), so this never hits the
-			// component's cancelled branch. Left failing/untouched per direction to
-			// only fix pure language mismatches.
+		it('shows "Cancelado" when event status is cancelled', () => {
 			const event = createMockEvent({
-				status: 'rejected',
+				status: 'cancelled',
 				start: '2025-12-01T18:00:00Z',
 				end: '2025-12-01T22:00:00Z'
 			});
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Cancelled');
-			expect(screen.getByRole('status')).toHaveClass('bg-destructive');
+			expect(screen.getByRole('status')).toHaveTextContent('Cancelado');
+			expect(screen.getByRole('status')).toHaveClass('bg-orange-600');
 		});
 	});
 
@@ -232,12 +228,9 @@ describe('EventStatusBadge', () => {
 	});
 
 	describe('Priority Order', () => {
-		it('prioritizes "Cancelled" over "Full"', () => {
-			// Pre-existing bug, unrelated to i18n: same invalid 'rejected' status as
-			// above, so this falls through to the Full check instead of Cancelled.
-			// Left failing/untouched per direction to only fix pure language mismatches.
+		it('prioritizes "Cancelado" over "Lotado"', () => {
 			const event = createMockEvent({
-				status: 'rejected',
+				status: 'cancelled',
 				max_attendees: 50,
 				attendee_count: 50,
 				start: '2025-12-01T18:00:00Z',
@@ -246,7 +239,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Cancelled');
+			expect(screen.getByRole('status')).toHaveTextContent('Cancelado');
 		});
 
 		it('prioritizes "Full" over "Happening Today"', () => {
@@ -264,11 +257,9 @@ describe('EventStatusBadge', () => {
 			expect(screen.getByRole('status')).toHaveTextContent('Lotado');
 		});
 
-		it('prioritizes "Past" over "Full" (event ended while full)', () => {
-			// Pre-existing bug, unrelated to i18n: the component checks the Full
-			// condition before the Past condition, so a full+ended event actually
-			// renders "Full", contradicting this test's premise. Left failing/
-			// untouched per direction to only fix pure language mismatches.
+		it('prioritizes "Lotado" over "Passado" (event ended while full)', () => {
+			// Documented priority: capacity (1) is checked before temporal states (2+),
+			// so a full event that already ended still renders "Lotado".
 			vi.setSystemTime(new Date('2025-12-02T10:00:00Z'));
 
 			const event = createMockEvent({
@@ -280,7 +271,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Past');
+			expect(screen.getByRole('status')).toHaveTextContent('Lotado');
 		});
 	});
 

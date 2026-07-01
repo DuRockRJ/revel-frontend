@@ -1,3 +1,7 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -50,20 +54,20 @@ describe('DuplicateQuestionnaireModal', () => {
 
 	it('prefills the name with "Copy of {name}"', () => {
 		renderModal();
-		const input = screen.getByLabelText(/new questionnaire name/i) as HTMLInputElement;
-		expect(input.value).toBe('Copy of Admission');
+		const input = screen.getByLabelText(/novo nome do questionário/i) as HTMLInputElement;
+		expect(input.value).toBe('Cópia de Admission');
 	});
 
 	it('submits name + copy_associations, navigates to the new draft, and closes', async () => {
 		const user = userEvent.setup();
 		const { onClose } = renderModal();
-		await user.click(screen.getByLabelText(/copy event & series links/i));
-		await user.click(screen.getByRole('button', { name: /^duplicate$/i }));
+		await user.click(screen.getByLabelText(/copiar vínculos com eventos e séries/i));
+		await user.click(screen.getByRole('button', { name: /^duplicar$/i }));
 
 		await waitFor(() =>
 			expect(questionnaireDuplicateOrgQuestionnaire).toHaveBeenCalledWith({
 				path: { org_questionnaire_id: 'q1' },
-				body: { name: 'Copy of Admission', copy_associations: true },
+				body: { name: 'Cópia de Admission', copy_associations: true },
 				headers: { Authorization: 'Bearer test-token' }
 			})
 		);
@@ -76,10 +80,10 @@ describe('DuplicateQuestionnaireModal', () => {
 	it('blocks submit and shows an error when the name is empty', async () => {
 		const user = userEvent.setup();
 		renderModal();
-		await user.clear(screen.getByLabelText(/new questionnaire name/i));
-		await user.click(screen.getByRole('button', { name: /^duplicate$/i }));
+		await user.clear(screen.getByLabelText(/novo nome do questionário/i));
+		await user.click(screen.getByRole('button', { name: /^duplicar$/i }));
 
 		expect(questionnaireDuplicateOrgQuestionnaire).not.toHaveBeenCalled();
-		expect(screen.getByRole('alert')).toHaveTextContent(/required/i);
+		expect(screen.getByRole('alert')).toHaveTextContent(/obrigatório/i);
 	});
 });

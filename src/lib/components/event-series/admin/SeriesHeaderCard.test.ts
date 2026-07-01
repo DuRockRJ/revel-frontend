@@ -1,3 +1,7 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
@@ -80,14 +84,14 @@ describe('SeriesHeaderCard', () => {
 	it('shows the Active status pill when series is_active=true', () => {
 		render(SeriesHeaderCard, { props: { series: makeSeries() } });
 		// The pill uses aria-label to carry the status string.
-		expect(screen.getByLabelText(/active/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/ativa/i)).toBeInTheDocument();
 	});
 
 	it('shows the Paused status pill when series is_active=false', () => {
 		render(SeriesHeaderCard, {
 			props: { series: makeSeries({ is_active: false }) }
 		});
-		expect(screen.getByLabelText(/paused/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/pausada/i)).toBeInTheDocument();
 	});
 
 	it('renders the recurrence summary when a rule is present', () => {
@@ -181,15 +185,15 @@ describe('SeriesHeaderCard', () => {
 		const { container } = render(SeriesHeaderCard, {
 			props: { series: makeSeries({ auto_publish: false }) }
 		});
-		// Key: recurringEvents.dashboard.autoPublishOff — "Review each draft".
-		expect(container.textContent).toMatch(/review each draft/i);
+		// Key: recurringEvents.dashboard.autoPublishOff — "Revisar cada rascunho".
+		expect(container.textContent).toMatch(/revisar cada rascunho/i);
 	});
 
 	it('shows the auto-publish-on pill copy when auto_publish=true', () => {
 		const { container } = render(SeriesHeaderCard, {
 			props: { series: makeSeries({ auto_publish: true }) }
 		});
-		// Key: recurringEvents.dashboard.autoPublishOn — "Auto-publish on".
-		expect(container.textContent).toMatch(/auto-publish on/i);
+		// Key: recurringEvents.dashboard.autoPublishOn — "Publicação automática ativada".
+		expect(container.textContent).toMatch(/publicação automática ativada/i);
 	});
 });

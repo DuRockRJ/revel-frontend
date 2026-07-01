@@ -1,4 +1,8 @@
-import { describe, it, expect } from 'vitest';
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
+import { describe, expect, it, vi } from 'vitest';
 import { generateEventJsonLd } from '$lib/seo/jsonld/event';
 import type { EventDetailSchema } from '$lib/api/generated/types.gen';
 

@@ -1,3 +1,7 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
@@ -17,16 +21,22 @@ function mount(initial: Rule = { frequency: 'weekly', interval: 1, weekdays: [] 
 describe('RecurrencePicker — frequency segmented control', () => {
 	it('renders all four frequency options', () => {
 		mount();
-		expect(screen.getByRole('radio', { name: 'Daily' })).toBeInTheDocument();
-		expect(screen.getByRole('radio', { name: 'Weekly' })).toBeInTheDocument();
-		expect(screen.getByRole('radio', { name: 'Monthly' })).toBeInTheDocument();
-		expect(screen.getByRole('radio', { name: 'Yearly' })).toBeInTheDocument();
+		expect(screen.getByRole('radio', { name: 'Diariamente' })).toBeInTheDocument();
+		expect(screen.getByRole('radio', { name: 'Semanalmente' })).toBeInTheDocument();
+		expect(screen.getByRole('radio', { name: 'Mensalmente' })).toBeInTheDocument();
+		expect(screen.getByRole('radio', { name: 'Anualmente' })).toBeInTheDocument();
 	});
 
 	it('marks the current frequency as aria-checked', () => {
 		mount({ frequency: 'monthly', interval: 1 });
-		expect(screen.getByRole('radio', { name: 'Monthly' })).toHaveAttribute('aria-checked', 'true');
-		expect(screen.getByRole('radio', { name: 'Weekly' })).toHaveAttribute('aria-checked', 'false');
+		expect(screen.getByRole('radio', { name: 'Mensalmente' })).toHaveAttribute(
+			'aria-checked',
+			'true'
+		);
+		expect(screen.getByRole('radio', { name: 'Semanalmente' })).toHaveAttribute(
+			'aria-checked',
+			'false'
+		);
 	});
 
 	it('clears conditional fields when switching frequency', async () => {
@@ -36,7 +46,7 @@ describe('RecurrencePicker — frequency segmented control', () => {
 			interval: 1,
 			weekdays: [0, 2]
 		});
-		await user.click(screen.getByRole('radio', { name: 'Daily' }));
+		await user.click(screen.getByRole('radio', { name: 'Diariamente' }));
 		const payload = onChange.mock.calls.at(-1)?.[0];
 		expect(payload.frequency).toBe('daily');
 		expect(payload.weekdays).toBeUndefined();
@@ -49,7 +59,7 @@ describe('RecurrencePicker — frequency segmented control', () => {
 	it('presets monthly_type=day when switching to monthly', async () => {
 		const user = userEvent.setup();
 		const { onChange } = mount({ frequency: 'weekly', interval: 1 });
-		await user.click(screen.getByRole('radio', { name: 'Monthly' }));
+		await user.click(screen.getByRole('radio', { name: 'Mensalmente' }));
 		expect(onChange.mock.calls.at(-1)?.[0]).toMatchObject({
 			frequency: 'monthly',
 			monthly_type: 'day'
@@ -60,14 +70,14 @@ describe('RecurrencePicker — frequency segmented control', () => {
 describe('RecurrencePicker — weekly weekday multiselect', () => {
 	it('renders 7 weekday toggles when frequency=weekly', () => {
 		mount({ frequency: 'weekly', interval: 1 });
-		expect(screen.getByRole('button', { name: 'Monday' })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: 'Sunday' })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Segunda-feira' })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Domingo' })).toBeInTheDocument();
 	});
 
 	it('toggles a weekday on click and emits sorted weekdays', async () => {
 		const user = userEvent.setup();
 		const { onChange } = mount({ frequency: 'weekly', interval: 1, weekdays: [2] });
-		await user.click(screen.getByRole('button', { name: 'Monday' })); // 0
+		await user.click(screen.getByRole('button', { name: 'Segunda-feira' })); // 0
 		const emitted = onChange.mock.calls.at(-1)?.[0];
 		expect(emitted.weekdays).toEqual([0, 2]);
 	});
@@ -75,27 +85,33 @@ describe('RecurrencePicker — weekly weekday multiselect', () => {
 	it('deselects a weekday already in the set', async () => {
 		const user = userEvent.setup();
 		const { onChange } = mount({ frequency: 'weekly', interval: 1, weekdays: [0, 2] });
-		await user.click(screen.getByRole('button', { name: 'Wednesday' })); // 2
+		await user.click(screen.getByRole('button', { name: 'Quarta-feira' })); // 2
 		expect(onChange.mock.calls.at(-1)?.[0].weekdays).toEqual([0]);
 	});
 
 	it('sets aria-pressed on selected weekday toggles', () => {
 		mount({ frequency: 'weekly', interval: 1, weekdays: [1, 3] });
-		expect(screen.getByRole('button', { name: 'Tuesday' })).toHaveAttribute('aria-pressed', 'true');
-		expect(screen.getByRole('button', { name: 'Monday' })).toHaveAttribute('aria-pressed', 'false');
+		expect(screen.getByRole('button', { name: 'Terça-feira' })).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
+		expect(screen.getByRole('button', { name: 'Segunda-feira' })).toHaveAttribute(
+			'aria-pressed',
+			'false'
+		);
 	});
 });
 
 describe('RecurrencePicker — monthly sub-modes', () => {
 	it('shows day-of-month input in day mode', () => {
 		mount({ frequency: 'monthly', interval: 1, monthly_type: 'day' });
-		expect(screen.getByLabelText('Day of month')).toBeInTheDocument();
+		expect(screen.getByLabelText('Dia do mês')).toBeInTheDocument();
 	});
 
 	it('shows ordinal + weekday selects in weekday mode', () => {
 		mount({ frequency: 'monthly', interval: 1, monthly_type: 'weekday' });
-		expect(screen.getByLabelText('Position')).toBeInTheDocument();
-		expect(screen.getByLabelText('Weekday')).toBeInTheDocument();
+		expect(screen.getByLabelText('Posição')).toBeInTheDocument();
+		expect(screen.getByLabelText('Dia da semana')).toBeInTheDocument();
 	});
 
 	it('clears day-mode fields when switching to weekday mode', async () => {
@@ -106,7 +122,7 @@ describe('RecurrencePicker — monthly sub-modes', () => {
 			monthly_type: 'day',
 			day_of_month: 15
 		});
-		await user.click(screen.getByRole('radio', { name: 'Nth weekday' }));
+		await user.click(screen.getByRole('radio', { name: 'Enésimo dia da semana' }));
 		const payload = onChange.mock.calls.at(-1)?.[0];
 		expect(payload.monthly_type).toBe('weekday');
 		expect(payload.day_of_month).toBeUndefined();
@@ -119,7 +135,7 @@ describe('RecurrencePicker — monthly sub-modes', () => {
 			interval: 1,
 			monthly_type: 'day'
 		});
-		const input = screen.getByLabelText('Day of month') as HTMLInputElement;
+		const input = screen.getByLabelText('Dia do mês') as HTMLInputElement;
 		await user.clear(input);
 		await user.type(input, '99');
 		// Every keystroke produces a patch; the final one should clamp to 31.
@@ -132,7 +148,7 @@ describe('RecurrencePicker — boundary radios', () => {
 	it('defaults to "none" when neither until nor count set', () => {
 		mount({ frequency: 'daily', interval: 1 });
 		// RadioGroup from bits-ui renders the items with name attribute
-		const noneLabel = screen.getByText('Never');
+		const noneLabel = screen.getByText('Nunca');
 		expect(noneLabel).toBeInTheDocument();
 	});
 
@@ -143,7 +159,7 @@ describe('RecurrencePicker — boundary radios', () => {
 			interval: 1,
 			count: 10
 		});
-		await user.click(screen.getByLabelText('On date'));
+		await user.click(screen.getByLabelText('Em uma data'));
 		const payload = onChange.mock.calls.at(-1)?.[0];
 		expect(payload.count).toBeNull();
 	});
@@ -155,7 +171,7 @@ describe('RecurrencePicker — boundary radios', () => {
 			interval: 1,
 			until: '2027-01-01T00:00:00.000Z'
 		});
-		await user.click(screen.getByLabelText('After N occurrences'));
+		await user.click(screen.getByLabelText('Após N ocorrências'));
 		const payload = onChange.mock.calls.at(-1)?.[0];
 		expect(payload.until).toBeNull();
 	});
@@ -167,7 +183,7 @@ describe('RecurrencePicker — boundary radios', () => {
 			interval: 1,
 			count: 10
 		});
-		await user.click(screen.getByLabelText('Never'));
+		await user.click(screen.getByLabelText('Nunca'));
 		const payload = onChange.mock.calls.at(-1)?.[0];
 		expect(payload.count).toBeNull();
 		expect(payload.until).toBeNull();

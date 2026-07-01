@@ -1,9 +1,15 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+import { QueryClient } from '@tanstack/svelte-query';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 import EventRSVP from './EventRSVP.svelte';
-import type { EventUserEligibility, EventRsvpSchema } from '$lib/api/generated/types.gen';
+import type { EventUserEligibility, EventDetailSchema } from '$lib/api/generated/types.gen';
+import type { UserEventStatus } from '$lib/utils/eligibility';
 
 // Mock the API function
 vi.mock('$lib/api/generated/sdk.gen', () => ({
@@ -11,6 +17,23 @@ vi.mock('$lib/api/generated/sdk.gen', () => ({
 }));
 
 import { eventpublicattendanceRsvpEvent } from '$lib/api/generated/sdk.gen';
+
+const baseProps = {
+	eventId: 'event-123',
+	eventName: 'Test Event',
+	isAuthenticated: true,
+	requiresTicket: false as boolean | null
+};
+
+// Minimal event object for flows that need event context (ineligibility, login prompt)
+const mockEvent = {
+	id: 'event-123',
+	slug: 'test-event',
+	name: 'Test Event',
+	organization: { slug: 'test-org', name: 'Test Org' },
+	apply_before: null,
+	can_attend_without_login: false
+} as unknown as EventDetailSchema;
 
 describe('EventRSVP', () => {
 	let queryClient: QueryClient;
@@ -25,43 +48,36 @@ describe('EventRSVP', () => {
 		vi.clearAllMocks();
 	});
 
-	function renderWithQueryClient(props: any) {
-		return render(QueryClientProvider, {
+	function renderWithQueryClient(props: Record<string, unknown>) {
+		return render(QueryClientTestWrapper, {
 			props: {
 				client: queryClient,
-				children: EventRSVP,
-				// Pass props to the child component
-				...props
+				component: EventRSVP,
+				props: { ...baseProps, ...props }
 			}
 		});
 	}
 
-	it('does not render when not authenticated', () => {
-		const { container } = render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: null,
-				isAuthenticated: false,
-				requiresTicket: false
-			}
-		});
+	it('renders nothing actionable when not authenticated and event has no guest RSVP', () => {
+		renderWithQueryClient({ userStatus: null, isAuthenticated: false });
 
-		expect(container.firstChild).toBeNull();
+		expect(screen.queryByRole('button')).not.toBeInTheDocument();
+		expect(screen.queryByText('Você vai participar?')).not.toBeInTheDocument();
+	});
+
+	it('shows login prompt when not authenticated and event requires login', () => {
+		renderWithQueryClient({ userStatus: null, isAuthenticated: false, event: mockEvent });
+
+		expect(screen.getByText('Você vai participar?')).toBeInTheDocument();
+		const loginLink = screen.getByRole('link', { name: 'Entre para confirmar presença' });
+		expect(loginLink).toBeInTheDocument();
+		expect(loginLink).toHaveAttribute('href', expect.stringContaining('/login?redirect='));
 	});
 
 	it('does not render for ticket-required events', () => {
-		const { container } = render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: null,
-				isAuthenticated: true,
-				requiresTicket: true
-			}
-		});
+		const { container } = renderWithQueryClient({ userStatus: null, requiresTicket: true });
 
-		expect(container.firstChild).toBeNull();
+		expect(container.querySelector('button, a, h3')).toBeNull();
 	});
 
 	it('shows RSVP buttons when user is eligible', () => {
@@ -70,40 +86,32 @@ describe('EventRSVP', () => {
 			next_step: 'rsvp'
 		};
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: eligibilityStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: eligibilityStatus });
 
-		expect(screen.getByText('Will you attend?')).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /yes/i })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /maybe/i })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /no/i })).toBeInTheDocument();
+		expect(screen.getByText('Você vai participar?')).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /RSVP Sim/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /RSVP Talvez/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /RSVP Não/i })).toBeInTheDocument();
 	});
 
-	it("shows existing RSVP status when user has already RSVP'd", () => {
-		const rsvpStatus: EventRsvpSchema = {
+	it("highlights the current answer when user has already RSVP'd", () => {
+		const rsvpStatus = {
 			event_id: 'event-123',
-			status: 'approved'
-		};
+			status: 'yes'
+		} as unknown as UserEventStatus;
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: rsvpStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: rsvpStatus });
 
-		expect(screen.getByText(/You're attending Test Event/i)).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /change response/i })).toBeInTheDocument();
+		// An existing RSVP keeps the buttons visible so the user can change the
+		// answer; the current one is marked via aria-pressed.
+		expect(screen.getByRole('button', { name: /RSVP Sim/i })).toHaveAttribute(
+			'aria-pressed',
+			'true'
+		);
+		expect(screen.getByRole('button', { name: /RSVP Talvez/i })).toHaveAttribute(
+			'aria-pressed',
+			'false'
+		);
 	});
 
 	it('shows ineligibility message when user is not allowed', () => {
@@ -113,44 +121,27 @@ describe('EventRSVP', () => {
 			next_step: 'complete_questionnaire'
 		};
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: eligibilityStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: eligibilityStatus, event: mockEvent });
 
-		expect(screen.getByText(/You must complete the questionnaire first/i)).toBeInTheDocument();
-		expect(screen.getByText(/Complete Questionnaire/i)).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Este evento exige que você preencha um questionário antes de confirmar presença.'
+			)
+		).toBeInTheDocument();
+		// Ineligible users get the explanatory panel instead of RSVP buttons
+		expect(screen.queryByRole('button', { name: /RSVP Sim/i })).not.toBeInTheDocument();
 	});
 
-	it('shows disabled buttons when user is not eligible', () => {
+	it('hides RSVP buttons when user is not eligible and no event context exists', () => {
 		const eligibilityStatus: EventUserEligibility = {
 			allowed: false,
 			reason: 'Event is at capacity',
 			next_step: 'join_waitlist'
 		};
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: eligibilityStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: eligibilityStatus });
 
-		const yesButton = screen.getByRole('button', { name: /yes/i });
-		const maybeButton = screen.getByRole('button', { name: /maybe/i });
-		const noButton = screen.getByRole('button', { name: /no/i });
-
-		expect(yesButton).toBeDisabled();
-		expect(maybeButton).toBeDisabled();
-		expect(noButton).toBeDisabled();
+		expect(screen.queryByRole('button', { name: /RSVP Sim/i })).not.toBeInTheDocument();
 	});
 
 	it('submits RSVP when user clicks Yes button', async () => {
@@ -158,28 +149,20 @@ describe('EventRSVP', () => {
 		const mockRsvpResponse = {
 			data: {
 				event_id: 'event-123',
-				status: 'approved' as const
+				status: 'yes' as const
 			}
 		};
 
-		vi.mocked(eventpublicattendanceRsvpEvent).mockResolvedValue(mockRsvpResponse);
+		vi.mocked(eventpublicattendanceRsvpEvent).mockResolvedValue(mockRsvpResponse as never);
 
 		const eligibilityStatus: EventUserEligibility = {
 			allowed: true,
 			next_step: 'rsvp'
 		};
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: eligibilityStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: eligibilityStatus });
 
-		const yesButton = screen.getByRole('button', { name: /yes/i });
+		const yesButton = screen.getByRole('button', { name: /RSVP Sim/i });
 		await user.click(yesButton);
 
 		await waitFor(() => {
@@ -189,7 +172,8 @@ describe('EventRSVP', () => {
 		});
 
 		await waitFor(() => {
-			expect(screen.getByText(/You're going to Test Event!/i)).toBeInTheDocument();
+			expect(screen.getByText('Você vai para Test Event!')).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: 'Alterar resposta' })).toBeInTheDocument();
 		});
 	});
 
@@ -204,47 +188,38 @@ describe('EventRSVP', () => {
 			next_step: 'rsvp'
 		};
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: eligibilityStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: eligibilityStatus });
 
-		const yesButton = screen.getByRole('button', { name: /yes/i });
+		const yesButton = screen.getByRole('button', { name: /RSVP Sim/i });
 		await user.click(yesButton);
 
 		await waitFor(() => {
-			expect(screen.getByText(/RSVP Failed/i)).toBeInTheDocument();
-			expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+			expect(screen.getByText('Falha no RSVP')).toBeInTheDocument();
+			expect(screen.getByText('Network error')).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: 'Tentar novamente' })).toBeInTheDocument();
 		});
 	});
 
-	it('allows changing RSVP response', async () => {
+	it('allows changing RSVP response after success', async () => {
 		const user = userEvent.setup();
-		const rsvpStatus: EventRsvpSchema = {
-			event_id: 'event-123',
-			status: 'approved'
+		vi.mocked(eventpublicattendanceRsvpEvent).mockResolvedValue({
+			data: { event_id: 'event-123', status: 'yes' }
+		} as never);
+
+		const eligibilityStatus: EventUserEligibility = {
+			allowed: true,
+			next_step: 'rsvp'
 		};
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: rsvpStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: eligibilityStatus });
 
-		const changeButton = screen.getByRole('button', { name: /change response/i });
+		await user.click(screen.getByRole('button', { name: /RSVP Sim/i }));
+		const changeButton = await screen.findByRole('button', { name: 'Alterar resposta' });
 		await user.click(changeButton);
 
-		// After clicking change, the RSVP status should be reset
-		// Note: This test depends on implementation details
+		// Back to the buttons state
+		expect(screen.getByRole('button', { name: /RSVP Sim/i })).toBeInTheDocument();
+		expect(screen.queryByText('Você vai para Test Event!')).not.toBeInTheDocument();
 	});
 
 	it('is keyboard accessible', async () => {
@@ -254,46 +229,28 @@ describe('EventRSVP', () => {
 			next_step: 'rsvp'
 		};
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: eligibilityStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: eligibilityStatus });
 
 		// Tab to first button
 		await user.tab();
-		const yesButton = screen.getByRole('button', { name: /yes/i });
+		const yesButton = screen.getByRole('button', { name: /RSVP Sim/i });
 		expect(yesButton).toHaveFocus();
 
 		// Tab to next button
 		await user.tab();
-		const maybeButton = screen.getByRole('button', { name: /maybe/i });
+		const maybeButton = screen.getByRole('button', { name: /RSVP Talvez/i });
 		expect(maybeButton).toHaveFocus();
 	});
 
-	it('has proper ARIA live regions for dynamic updates', () => {
+	it('exposes the RSVP options as a labelled group', () => {
 		const eligibilityStatus: EventUserEligibility = {
 			allowed: true,
 			next_step: 'rsvp'
 		};
 
-		render(EventRSVP, {
-			props: {
-				eventId: 'event-123',
-				eventName: 'Test Event',
-				initialStatus: eligibilityStatus,
-				isAuthenticated: true,
-				requiresTicket: false
-			}
-		});
+		renderWithQueryClient({ userStatus: eligibilityStatus });
 
-		// ARIA live regions are applied to status messages
-		// This test verifies the structure exists
-		const buttons = screen.getAllByRole('button');
-		expect(buttons.length).toBeGreaterThan(0);
+		expect(screen.getByRole('group', { name: 'Opções de RSVP' })).toBeInTheDocument();
+		expect(screen.getAllByRole('button').length).toBeGreaterThan(0);
 	});
 });

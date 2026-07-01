@@ -4,10 +4,6 @@ import userEvent from '@testing-library/user-event';
 import TagInput from './TagInput.svelte';
 
 describe('TagInput', () => {
-	// Pre-existing bug, unrelated to i18n: TagInput.svelte sets the input's `id` from the
-	// (unset-in-tests) `id` prop instead of the derived `inputId` used for the label's `for`
-	// attribute, so the <label> is never associated with the <input> and getByLabelText() fails
-	// regardless of language.
 	it('renders with label', () => {
 		render(TagInput, {
 			props: {
@@ -54,8 +50,6 @@ describe('TagInput', () => {
 		expect(screen.getByText('Sports')).toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: TagInput.svelte's input `id` is not wired to the
-	// label's `for` attribute (see comment above), so getByLabelText('Tags') never finds it.
 	it('adds tag on Enter key', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -73,7 +67,6 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('adds tag on comma key', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -109,7 +102,6 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Food']);
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('removes last tag on Backspace when input is empty', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -129,7 +121,6 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('shows autocomplete suggestions', async () => {
 		const user = userEvent.setup();
 
@@ -143,13 +134,12 @@ describe('TagInput', () => {
 		const input = screen.getByLabelText('Tags') as HTMLInputElement;
 		await user.type(input, 'Mu');
 
-		// Should show suggestions containing "Mu"
+		// Should show suggestions containing "Mu" (substring match — "Movies"
+		// doesn't contain "mu", so only "Music" is expected here)
 		expect(screen.getByRole('listbox')).toBeInTheDocument();
 		expect(screen.getByRole('option', { name: 'Music' })).toBeInTheDocument();
-		expect(screen.getByRole('option', { name: 'Movies' })).toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('selects suggestion on click', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -171,7 +161,6 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('navigates suggestions with arrow keys', async () => {
 		const user = userEvent.setup();
 
@@ -198,7 +187,6 @@ describe('TagInput', () => {
 		expect(secondOption).toHaveAttribute('aria-selected', 'true');
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('selects highlighted suggestion on Enter', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -219,7 +207,6 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('prevents duplicate tags', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -239,7 +226,6 @@ describe('TagInput', () => {
 		expect(handleTagsChange).not.toHaveBeenCalled();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('respects maxTags limit', async () => {
 		const user = userEvent.setup();
 
@@ -253,11 +239,12 @@ describe('TagInput', () => {
 
 		expect(screen.getByText('(2/2)')).toBeInTheDocument();
 
-		const input = screen.getByLabelText('Tags') as HTMLInputElement;
+		// The tag count badge renders inside the <label>, so its accessible
+		// name is "Tags (2/2)" rather than a bare "Tags" — match loosely.
+		const input = screen.getByLabelText(/tags/i) as HTMLInputElement;
 		expect(input).toHaveAttribute('readonly');
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('filters out already selected tags from suggestions', async () => {
 		const user = userEvent.setup();
 
@@ -277,7 +264,6 @@ describe('TagInput', () => {
 		expect(screen.getByRole('option', { name: 'Movies' })).toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('closes suggestions on Escape key', async () => {
 		const user = userEvent.setup();
 
@@ -300,7 +286,6 @@ describe('TagInput', () => {
 		expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('respects disabled state', () => {
 		render(TagInput, {
 			props: {
@@ -313,11 +298,13 @@ describe('TagInput', () => {
 		const input = screen.getByLabelText('Tags') as HTMLInputElement;
 		expect(input).toBeDisabled();
 
-		// Remove buttons should not be present when disabled
-		expect(screen.queryByRole('button', { name: /remove/i })).not.toBeInTheDocument();
+		// Remove buttons should not be present when disabled. Anchored at the
+		// start: the tag chip itself is also role="button" with an aria-label
+		// ending in "...pressione Delete para remover", which a loose /remove/i
+		// would match too.
+		expect(screen.queryByRole('button', { name: /^remover/i })).not.toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('trims whitespace from tags', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -335,7 +322,6 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
-	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('is keyboard accessible', () => {
 		render(TagInput, {
 			props: {

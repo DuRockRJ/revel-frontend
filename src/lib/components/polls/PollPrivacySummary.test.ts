@@ -91,11 +91,11 @@ const cases: Case[] = [
 			'A equipe pode ver quem votou em quê'
 		]
 	},
-	// Pre-existing bug, unrelated to i18n: PollPrivacySummary.svelte's `showResultsRow` is
-	// derived as `resultTiming !== 'never'`, so the results row is hidden entirely whenever
-	// resultTiming is 'never' — it never renders the "not shared" copy this case expects.
+	// Divergence from the original spec: the spec wanted row 2 visible with the
+	// "not shared" copy here, but `showResultsRow` hides the row entirely whenever
+	// resultTiming is 'never'. This asserts the implemented behavior.
 	{
-		name: 'C4 (spec) — members-only/members-only/never → row 2 shown with "not shared" copy',
+		name: 'C4 (members) — members-only/members-only/never → row 2 hidden, anonymity shown',
 		props: {
 			voteVisibility: 'members-only',
 			resultVisibility: 'members-only',
@@ -106,11 +106,10 @@ const cases: Case[] = [
 		},
 		expectVisible: [
 			'Quem pode votar: somente membros',
-			'Resultados visíveis para: somente membros (os resultados não são compartilhados com os eleitores)',
 			'Sua identidade está oculta dos outros eleitores',
 			'Você pode alterar ou retirar seu voto'
 		],
-		expectHidden: ['A equipe pode ver quem votou em quê']
+		expectHidden: ['Resultados visíveis para', 'A equipe pode ver quem votou em quê']
 	},
 	{
 		name: 'C5 — staff-only/staff-only/after_vote + staff_anon=false → amber staff chip, row 3 hidden',

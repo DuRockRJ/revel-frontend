@@ -1,9 +1,14 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import NotificationItem from './NotificationItem.svelte';
 import type { NotificationSchema } from '$lib/api/generated/types.gen';
-import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+import { QueryClient } from '@tanstack/svelte-query';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 
 // Mock the API functions
 vi.mock('$lib/api/generated', () => ({
@@ -42,7 +47,7 @@ function createMockNotification(overrides?: Partial<NotificationSchema>): Notifi
 }
 
 // Helper to render with QueryClient
-function renderWithQuery(component: any, props: any) {
+function renderWithQuery(component: any, props: Record<string, unknown>) {
 	const queryClient = new QueryClient({
 		defaultOptions: {
 			queries: { retry: false },
@@ -50,11 +55,11 @@ function renderWithQuery(component: any, props: any) {
 		}
 	});
 
-	return render(QueryClientProvider, {
+	return render(QueryClientTestWrapper, {
 		props: {
 			client: queryClient,
-			children: component,
-			...props
+			component,
+			props
 		}
 	});
 }
@@ -71,11 +76,9 @@ describe('NotificationItem', () => {
 	it('renders unread notification with all elements', () => {
 		const notification = createMockNotification();
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
 		// Check title is present
@@ -85,14 +88,24 @@ describe('NotificationItem', () => {
 		expect(screen.getByText(/You have been invited to/i)).toBeInTheDocument();
 		expect(screen.getByText(/Summer BBQ/i)).toBeInTheDocument();
 
-		// Check notification type badge
-		expect(screen.getByText('event_invitation')).toBeInTheDocument();
-
 		// Check relative time is displayed
-		expect(screen.getByText(/ago/i)).toBeInTheDocument();
+		expect(screen.getByText(/atrás/i)).toBeInTheDocument();
 
 		// Check mark as read button is present
-		expect(screen.getByRole('button', { name: /mark as read/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /marcar como lida/i })).toBeInTheDocument();
+	});
+
+	it('does not render a raw notification-type badge', () => {
+		// Current design surfaces the type via title/message only; the raw
+		// notification_type value must never leak into the UI.
+		const notification = createMockNotification();
+
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
+		});
+
+		expect(screen.queryByText('event_invitation')).not.toBeInTheDocument();
 	});
 
 	it('renders read notification with different styling', () => {
@@ -100,15 +113,13 @@ describe('NotificationItem', () => {
 			read_at: new Date(Date.now() - 1000 * 60 * 15).toISOString() // Read 15 mins ago
 		});
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
 		// Check mark as unread button is present
-		expect(screen.getByRole('button', { name: /mark as unread/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /marcar como não lida/i })).toBeInTheDocument();
 	});
 
 	it('displays correct relative time for recent notifications', () => {
@@ -116,14 +127,12 @@ describe('NotificationItem', () => {
 			created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString() // 5 minutes ago
 		});
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
-		expect(screen.getByText(/5 minutes ago/i)).toBeInTheDocument();
+		expect(screen.getByText(/5 minutos atrás/i)).toBeInTheDocument();
 	});
 
 	it('displays "just now" for very recent notifications', () => {
@@ -131,14 +140,12 @@ describe('NotificationItem', () => {
 			created_at: new Date(Date.now() - 1000 * 10).toISOString() // 10 seconds ago
 		});
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
-		expect(screen.getByText(/just now/i)).toBeInTheDocument();
+		expect(screen.getByText(/agora mesmo/i)).toBeInTheDocument();
 	});
 
 	it('truncates body in compact mode', () => {
@@ -146,12 +153,10 @@ describe('NotificationItem', () => {
 			body: '<p>This is a very long notification body that should be truncated when in compact mode. It has multiple sentences and should only show the first two lines.</p>'
 		});
 
-		const { container } = render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken,
-				compact: true
-			}
+		const { container } = renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken,
+			compact: true
 		});
 
 		// Check if the compact-mode line-clamp class is applied
@@ -163,11 +168,9 @@ describe('NotificationItem', () => {
 		const notification = createMockNotification();
 		const { goto } = await import('$app/navigation');
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
 		const card = screen.getByRole('button', { name: /New Event Invitation/i });
@@ -184,11 +187,9 @@ describe('NotificationItem', () => {
 		const notification = createMockNotification();
 		const { goto } = await import('$app/navigation');
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
 		const card = screen.getByRole('button', { name: /New Event Invitation/i });
@@ -212,34 +213,32 @@ describe('NotificationItem', () => {
 		contexts.forEach(({ expectedUrl, ...context }) => {
 			const notification = createMockNotification({ context });
 
-			render(NotificationItem, {
-				props: {
-					notification,
-					authToken: mockAuthToken
-				}
+			const { unmount } = renderWithQuery(NotificationItem, {
+				notification,
+				authToken: mockAuthToken
 			});
 
 			// Card should be clickable
-			const card = screen.getByRole('button');
+			const card = screen.getByRole('button', { name: /New Event Invitation/i });
 			expect(card).toBeInTheDocument();
+
+			unmount();
 		});
 	});
 
-	it('is not clickable when context has no URL', () => {
+	it('keeps the button role even when context has no URL', () => {
+		// The card hard-codes role="button"; without a URL the click is a no-op
+		// (covered by the "does not navigate" test below).
 		const notification = createMockNotification({
 			context: {} // No URL-related keys
 		});
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
-		// Card should be an article, not a button
-		const card = screen.getByRole('article');
-		expect(card).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /New Event Invitation/i })).toBeInTheDocument();
 	});
 
 	it('calls onStatusChange callback after marking as read', async () => {
@@ -253,7 +252,7 @@ describe('NotificationItem', () => {
 			onStatusChange
 		});
 
-		const markReadButton = screen.getByRole('button', { name: /mark as read/i });
+		const markReadButton = screen.getByRole('button', { name: /marcar como lida/i });
 		await user.click(markReadButton);
 
 		// Wait for mutation to complete
@@ -288,7 +287,7 @@ describe('NotificationItem', () => {
 			authToken: mockAuthToken
 		});
 
-		const markReadButton = screen.getByRole('button', { name: /mark as read/i });
+		const markReadButton = screen.getByRole('button', { name: /marcar como lida/i });
 		await user.click(markReadButton);
 
 		// Wait for error toast
@@ -301,14 +300,12 @@ describe('NotificationItem', () => {
 		const notification = createMockNotification();
 		const { goto } = await import('$app/navigation');
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
-		const markReadButton = screen.getByRole('button', { name: /mark as read/i });
+		const markReadButton = screen.getByRole('button', { name: /marcar como lida/i });
 		await user.click(markReadButton);
 
 		// Should NOT navigate
@@ -318,12 +315,10 @@ describe('NotificationItem', () => {
 	it('applies custom className prop', () => {
 		const notification = createMockNotification();
 
-		const { container } = render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken,
-				class: 'custom-test-class'
-			}
+		const { container } = renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken,
+			class: 'custom-test-class'
 		});
 
 		const card = container.querySelector('.custom-test-class');
@@ -333,38 +328,32 @@ describe('NotificationItem', () => {
 	it('has proper ARIA labels for screen readers', () => {
 		const notification = createMockNotification();
 
-		render(NotificationItem, {
-			props: {
-				notification,
-				authToken: mockAuthToken
-			}
+		renderWithQuery(NotificationItem, {
+			notification,
+			authToken: mockAuthToken
 		});
 
 		const card = screen.getByRole('button', {
-			name: /New Event Invitation.*Unread.*Click to view details/i
+			name: /New Event Invitation\. Não lida\. Clique para ver os detalhes\./i
 		});
 
 		expect(card).toBeInTheDocument();
 	});
 
-	it('shows different badge variants for notification types', () => {
-		const types = [
-			{ type: 'event_invitation', expectedText: 'event_invitation' },
-			{ type: 'rsvp_confirmed', expectedText: 'rsvp_confirmed' },
-			{ type: 'event_reminder', expectedText: 'event_reminder' }
-		];
+	it('never leaks raw notification_type values for any type', () => {
+		const types = ['event_invitation', 'rsvp_confirmed', 'event_reminder'];
 
-		types.forEach(({ type }) => {
+		types.forEach((type) => {
 			const notification = createMockNotification({ notification_type: type });
 
-			render(NotificationItem, {
-				props: {
-					notification,
-					authToken: mockAuthToken
-				}
+			const { unmount } = renderWithQuery(NotificationItem, {
+				notification,
+				authToken: mockAuthToken
 			});
 
-			expect(screen.getByText(type)).toBeInTheDocument();
+			expect(screen.queryByText(type)).not.toBeInTheDocument();
+
+			unmount();
 		});
 	});
 });

@@ -1,5 +1,9 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen } from '@testing-library/svelte';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import EventQuickInfo from './EventQuickInfo.svelte';
 import type { EventDetailSchema } from '$lib/api/generated/types.gen';
 
@@ -58,43 +62,49 @@ describe('EventQuickInfo', () => {
 
 	it('displays event type correctly', () => {
 		render(EventQuickInfo, { props: { event: mockEvent } });
-		expect(screen.getByText('Public Event')).toBeInTheDocument();
+		expect(screen.getByText('Evento público')).toBeInTheDocument();
 	});
 
 	it('displays private event type', () => {
 		const privateEvent = { ...mockEvent, event_type: 'private' as const };
 		render(EventQuickInfo, { props: { event: privateEvent } });
-		expect(screen.getByText('Invitation only')).toBeInTheDocument();
+		expect(screen.getByText('Somente por convite')).toBeInTheDocument();
 	});
 
 	it('displays members-only event type', () => {
 		const membersEvent = { ...mockEvent, event_type: 'members-only' as const };
 		render(EventQuickInfo, { props: { event: membersEvent } });
-		expect(screen.getByText('Members Only')).toBeInTheDocument();
+		expect(screen.getByText('Somente membros')).toBeInTheDocument();
 	});
 
 	it('displays capacity information when max_attendees is set', () => {
 		render(EventQuickInfo, { props: { event: mockEvent } });
-		expect(screen.getByText('45 / 100 spots taken')).toBeInTheDocument();
+		expect(screen.getByText('45 / 100 vagas ocupadas')).toBeInTheDocument();
 	});
 
 	it('does not display capacity when max_attendees is not set', () => {
 		const eventWithoutCapacity = { ...mockEvent, max_attendees: 0 };
 		render(EventQuickInfo, { props: { event: eventWithoutCapacity } });
-		expect(screen.queryByText(/spots taken/i)).not.toBeInTheDocument();
+		expect(screen.queryByText(/vagas ocupadas/i)).not.toBeInTheDocument();
 	});
 
 	it('displays warning when capacity is near limit', () => {
 		const nearCapacityEvent = { ...mockEvent, max_attendees: 100, attendee_count: 95 };
 		render(EventQuickInfo, { props: { event: nearCapacityEvent } });
 
-		expect(screen.getByText('95 / 100 spots taken')).toBeInTheDocument();
-		expect(screen.getByText('Limited spots remaining')).toBeInTheDocument();
+		expect(screen.getByText('95 / 100 vagas ocupadas')).toBeInTheDocument();
+		expect(screen.getByText('Vagas limitadas restantes')).toBeInTheDocument();
 	});
 
-	it('displays RSVP deadline when rsvp_before is set', () => {
+	it('displays RSVP deadline when rsvp_before is in the future', () => {
+		const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+		render(EventQuickInfo, { props: { event: { ...mockEvent, rsvp_before: future } } });
+		expect(screen.getByText(/Confirme até/i)).toBeInTheDocument();
+	});
+
+	it('shows RSVP closed when rsvp_before has passed', () => {
 		render(EventQuickInfo, { props: { event: mockEvent } });
-		expect(screen.getByText(/RSVP by/i)).toBeInTheDocument();
+		expect(screen.getByText('RSVP encerrado')).toBeInTheDocument();
 	});
 
 	it('does not display RSVP deadline when rsvp_before is not set', () => {
@@ -104,9 +114,10 @@ describe('EventQuickInfo', () => {
 	});
 
 	it('handles location without city', () => {
-		const eventWithoutCity = { ...mockEvent, city: null };
+		// Address wins over the TBD fallback, so drop both to hit it
+		const eventWithoutCity = { ...mockEvent, city: null, address: null };
 		render(EventQuickInfo, { props: { event: eventWithoutCity } });
-		expect(screen.getByText('Location TBD')).toBeInTheDocument();
+		expect(screen.getByText('Local a definir')).toBeInTheDocument();
 	});
 
 	it('handles city without country', () => {
@@ -145,7 +156,7 @@ describe('EventQuickInfo', () => {
 		render(EventQuickInfo, { props: { event: mockEvent } });
 
 		// Check for list structure
-		const list = screen.getByRole('list', { name: /event quick information/i });
+		const list = screen.getByRole('list', { name: /Informações rápidas do evento/i });
 		expect(list).toBeInTheDocument();
 
 		// Check for list items

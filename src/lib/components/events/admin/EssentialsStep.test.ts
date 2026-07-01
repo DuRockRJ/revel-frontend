@@ -1,11 +1,29 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi } from 'vitest';
+import { QueryClient } from '@tanstack/svelte-query';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 import EssentialsStep from './EssentialsStep.svelte';
 
-// Mock CityAutocomplete
-vi.mock('$lib/components/forms/CityAutocomplete.svelte', () => ({
-	default: vi.fn()
+// The slug editor uses createMutation + the auth store
+vi.mock('$lib/api/generated/sdk.gen', () => ({
+	eventadmincoreEditSlug: vi.fn()
 }));
+vi.mock('$lib/stores/auth.svelte', () => ({
+	authStore: { accessToken: 'test-token' as string | null }
+}));
+
+function renderStep(props: Record<string, unknown>) {
+	const queryClient = new QueryClient({
+		defaultOptions: { queries: { retry: false }, mutations: { retry: false } }
+	});
+	return render(QueryClientTestWrapper, {
+		props: { client: queryClient, component: EssentialsStep, props }
+	});
+}
 
 describe('EssentialsStep', () => {
 	const mockProps = {
@@ -25,36 +43,29 @@ describe('EssentialsStep', () => {
 	};
 
 	it('renders all required fields', () => {
-		render(EssentialsStep, { props: mockProps });
+		renderStep(mockProps);
 
-		expect(screen.getByLabelText(/Event Name/i)).toBeInTheDocument();
-		expect(screen.getByLabelText(/Start Date & Time/i)).toBeInTheDocument();
-		expect(screen.getByText(/City/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/Nome do evento/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/Data e horário de início/i)).toBeInTheDocument();
+		// City selection moved to step 2 (venue/location), so it's not asserted here
 	});
 
 	it('calls onUpdate when name input changes', async () => {
 		const onUpdate = vi.fn();
-		render(EssentialsStep, {
-			props: {
-				...mockProps,
-				onUpdate
-			}
-		});
+		renderStep({ ...mockProps, onUpdate });
 
-		const nameInput = screen.getByLabelText(/Event Name/i);
+		const nameInput = screen.getByLabelText(/Nome do evento/i);
 		await fireEvent.input(nameInput, { target: { value: 'Test Event' } });
 
 		expect(onUpdate).toHaveBeenCalledWith({ name: 'Test Event' });
 	});
 
 	it('displays validation errors', () => {
-		render(EssentialsStep, {
-			props: {
-				...mockProps,
-				validationErrors: {
-					name: 'Name is required',
-					start: 'Start date is required'
-				}
+		renderStep({
+			...mockProps,
+			validationErrors: {
+				name: 'Name is required',
+				start: 'Start date is required'
 			}
 		});
 
@@ -63,34 +74,29 @@ describe('EssentialsStep', () => {
 	});
 
 	it('shows all visibility options', () => {
-		render(EssentialsStep, { props: mockProps });
+		renderStep(mockProps);
 
-		expect(screen.getByText('Public')).toBeInTheDocument();
 		// Renders for both visibility and event_type radios
-		expect(screen.getAllByText('Invitation only').length).toBeGreaterThan(0);
-		expect(screen.getAllByText('Organization members only').length).toBeGreaterThan(0);
-		expect(screen.getByText('Staff Only')).toBeInTheDocument();
+		expect(screen.getAllByText('Público').length).toBeGreaterThan(0);
+		expect(screen.getAllByText('Somente por convite').length).toBeGreaterThan(0);
+		expect(screen.getAllByText(/Somente membros da organização/).length).toBeGreaterThan(0);
+		expect(screen.getByText('Somente equipe')).toBeInTheDocument();
 	});
 
 	it('calls onSubmit when form is submitted', async () => {
 		const onSubmit = vi.fn();
-		render(EssentialsStep, {
-			props: {
-				...mockProps,
-				onSubmit
-			}
-		});
+		renderStep({ ...mockProps, onSubmit });
 
-		const form = screen.getByRole('button', { name: /Create Event/i }).closest('form');
+		const form = screen.getByRole('button', { name: /Criar evento/i }).closest('form');
 		await fireEvent.submit(form!);
 
 		expect(onSubmit).toHaveBeenCalled();
 	});
 
 	it('is keyboard accessible', () => {
-		render(EssentialsStep, { props: mockProps });
+		renderStep(mockProps);
 
-		const nameInput = screen.getByLabelText(/Event Name/i);
+		const nameInput = screen.getByLabelText(/Nome do evento/i);
 		nameInput.focus();
 		expect(document.activeElement).toBe(nameInput);
 	});

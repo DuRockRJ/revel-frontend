@@ -1,13 +1,21 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+import { QueryClient } from '@tanstack/svelte-query';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 import NotificationPreferencesForm from './NotificationPreferencesForm.svelte';
 import type { NotificationPreferenceSchema } from '$lib/api/generated/types.gen.js';
 
-// Mock the API
+// Mock the API (everything the component pulls from the barrel)
 vi.mock('$lib/api', () => ({
-	notificationpreferenceUpdatePreferences: vi.fn()
+	notificationpreferenceUpdatePreferences: vi.fn(),
+	notificationpreferenceGetAvailableNotificationTypes: vi.fn().mockResolvedValue({ data: [] }),
+	notificationpreferenceUnsubscribe: vi.fn(),
+	telegramGetLinkStatus: vi.fn().mockResolvedValue({ data: { linked: false } })
 }));
 
 // Mock svelte-sonner
@@ -39,169 +47,112 @@ describe('NotificationPreferencesForm', () => {
 		vi.clearAllMocks();
 	});
 
-	it('renders all form sections', () => {
-		render(QueryClientProvider, {
+	function renderForm(props: Record<string, unknown> = {}) {
+		return render(QueryClientTestWrapper, {
 			props: {
 				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
+				component: NotificationPreferencesForm,
+				props: {
 					preferences: mockPreferences,
-					authToken: 'test-token'
+					authToken: 'test-token',
+					...props
 				}
 			}
 		});
+	}
 
-		expect(screen.getByText('Master Controls')).toBeInTheDocument();
-		expect(screen.getByText('Notification Channels')).toBeInTheDocument();
-		expect(screen.getByText('Digest Settings')).toBeInTheDocument();
-		expect(screen.getByText('Privacy Settings')).toBeInTheDocument();
+	it('renders all form sections', () => {
+		renderForm();
+
+		expect(screen.getByText('Controles principais')).toBeInTheDocument();
+		expect(screen.getByText('Canais de notificação')).toBeInTheDocument();
+		expect(screen.getByText('Configurações de resumo')).toBeInTheDocument();
 	});
 
 	it('displays current preferences correctly', () => {
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: mockPreferences,
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm();
 
 		// Check silence all is not checked
 		const silenceAllCheckbox = screen.getByRole('checkbox', {
-			name: /silence all notifications/i
+			name: 'Silenciar todas as notificações'
 		});
 		expect(silenceAllCheckbox).not.toBeChecked();
 
 		// Check event reminders is checked
-		const eventRemindersCheckbox = screen.getByRole('checkbox', { name: /event reminders/i });
+		const eventRemindersCheckbox = screen.getByRole('checkbox', {
+			name: 'Lembretes de eventos'
+		});
 		expect(eventRemindersCheckbox).toBeChecked();
 
 		// Check in-app channel is enabled
-		const inAppCheckbox = screen.getByRole('checkbox', { name: /enable in-app notifications/i });
+		const inAppCheckbox = screen.getByRole('checkbox', { name: 'No aplicativo' });
 		expect(inAppCheckbox).toBeChecked();
 
 		// Check email channel is enabled
-		const emailCheckbox = screen.getByRole('checkbox', { name: /enable email notifications/i });
+		const emailCheckbox = screen.getByRole('checkbox', { name: 'E-mail' });
 		expect(emailCheckbox).toBeChecked();
 	});
 
 	it('disables all controls when silence_all is enabled', async () => {
 		const user = userEvent.setup();
-
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: mockPreferences,
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm();
 
 		const silenceAllCheckbox = screen.getByRole('checkbox', {
-			name: /silence all notifications/i
+			name: 'Silenciar todas as notificações'
 		});
 
 		// Enable silence all
 		await user.click(silenceAllCheckbox);
 
 		// Check that other controls are disabled
-		const eventRemindersCheckbox = screen.getByRole('checkbox', { name: /event reminders/i });
-		expect(eventRemindersCheckbox).toBeDisabled();
-
-		const inAppCheckbox = screen.getByRole('checkbox', { name: /enable in-app notifications/i });
-		expect(inAppCheckbox).toBeDisabled();
+		await waitFor(() => {
+			expect(screen.getByRole('checkbox', { name: 'Lembretes de eventos' })).toBeDisabled();
+			expect(screen.getByRole('checkbox', { name: 'No aplicativo' })).toBeDisabled();
+		});
 	});
 
 	it('shows time picker only for daily and weekly digest frequencies', async () => {
 		const user = userEvent.setup();
-
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: { ...mockPreferences, digest_frequency: 'immediate' },
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm({ preferences: { ...mockPreferences, digest_frequency: 'immediate' } });
 
 		// Time picker should not be visible for immediate
-		expect(screen.queryByLabelText('Send time')).not.toBeInTheDocument();
+		expect(screen.queryByLabelText('Horário de envio')).not.toBeInTheDocument();
 
-		// Change to daily
-		const frequencySelect = screen.getByRole('combobox', { name: /digest frequency/i });
-		await user.click(frequencySelect);
-
-		const dailyOption = screen.getByRole('option', { name: /daily/i });
-		await user.click(dailyOption);
+		// Change to daily (frequency is a radio group)
+		await user.click(screen.getByRole('radio', { name: 'Diário' }));
 
 		// Time picker should now be visible
 		await waitFor(() => {
-			expect(screen.getByLabelText('Send time')).toBeInTheDocument();
+			expect(screen.getByLabelText('Horário de envio')).toBeInTheDocument();
 		});
 	});
 
 	it('validates that at least one channel is selected', async () => {
 		const user = userEvent.setup();
-
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: mockPreferences,
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm();
 
 		// Uncheck all channels
-		const inAppCheckbox = screen.getByRole('checkbox', { name: /enable in-app notifications/i });
-		const emailCheckbox = screen.getByRole('checkbox', { name: /enable email notifications/i });
+		await user.click(screen.getByRole('checkbox', { name: 'No aplicativo' }));
+		await user.click(screen.getByRole('checkbox', { name: 'E-mail' }));
 
-		await user.click(inAppCheckbox);
-		await user.click(emailCheckbox);
-
-		// Try to save
-		const saveButton = screen.getByRole('button', { name: /save preferences/i });
-		await user.click(saveButton);
-
-		// Should show validation error
+		// Inline validation error appears and save is blocked
 		await waitFor(() => {
-			expect(
-				screen.getByText(/please select at least one notification channel/i)
-			).toBeInTheDocument();
+			expect(screen.getByText('Selecione pelo menos um canal de notificação')).toBeInTheDocument();
 		});
+		expect(screen.getByRole('button', { name: 'Salvar alterações' })).toBeDisabled();
 	});
 
 	it('enables save button when changes are made', async () => {
 		const user = userEvent.setup();
+		renderForm();
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: mockPreferences,
-					authToken: 'test-token'
-				}
-			}
-		});
-
-		const saveButton = screen.getByRole('button', { name: /save preferences/i });
+		const saveButton = screen.getByRole('button', { name: 'Salvar alterações' });
 
 		// Initially disabled (no changes)
 		expect(saveButton).toBeDisabled();
 
 		// Make a change
-		const eventRemindersCheckbox = screen.getByRole('checkbox', { name: /event reminders/i });
-		await user.click(eventRemindersCheckbox);
+		await user.click(screen.getByRole('checkbox', { name: 'Lembretes de eventos' }));
 
 		// Save button should now be enabled
 		await waitFor(() => {
@@ -218,27 +169,15 @@ describe('NotificationPreferencesForm', () => {
 			data: { ...mockPreferences, event_reminders_enabled: false },
 			error: undefined,
 			response: {} as Response
-		});
+		} as never);
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: mockPreferences,
-					onSave: mockOnSave,
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm({ onSave: mockOnSave });
 
 		// Make a change
-		const eventRemindersCheckbox = screen.getByRole('checkbox', { name: /event reminders/i });
-		await user.click(eventRemindersCheckbox);
+		await user.click(screen.getByRole('checkbox', { name: 'Lembretes de eventos' }));
 
 		// Save
-		const saveButton = screen.getByRole('button', { name: /save preferences/i });
-		await user.click(saveButton);
+		await user.click(screen.getByRole('button', { name: 'Salvar alterações' }));
 
 		// Wait for mutation to complete
 		await waitFor(() => {
@@ -250,30 +189,21 @@ describe('NotificationPreferencesForm', () => {
 		});
 	});
 
-	it('resets changes when reset button is clicked', async () => {
+	it('resets changes when the cancel button is clicked', async () => {
 		const user = userEvent.setup();
-
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: mockPreferences,
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm();
 
 		// Make a change
-		const eventRemindersCheckbox = screen.getByRole('checkbox', { name: /event reminders/i });
+		const eventRemindersCheckbox = screen.getByRole('checkbox', {
+			name: 'Lembretes de eventos'
+		});
 		await user.click(eventRemindersCheckbox);
 
 		// Checkbox should be unchecked
 		expect(eventRemindersCheckbox).not.toBeChecked();
 
-		// Click reset
-		const resetButton = screen.getByRole('button', { name: /reset changes/i });
-		await user.click(resetButton);
+		// Click reset ("Cancelar" restores the last saved preferences)
+		await user.click(screen.getByRole('button', { name: 'Cancelar' }));
 
 		// Checkbox should be checked again (back to original state)
 		await waitFor(() => {
@@ -283,27 +213,19 @@ describe('NotificationPreferencesForm', () => {
 
 	it('is keyboard accessible', async () => {
 		const user = userEvent.setup();
-
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: mockPreferences,
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm();
 
 		// Tab through form elements
 		await user.tab();
-		expect(screen.getByRole('checkbox', { name: /silence all notifications/i })).toHaveFocus();
+		expect(screen.getByRole('checkbox', { name: 'Silenciar todas as notificações' })).toHaveFocus();
 
 		await user.tab();
-		expect(screen.getByRole('checkbox', { name: /event reminders/i })).toHaveFocus();
+		const eventRemindersCheckbox = screen.getByRole('checkbox', {
+			name: 'Lembretes de eventos'
+		});
+		expect(eventRemindersCheckbox).toHaveFocus();
 
 		// Test keyboard interaction with checkbox
-		const eventRemindersCheckbox = screen.getByRole('checkbox', { name: /event reminders/i });
 		await user.keyboard(' '); // Space to toggle
 		expect(eventRemindersCheckbox).not.toBeChecked();
 
@@ -312,38 +234,23 @@ describe('NotificationPreferencesForm', () => {
 	});
 
 	it('handles disabled prop correctly', () => {
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: mockPreferences,
-					disabled: true,
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm({ disabled: true });
 
 		// All interactive elements should be disabled
-		expect(screen.getByRole('checkbox', { name: /silence all notifications/i })).toBeDisabled();
-		expect(screen.getByRole('checkbox', { name: /event reminders/i })).toBeDisabled();
-		expect(screen.getByRole('button', { name: /save preferences/i })).toBeDisabled();
+		expect(
+			screen.getByRole('checkbox', { name: 'Silenciar todas as notificações' })
+		).toBeDisabled();
+		expect(screen.getByRole('checkbox', { name: 'Lembretes de eventos' })).toBeDisabled();
+		expect(screen.getByRole('button', { name: 'Salvar alterações' })).toBeDisabled();
 	});
 
 	it('handles null preferences gracefully', () => {
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationPreferencesForm,
-				childProps: {
-					preferences: null,
-					authToken: 'test-token'
-				}
-			}
-		});
+		renderForm({ preferences: null });
 
 		// Should render with default values
-		expect(screen.getByText('Master Controls')).toBeInTheDocument();
-		expect(screen.getByRole('checkbox', { name: /silence all notifications/i })).not.toBeChecked();
+		expect(screen.getByText('Controles principais')).toBeInTheDocument();
+		expect(
+			screen.getByRole('checkbox', { name: 'Silenciar todas as notificações' })
+		).not.toBeChecked();
 	});
 });

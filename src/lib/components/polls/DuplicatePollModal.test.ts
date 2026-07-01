@@ -1,3 +1,7 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -64,13 +68,15 @@ describe('DuplicatePollModal', () => {
 		renderModal();
 		await waitFor(() => expect(pollGetPoll).toHaveBeenCalled());
 		await waitFor(() =>
-			expect(screen.getByRole('button', { name: /^duplicate$/i })).not.toBeDisabled()
+			expect(screen.getByRole('button', { name: /^duplicar$/i })).not.toBeDisabled()
 		);
-		const input = screen.getByLabelText(/new poll name/i) as HTMLInputElement;
-		expect(input.value).toBe('Copy of Weekly vote');
+		const input = screen.getByLabelText(/novo nome da enquete/i) as HTMLInputElement;
+		expect(input.value).toBe('Cópia de Weekly vote');
 		// Anonymity checkboxes reflect the fetched template values (both false here).
-		expect((screen.getByLabelText(/from staff/i) as HTMLInputElement).checked).toBe(false);
-		expect((screen.getByLabelText(/from voters/i) as HTMLInputElement).checked).toBe(false);
+		expect((screen.getByLabelText(/da equipe/i) as HTMLInputElement).checked).toBe(false);
+		expect((screen.getByLabelText(/dos próprios eleitores/i) as HTMLInputElement).checked).toBe(
+			false
+		);
 	});
 
 	it('seeds non-trivial anonymity values from the fetched poll', async () => {
@@ -83,10 +89,10 @@ describe('DuplicatePollModal', () => {
 		renderModal();
 		await waitFor(() => expect(pollGetPoll).toHaveBeenCalled());
 		await waitFor(() =>
-			expect((screen.getByLabelText(/from staff/i) as HTMLInputElement).checked).toBe(true)
+			expect((screen.getByLabelText(/da equipe/i) as HTMLInputElement).checked).toBe(true)
 		);
 		// private visibility ⇒ public-anonymous is NOT forced, stays as the template's false
-		const publicCheckbox = screen.getByLabelText(/from voters/i) as HTMLInputElement;
+		const publicCheckbox = screen.getByLabelText(/dos próprios eleitores/i) as HTMLInputElement;
 		expect(publicCheckbox.checked).toBe(false);
 		expect(publicCheckbox.disabled).toBe(false);
 	});
@@ -96,15 +102,15 @@ describe('DuplicatePollModal', () => {
 		const { onClose } = renderModal();
 		await waitFor(() => expect(pollGetPoll).toHaveBeenCalled());
 		await waitFor(() =>
-			expect(screen.getByRole('button', { name: /^duplicate$/i })).not.toBeDisabled()
+			expect(screen.getByRole('button', { name: /^duplicar$/i })).not.toBeDisabled()
 		);
 
-		await user.click(screen.getByRole('button', { name: /^duplicate$/i }));
+		await user.click(screen.getByRole('button', { name: /^duplicar$/i }));
 
 		await waitFor(() =>
 			expect(pollDuplicatePollAction).toHaveBeenCalledWith({
 				path: { poll_id: 'p1' },
-				body: { name: 'Copy of Weekly vote', staff_anonymous: false, public_anonymous: false },
+				body: { name: 'Cópia de Weekly vote', staff_anonymous: false, public_anonymous: false },
 				headers: { Authorization: 'Bearer test-token' }
 			})
 		);
@@ -122,7 +128,7 @@ describe('DuplicatePollModal', () => {
 		renderModal();
 		await waitFor(() => expect(pollGetPoll).toHaveBeenCalled());
 
-		const publicCheckbox = screen.getByLabelText(/from voters/i) as HTMLInputElement;
+		const publicCheckbox = screen.getByLabelText(/dos próprios eleitores/i) as HTMLInputElement;
 		await waitFor(() => {
 			expect(publicCheckbox.checked).toBe(true);
 			expect(publicCheckbox.disabled).toBe(true);
@@ -134,13 +140,13 @@ describe('DuplicatePollModal', () => {
 		renderModal();
 		await waitFor(() => expect(pollGetPoll).toHaveBeenCalled());
 		await waitFor(() =>
-			expect(screen.getByRole('button', { name: /^duplicate$/i })).not.toBeDisabled()
+			expect(screen.getByRole('button', { name: /^duplicar$/i })).not.toBeDisabled()
 		);
-		await user.clear(screen.getByLabelText(/new poll name/i));
-		await user.click(screen.getByRole('button', { name: /^duplicate$/i }));
+		await user.clear(screen.getByLabelText(/novo nome da enquete/i));
+		await user.click(screen.getByRole('button', { name: /^duplicar$/i }));
 
 		expect(pollDuplicatePollAction).not.toHaveBeenCalled();
-		expect(screen.getByRole('alert')).toHaveTextContent(/required/i);
+		expect(screen.getByRole('alert')).toHaveTextContent(/obrigatório/i);
 	});
 
 	it('shows an inline error when the template fetch fails', async () => {
@@ -149,7 +155,7 @@ describe('DuplicatePollModal', () => {
 		} as unknown as Awaited<ReturnType<typeof pollGetPoll>>);
 		renderModal();
 
-		await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/failed to load/i));
+		await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/falha ao carregar/i));
 		expect(pollDuplicatePollAction).not.toHaveBeenCalled();
 	});
 });

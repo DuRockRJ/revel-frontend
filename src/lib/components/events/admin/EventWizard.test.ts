@@ -1,3 +1,7 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi } from 'vitest';
 import EventWizard from './EventWizard.svelte';
@@ -28,7 +32,16 @@ vi.mock('$lib/api/generated/sdk.gen', () => ({
 	organizationadmincoreCreateEvent: vi.fn(),
 	eventadmincoreUpdateEvent: vi.fn(),
 	eventadmincoreUploadLogo: vi.fn(),
-	eventadmincoreUploadCoverArt: vi.fn()
+	eventadmincoreUploadCoverArt: vi.fn(),
+	eventpublicdetailsListResources: vi.fn().mockResolvedValue({ data: { results: [] } }),
+	organizationadminresourcesGetResource: vi.fn().mockResolvedValue({ data: null }),
+	organizationadminresourcesUpdateResource: vi.fn(),
+	questionnaireListOrgQuestionnaires: vi.fn().mockResolvedValue({ data: { results: [] } }),
+	eventadmincoreAddTags: vi.fn(),
+	eventadmincoreRemoveTags: vi.fn(),
+	eventadmincoreDeleteLogo: vi.fn(),
+	eventadmincoreDeleteCoverArt: vi.fn(),
+	eventadmincoreEditSlug: vi.fn()
 }));
 
 const mockOrganization: OrganizationRetrieveSchema = {
@@ -53,8 +66,8 @@ describe('EventWizard', () => {
 			}
 		});
 
-		expect(screen.getByText('Create New Event')).toBeInTheDocument();
-		expect(screen.getByText(/Start with the essentials/i)).toBeInTheDocument();
+		expect(screen.getByText('Criar novo evento')).toBeInTheDocument();
+		expect(screen.getByText(/Comece com o essencial/i)).toBeInTheDocument();
 	});
 
 	it('displays step indicators', () => {
@@ -105,7 +118,7 @@ describe('EventWizard', () => {
 			}
 		});
 
-		expect(screen.getByText('Edit Event')).toBeInTheDocument();
+		expect(screen.getByText('Editar evento')).toBeInTheDocument();
 	});
 
 	it('is keyboard accessible', () => {
@@ -116,7 +129,7 @@ describe('EventWizard', () => {
 		});
 
 		// Check that form inputs are accessible
-		const nameInput = screen.getByLabelText(/Event Name/i);
+		const nameInput = screen.getByLabelText(/Nome do evento/i);
 		expect(nameInput).toBeInTheDocument();
 		nameInput.focus();
 		expect(document.activeElement).toBe(nameInput);

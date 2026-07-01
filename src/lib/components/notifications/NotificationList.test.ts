@@ -1,10 +1,15 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { userEvent } from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+import { QueryClient } from '@tanstack/svelte-query';
 import NotificationList from './NotificationList.svelte';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 import type { NotificationSchema } from '$lib/api/generated/types.gen';
+import { notificationListNotifications, notificationMarkAllRead } from '$lib/api/generated';
 
 // Mock API functions
 vi.mock('$lib/api/generated', () => ({
@@ -71,42 +76,40 @@ describe('NotificationList', () => {
 	});
 
 	function renderComponent(props: { authToken: string; compact?: boolean; maxItems?: number }) {
-		return render(QueryClientProvider, {
+		return render(QueryClientTestWrapper, {
 			props: {
 				client: queryClient,
-				children: NotificationList as any,
-				childProps: props
+				component: NotificationList,
+				props
 			}
 		});
 	}
 
 	it('renders with loading state initially', () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
 		// Should show loading skeletons
-		expect(screen.getByRole('status', { name: /loading notifications/i })).toBeInTheDocument();
+		expect(screen.getByRole('status', { name: /carregando notificações/i })).toBeInTheDocument();
 	});
 
 	it('displays notifications after loading', async () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -119,34 +122,32 @@ describe('NotificationList', () => {
 	});
 
 	it('shows empty state when no notifications', async () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 0,
 				next: null,
 				previous: null,
 				results: []
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
 		await waitFor(() => {
-			expect(screen.getByText(/no notifications yet/i)).toBeInTheDocument();
+			expect(screen.getByText(/ainda não há notificações/i)).toBeInTheDocument();
 		});
 	});
 
 	it('toggles unread filter', async () => {
 		const user = userEvent.setup();
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -163,15 +164,14 @@ describe('NotificationList', () => {
 	});
 
 	it('displays mark all as read button when there are unread notifications', async () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -180,26 +180,22 @@ describe('NotificationList', () => {
 		});
 
 		// Should show mark all as read button
-		expect(screen.getByRole('button', { name: /mark all as read/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /marcar todas como lidas/i })).toBeInTheDocument();
 	});
 
 	it('calls mark all as read mutation when button clicked', async () => {
 		const user = userEvent.setup();
-		const {
-			notificationListNotifications,
-			notificationMarkAllRead
-		} = require('$lib/api/generated');
 
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
-		notificationMarkAllRead.mockResolvedValue({ data: {} });
+		vi.mocked(notificationMarkAllRead).mockResolvedValue({ data: {} } as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -207,7 +203,7 @@ describe('NotificationList', () => {
 			expect(screen.getByText('Event Invitation')).toBeInTheDocument();
 		});
 
-		const markAllButton = screen.getByRole('button', { name: /mark all as read/i });
+		const markAllButton = screen.getByRole('button', { name: /marcar todas como lidas/i });
 		await user.click(markAllButton);
 
 		// Should call the API
@@ -218,16 +214,18 @@ describe('NotificationList', () => {
 		});
 	});
 
+	// Pre-existing bug, unrelated to i18n: the "view all" link is rendered by the
+	// parent NotificationDropdown.svelte, not by NotificationList.svelte itself —
+	// NotificationList's compact branch has no such link/text.
 	it('renders in compact mode with limited items', async () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 10,
 				next: null,
 				previous: null,
 				results: mockNotifications.slice(0, 3)
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token', compact: true, maxItems: 3 });
 
@@ -235,23 +233,21 @@ describe('NotificationList', () => {
 			expect(screen.getByText('Event Invitation')).toBeInTheDocument();
 		});
 
-		// Should show "View all" link in compact mode
-		expect(screen.getByText(/view all/i)).toBeInTheDocument();
-
-		// Should not show pagination in compact mode
-		expect(screen.queryByRole('navigation', { name: /pagination/i })).not.toBeInTheDocument();
+		// The "view all" link lives in NotificationDropdown, not here; compact
+		// mode just caps the items and drops filters/pagination.
+		expect(screen.queryByRole('navigation', { name: /paginação/i })).not.toBeInTheDocument();
+		expect(screen.queryByText('Todos os tipos')).not.toBeInTheDocument();
 	});
 
 	it('shows pagination when there are multiple pages', async () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 50, // More than one page
 				next: 'http://api.example.com/notifications?page=2',
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -260,21 +256,20 @@ describe('NotificationList', () => {
 		});
 
 		// Should show pagination
-		expect(screen.getByRole('navigation', { name: /pagination/i })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /next page/i })).toBeInTheDocument();
+		expect(screen.getByRole('navigation', { name: /paginação/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /próxima página/i })).toBeInTheDocument();
 	});
 
 	it('is keyboard accessible', async () => {
 		const user = userEvent.setup();
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -293,29 +288,27 @@ describe('NotificationList', () => {
 	});
 
 	it('handles API errors gracefully', async () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockRejectedValue(new Error('Network error'));
+		vi.mocked(notificationListNotifications).mockRejectedValue(new Error('Network error'));
 
 		renderComponent({ authToken: 'test-token' });
 
 		await waitFor(() => {
-			expect(screen.getByText(/failed to load notifications/i)).toBeInTheDocument();
+			expect(screen.getByText(/falha ao carregar as notificações/i)).toBeInTheDocument();
 		});
 
 		// Should show retry button
-		expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /tentar novamente/i })).toBeInTheDocument();
 	});
 
 	it('has proper ARIA labels', async () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -324,23 +317,22 @@ describe('NotificationList', () => {
 		});
 
 		// Should have region with aria-label
-		expect(screen.getByRole('region', { name: /notifications/i })).toBeInTheDocument();
+		expect(screen.getByRole('region', { name: /notificações/i })).toBeInTheDocument();
 
 		// Should have aria-live for updates
-		const region = screen.getByRole('region', { name: /notifications/i });
+		const region = screen.getByRole('region', { name: /notificações/i });
 		expect(region).toHaveAttribute('aria-live', 'polite');
 	});
 
 	it('shows notification count badge', async () => {
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -349,20 +341,18 @@ describe('NotificationList', () => {
 		});
 
 		// Should show count badge
-		expect(screen.getByText(/3 notifications/i)).toBeInTheDocument();
+		expect(screen.getByText(/3 notificações/i)).toBeInTheDocument();
 	});
 
 	it('filters by notification type', async () => {
-		const user = userEvent.setup();
-		const { notificationListNotifications } = require('$lib/api/generated');
-		notificationListNotifications.mockResolvedValue({
+		vi.mocked(notificationListNotifications).mockResolvedValue({
 			data: {
 				count: 3,
 				next: null,
 				previous: null,
 				results: mockNotifications
 			}
-		});
+		} as any);
 
 		renderComponent({ authToken: 'test-token' });
 
@@ -370,8 +360,11 @@ describe('NotificationList', () => {
 			expect(screen.getByText('Event Invitation')).toBeInTheDocument();
 		});
 
-		// Should have type filter select
-		const selectTrigger = screen.getByRole('combobox');
+		// Should have type filter select. bits-ui v1.8's non-combo Select trigger
+		// renders as a <button aria-haspopup="listbox"> (no role="combobox" — that
+		// role is only set on the separate combo-input trigger variant), so query
+		// by the actual rendered role rather than the ARIA combobox pattern.
+		const selectTrigger = screen.getByRole('button', { name: /todos os tipos/i });
 		expect(selectTrigger).toBeInTheDocument();
 	});
 });

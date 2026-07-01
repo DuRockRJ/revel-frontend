@@ -1,3 +1,7 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen } from '@testing-library/svelte';
 import { describe, it, expect, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
@@ -23,11 +27,12 @@ describe('OrganizationFilters', () => {
 			}
 		});
 
-		expect(screen.getByRole('complementary', { name: 'Organization filters' })).toBeInTheDocument();
-		expect(screen.getByText('Filters')).toBeInTheDocument();
-		expect(screen.getByText('Sort Order')).toBeInTheDocument();
-		expect(screen.getByText('Search')).toBeInTheDocument();
-		expect(screen.getByText('Location')).toBeInTheDocument();
+		expect(
+			screen.getByRole('complementary', { name: 'Filtros de organização' })
+		).toBeInTheDocument();
+		expect(screen.getByText('Filtros')).toBeInTheDocument();
+		expect(screen.getByText('Ordenar por')).toBeInTheDocument();
+		expect(screen.getByText('Buscar')).toBeInTheDocument();
 		expect(screen.getByText('Tags')).toBeInTheDocument();
 	});
 
@@ -70,7 +75,7 @@ describe('OrganizationFilters', () => {
 			}
 		});
 
-		expect(screen.getByRole('button', { name: /clear all/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /limpar tudo/i })).toBeInTheDocument();
 	});
 
 	it('hides clear all button when no filters are active', () => {
@@ -85,7 +90,7 @@ describe('OrganizationFilters', () => {
 			}
 		});
 
-		expect(screen.queryByRole('button', { name: /clear all/i })).not.toBeInTheDocument();
+		expect(screen.queryByRole('button', { name: /limpar tudo/i })).not.toBeInTheDocument();
 	});
 
 	it('calls onClearFilters when clear all is clicked', async () => {
@@ -106,7 +111,7 @@ describe('OrganizationFilters', () => {
 			}
 		});
 
-		const clearButton = screen.getByRole('button', { name: /clear all/i });
+		const clearButton = screen.getByRole('button', { name: /limpar tudo/i });
 		await user.click(clearButton);
 
 		expect(onClearFilters).toHaveBeenCalledTimes(1);
@@ -125,7 +130,10 @@ describe('OrganizationFilters', () => {
 			}
 		});
 
-		// Tab through interactive elements
+		// Tab order: city input → sort-order info tooltip button → select
+		await user.tab();
+		expect(screen.getByLabelText('Buscar uma cidade')).toHaveFocus();
+		await user.tab();
 		await user.tab();
 		expect(screen.getByRole('combobox')).toHaveFocus(); // Order by select
 	});
@@ -148,6 +156,6 @@ describe('OrganizationFilters', () => {
 			}
 		});
 
-		expect(screen.getByText('2 filters applied')).toBeInTheDocument();
+		expect(screen.getByText('2 filtros aplicado(s)')).toBeInTheDocument();
 	});
 });

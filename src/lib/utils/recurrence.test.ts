@@ -8,6 +8,7 @@ import {
 	weekdayLabel
 } from './recurrence';
 import type { RecurrenceDescriptor } from '$lib/types/recurrence';
+import { formatDateLongMonth } from './date';
 
 const base = (overrides: Partial<RecurrenceDescriptor> = {}): RecurrenceDescriptor => ({
 	frequency: 'weekly',
@@ -213,7 +214,9 @@ describe('formatRecurrence — boundary suffix', () => {
 			// output); the boundary now routes through formatDateLongMonth from date.ts.
 			{ locale: 'en' }
 		);
-		expect(out).toBe('Every Monday until December 31, 2026');
+		// The rendered day depends on the machine's timezone (midnight UTC is still
+		// Dec 30 west of UTC), so assert against the same formatter the code uses.
+		expect(out).toBe(`Every Monday until ${formatDateLongMonth('2026-12-31T00:00:00Z')}`);
 	});
 
 	it('omits boundary when includeBoundary=false', () => {

@@ -66,6 +66,8 @@ describe('OrganizationOrderByFilter', () => {
 		});
 
 		const select = screen.getByRole('combobox');
+		// First tab stops on the info tooltip button before the select
+		await user.tab();
 		await user.tab();
 		expect(select).toHaveFocus();
 	});

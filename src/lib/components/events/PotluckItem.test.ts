@@ -41,7 +41,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn()
@@ -60,7 +60,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockOwnedItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn()
@@ -77,7 +77,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockClaimedByOther,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn()
@@ -99,7 +99,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim,
 				onUnclaim: vi.fn()
@@ -120,7 +120,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockOwnedItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim
@@ -138,7 +138,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: false,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn()
@@ -150,16 +150,11 @@ describe('PotluckItem', () => {
 		expect(screen.getByText('Confirme presença "Sim" para reservar')).toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: PotluckItem.svelte takes a
-	// `hasManagePermission` prop, not `isOrganizer` — these tests pass a prop
-	// the component doesn't read, so canEdit/canDelete stay false and the
-	// edit/delete buttons never render. Left failing/untouched per direction
-	// to only fix pure language mismatches.
-	it('shows organizer actions when isOrganizer is true', () => {
+	it('shows organizer actions when hasManagePermission is true', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: true,
+				hasManagePermission: true,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn(),
@@ -172,11 +167,11 @@ describe('PotluckItem', () => {
 		expect(screen.getByRole('button', { name: /delete pasta salad/i })).toBeInTheDocument();
 	});
 
-	it('hides organizer actions when isOrganizer is false', () => {
+	it('hides organizer actions when hasManagePermission is false', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn()
@@ -187,8 +182,6 @@ describe('PotluckItem', () => {
 		expect(screen.queryByRole('button', { name: /delete pasta salad/i })).not.toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: see note above (isOrganizer vs
-	// hasManagePermission) — the edit button never renders.
 	it('calls onEdit when edit button is clicked', async () => {
 		const user = userEvent.setup();
 		const onEdit = vi.fn();
@@ -196,7 +189,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: true,
+				hasManagePermission: true,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn(),
@@ -212,8 +205,6 @@ describe('PotluckItem', () => {
 		expect(onEdit).toHaveBeenCalledTimes(1);
 	});
 
-	// Pre-existing bug, unrelated to i18n: see note above (isOrganizer vs
-	// hasManagePermission) — the delete button never renders.
 	it('calls onDelete when delete button is clicked', async () => {
 		const user = userEvent.setup();
 		const onDelete = vi.fn();
@@ -221,7 +212,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: true,
+				hasManagePermission: true,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn(),
@@ -241,7 +232,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn()
@@ -255,7 +246,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockClaimedByOther,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn()
@@ -281,7 +272,7 @@ describe('PotluckItem', () => {
 			const { unmount } = render(PotluckItem, {
 				props: {
 					item: { ...mockItem, item_type },
-					isOrganizer: false,
+					hasManagePermission: false,
 					canClaim: true,
 					onClaim: vi.fn(),
 					onUnclaim: vi.fn()
@@ -293,8 +284,6 @@ describe('PotluckItem', () => {
 		});
 	});
 
-	// Pre-existing bug, unrelated to i18n: see note above (isOrganizer vs
-	// hasManagePermission) — tabbing never reaches an edit button.
 	it('is keyboard accessible', async () => {
 		const user = userEvent.setup();
 		const onClaim = vi.fn();
@@ -302,7 +291,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: true,
+				hasManagePermission: true,
 				canClaim: true,
 				onClaim,
 				onUnclaim: vi.fn(),
@@ -335,7 +324,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn()
@@ -353,7 +342,7 @@ describe('PotluckItem', () => {
 		render(PotluckItem, {
 			props: {
 				item: mockItem,
-				isOrganizer: false,
+				hasManagePermission: false,
 				canClaim: true,
 				onClaim: vi.fn(),
 				onUnclaim: vi.fn(),

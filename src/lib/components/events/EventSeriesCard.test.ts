@@ -1,5 +1,9 @@
+// $env/dynamic/public is a SvelteKit virtual module not available in jsdom.
+// Mock it so the $lib/utils barrel → $lib/config/api import chain doesn't fail.
+vi.mock('$env/dynamic/public', () => ({ env: { PUBLIC_API_URL: '' } }));
+
 import { render, screen } from '@testing-library/svelte';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import EventSeriesCard from './EventSeriesCard.svelte';
 import type { EventSeriesRetrieveSchema } from '$lib/api/generated/types.gen';
 
@@ -104,7 +108,7 @@ describe('EventSeriesCard', () => {
 		expect(screen.getByText('technology')).toBeInTheDocument();
 		expect(screen.getByText('web-development')).toBeInTheDocument();
 		expect(screen.getByText('software-engineering')).toBeInTheDocument();
-		expect(screen.getByText('+1 more')).toBeInTheDocument();
+		expect(screen.getByText('+1 mais')).toBeInTheDocument();
 	});
 
 	it('does not display tags in compact variant', () => {
@@ -126,7 +130,7 @@ describe('EventSeriesCard', () => {
 		});
 
 		const link = screen.getByLabelText(/tech talk series/i);
-		expect(link).toHaveAttribute('href', '/events/tech-community/tech-talk-series');
+		expect(link).toHaveAttribute('href', '/events/tech-community/series/tech-talk-series');
 	});
 
 	it('has accessible card label for screen readers', () => {
@@ -147,7 +151,7 @@ describe('EventSeriesCard', () => {
 			}
 		});
 
-		expect(screen.getByText('Series')).toBeInTheDocument();
+		expect(screen.getByText('Série')).toBeInTheDocument();
 	});
 
 	it('handles missing description gracefully', () => {

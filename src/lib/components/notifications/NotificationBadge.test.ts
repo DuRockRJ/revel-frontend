@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+import { QueryClient } from '@tanstack/svelte-query';
 import NotificationBadge from './NotificationBadge.svelte';
+import QueryClientTestWrapper from '$lib/test-utils/QueryClientTestWrapper.svelte';
 import * as api from '$lib/api/generated';
 
 // Mock the API
@@ -35,18 +36,14 @@ describe('NotificationBadge', () => {
 		queryClient.clear();
 	});
 
-	// Pre-existing bug, unrelated to i18n: QueryClientProvider.svelte renders its `children` prop
-	// via `{@render children()}`, expecting a Snippet. Passing `children: NotificationBadge as any`
-	// plus sibling props (authToken, etc.) invokes NotificationBadge as a snippet function with no
-	// arguments, so it never receives those props and $props() is undefined inside it.
-	it('renders badge with unread count', async () => {
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token'
-			}
+	function renderBadge(props: Record<string, unknown>) {
+		return render(QueryClientTestWrapper, {
+			props: { client: queryClient, component: NotificationBadge, props }
 		});
+	}
+
+	it('renders badge with unread count', async () => {
+		renderBadge({ authToken: 'test-token' });
 
 		await waitFor(() => {
 			expect(screen.getByRole('status')).toBeInTheDocument();
@@ -56,19 +53,12 @@ describe('NotificationBadge', () => {
 		expect(screen.getByLabelText('5 unread notifications')).toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('does not render badge when count is 0 by default', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 0 }
 		} as any);
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token'
-			}
-		});
+		renderBadge({ authToken: 'test-token' });
 
 		await waitFor(() => {
 			expect(api.notificationUnreadCount).toHaveBeenCalled();
@@ -77,20 +67,12 @@ describe('NotificationBadge', () => {
 		expect(screen.queryByRole('status')).not.toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('renders badge when count is 0 if showZero is true', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 0 }
 		} as any);
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token',
-				showZero: true
-			}
-		});
+		renderBadge({ authToken: 'test-token', showZero: true });
 
 		await waitFor(() => {
 			expect(screen.getByRole('status')).toBeInTheDocument();
@@ -99,20 +81,12 @@ describe('NotificationBadge', () => {
 		expect(screen.getByText('0')).toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('displays "99+" when count exceeds maxCount', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 150 }
 		} as any);
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token',
-				maxCount: 99
-			}
-		});
+		renderBadge({ authToken: 'test-token', maxCount: 99 });
 
 		await waitFor(() => {
 			expect(screen.getByText('99+')).toBeInTheDocument();
@@ -121,53 +95,30 @@ describe('NotificationBadge', () => {
 		expect(screen.getByLabelText('More than 99 unread notifications')).toBeInTheDocument();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('uses custom maxCount', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 60 }
 		} as any);
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token',
-				maxCount: 50
-			}
-		});
+		renderBadge({ authToken: 'test-token', maxCount: 50 });
 
 		await waitFor(() => {
 			expect(screen.getByText('50+')).toBeInTheDocument();
 		});
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('calls onCountChange callback when count changes', async () => {
 		const onCountChange = vi.fn();
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token',
-				onCountChange
-			}
-		});
+		renderBadge({ authToken: 'test-token', onCountChange });
 
 		await waitFor(() => {
 			expect(onCountChange).toHaveBeenCalledWith(5);
 		});
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('includes authorization header in API call', async () => {
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'my-secret-token'
-			}
-		});
+		renderBadge({ authToken: 'my-secret-token' });
 
 		await waitFor(() => {
 			expect(api.notificationUnreadCount).toHaveBeenCalledWith({
@@ -176,26 +127,24 @@ describe('NotificationBadge', () => {
 		});
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('handles API errors gracefully', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
 		vi.mocked(api.notificationUnreadCount).mockRejectedValue(new Error('Network error'));
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token'
-			}
-		});
+		renderBadge({ authToken: 'test-token' });
 
-		await waitFor(() => {
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				'[NotificationBadge] Failed to fetch unread count'
-			);
-		});
+		// The component's query retries once (retry: 1) before settling into an
+		// error state, so this needs more than waitFor's default 1000ms timeout.
+		await waitFor(
+			() => {
+				expect(consoleWarnSpy).toHaveBeenCalledWith(
+					'[NotificationBadge] Failed to fetch unread count'
+				);
+			},
+			{ timeout: 3000 }
+		);
 
 		// Badge should not be rendered on error
 		expect(screen.queryByRole('status')).not.toBeInTheDocument();
@@ -203,35 +152,20 @@ describe('NotificationBadge', () => {
 		consoleWarnSpy.mockRestore();
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('has correct ARIA labels for accessibility', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 1 }
 		} as any);
 
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token'
-			}
-		});
+		renderBadge({ authToken: 'test-token' });
 
 		await waitFor(() => {
 			expect(screen.getByLabelText('1 unread notification')).toBeInTheDocument();
 		});
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('applies custom className', async () => {
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token',
-				class: 'custom-badge-class'
-			}
-		});
+		renderBadge({ authToken: 'test-token', class: 'custom-badge-class' });
 
 		await waitFor(() => {
 			const badge = screen.getByRole('status');
@@ -239,15 +173,8 @@ describe('NotificationBadge', () => {
 		});
 	});
 
-	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('has role="status" and aria-live="polite"', async () => {
-		render(QueryClientProvider, {
-			props: {
-				client: queryClient,
-				children: NotificationBadge as any,
-				authToken: 'test-token'
-			}
-		});
+		renderBadge({ authToken: 'test-token' });
 
 		await waitFor(() => {
 			const badge = screen.getByRole('status');
