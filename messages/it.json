@@ -2040,7 +2040,7 @@
 		"unfollowError": "Impossibile smettere di seguire"
 	},
 	"footer": {
-		"aboutTitle": "Revel",
+		"aboutTitle": "DuRock RJ",
 		"aboutDescription": "Piattaforma open-source per la gestione di eventi e biglietteria per le community.",
 		"sendFeedback": "Invia Feedback",
 		"legalTitle": "Legale",
@@ -2155,7 +2155,7 @@
 		"useCaseCommunityDescription": "Costruisci community con livelli di membership, coordinamento potluck e altro."
 	},
 	"homePage": {
-		"revel": "Revel"
+		"revel": "DuRock RJ"
 	},
 	"imageCropper": {
 		"title": "Ritaglia immagine",

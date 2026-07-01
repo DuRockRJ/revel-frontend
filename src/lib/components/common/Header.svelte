@@ -62,7 +62,7 @@
 		<!-- Logo -->
 		<div class="flex items-center gap-6">
 			<a href="/" class="text-2xl font-bold text-primary transition-colors hover:text-primary/80">
-				Revel
+				DuRock RJ
 			</a>
 
 			<!-- Desktop Navigation -->

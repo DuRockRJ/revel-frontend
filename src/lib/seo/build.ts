@@ -128,7 +128,7 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 
 	switch (input.kind) {
 		case 'home': {
-			const title = 'Revel — Community-Focused Event Management';
+			const title = `${SITE_NAME} — Community-Focused Event Management`;
 			const description =
 				'Discover community events, connect with organizers, and create unforgettable experiences. Open-source event management and ticketing platform.';
 			return {

@@ -2040,7 +2040,7 @@
 		"unfollowError": "Failed to unfollow"
 	},
 	"footer": {
-		"aboutTitle": "Revel",
+		"aboutTitle": "DuRock RJ",
 		"aboutDescription": "Open-source, community-focused event management and ticketing platform.",
 		"sendFeedback": "Send Feedback",
 		"legalTitle": "Legal",
@@ -2155,7 +2155,7 @@
 		"useCaseCommunityDescription": "Build communities with membership tiers, potluck coordination, and more."
 	},
 	"homePage": {
-		"revel": "Revel"
+		"revel": "DuRock RJ"
 	},
 	"imageCropper": {
 		"title": "Crop Image",

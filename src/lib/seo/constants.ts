@@ -10,5 +10,5 @@ export const OG_LOCALE: Record<Lang, string> = {
 	fr: 'fr_FR'
 };
 
-export const SITE_NAME = 'Revel';
+export const SITE_NAME = 'DuRock RJ';
 export const TWITTER_SITE = '@letsrevel';

@@ -112,12 +112,12 @@
 							{currentLetter}
 						</span>
 					</span>
-					su <span class="revel-shine">Revel</span>
+					su <span class="revel-shine">DuRock RJ</span>
 				{:else}
 					<!-- Other languages using i18n.
 					     Rendered as real markup (not {@html}) so it re-renders on
 					     hydration and follows the active locale. See #505. -->
-					{m['home.welcomeTo']()} <span class="revel-shine">Revel</span>
+					{m['home.welcomeTo']()} <span class="revel-shine">DuRock RJ</span>
 				{/if}
 			</h1>
 			<p
