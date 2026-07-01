@@ -98,12 +98,12 @@ describe('SeriesActionSheet', () => {
 	it('shows the Resume label/icon when isPaused=true', () => {
 		render(SeriesActionSheet, { props: baseProps({ isPaused: true }) });
 		// The label text uses the resume copy when paused.
-		expect(screen.getByTestId('action-pause-resume').textContent).toMatch(/resume/i);
+		expect(screen.getByTestId('action-pause-resume').textContent).toMatch(/retomar/i);
 	});
 
 	it('shows the Pause label/icon when isPaused=false', () => {
 		render(SeriesActionSheet, { props: baseProps({ isPaused: false }) });
-		expect(screen.getByTestId('action-pause-resume').textContent).toMatch(/pause/i);
+		expect(screen.getByTestId('action-pause-resume').textContent).toMatch(/pausar/i);
 	});
 
 	it('fires onClose when the close (X) button is clicked', async () => {

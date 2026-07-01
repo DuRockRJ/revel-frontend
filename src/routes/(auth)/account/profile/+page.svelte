@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages.js';
-	import { setLocale } from '$lib/paraglide/runtime.js';
+	import { setLocale, locales } from '$lib/paraglide/runtime.js';
 	import { enhance, applyAction } from '$app/forms';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -267,9 +267,10 @@
 					if (user) {
 						authStore.setUser(user);
 					}
-					// Update locale immediately on successful save
-					if (user?.language) {
-						setLocale(user.language as 'en' | 'de' | 'it');
+					// Update locale immediately on successful save, if it's one the UI
+					// actually ships (pt) — the form can still store other legacy values.
+					if (user?.language && (locales as readonly string[]).includes(user.language)) {
+						setLocale(user.language as (typeof locales)[number]);
 					}
 					// Show success message by triggering a manual update with the result
 					// This will set the form prop without reloading

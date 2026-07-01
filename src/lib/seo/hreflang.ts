@@ -14,13 +14,13 @@ export function sameUrlHreflang(absoluteUrl: string): HreflangEntry[] {
 }
 
 /**
- * Per-locale URL prefixes for hand-rolled landing pages.
- * en is at root, de under /de, it under /it, fr under /fr, x-default = en.
+ * Single-language page with no alternates (e.g. the hand-rolled, untranslated
+ * marketing landing pages). Emits just the page's own lang tag plus x-default,
+ * both pointing at the same canonical URL.
  */
-export function landingPageHreflang(origin: string, slug: string): HreflangEntry[] {
-	const prefix: Record<Lang, string> = { en: '', de: '/de', it: '/it', fr: '/fr' };
+export function selfHreflang(lang: Lang, absoluteUrl: string): HreflangEntry[] {
 	return [
-		...LANGS.map((lang) => ({ lang, href: `${origin}${prefix[lang]}/${slug}` }) as HreflangEntry),
-		{ lang: X_DEFAULT, href: `${origin}/${slug}` }
+		{ lang, href: absoluteUrl },
+		{ lang: X_DEFAULT, href: absoluteUrl }
 	];
 }

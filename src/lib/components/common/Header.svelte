@@ -6,7 +6,6 @@
 	import UserMenu from './UserMenu.svelte';
 	import ThemeToggle from './ThemeToggle.svelte';
 	import AdminButton from './AdminButton.svelte';
-	import LanguageSwitcher from './LanguageSwitcher.svelte';
 	import { NotificationDropdown } from '$lib/components/notifications';
 	import * as m from '$lib/paraglide/messages.js';
 
@@ -19,14 +18,10 @@
 	const currentPath = $derived($page.url.pathname);
 
 	// Navigation items for public users - using translated strings
-	const publicNavItems = $derived([
-		{ href: '/events', label: m['nav.browseEvents']() },
-		{ href: '/organizations', label: m['nav.organizations']() }
-	]);
+	const publicNavItems = $derived([{ href: '/organizations', label: m['nav.organizations']() }]);
 
 	// Navigation items for authenticated users - using translated strings
 	const authNavItems = $derived([
-		{ href: '/events', label: m['nav.browseEvents']() },
 		{ href: '/organizations', label: m['nav.organizations']() },
 		{ href: '/dashboard/tickets', label: m['nav.myTickets']() },
 		{ href: '/dashboard/rsvps', label: m['nav.rsvps']() },
@@ -134,9 +129,6 @@
 			>
 				<Menu class="h-6 w-6" aria-hidden="true" />
 			</button>
-
-			<!-- Language Switcher (Rightmost) -->
-			<LanguageSwitcher />
 		</div>
 	</div>
 </header>

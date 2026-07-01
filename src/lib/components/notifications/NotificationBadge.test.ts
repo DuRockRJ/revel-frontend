@@ -35,6 +35,10 @@ describe('NotificationBadge', () => {
 		queryClient.clear();
 	});
 
+	// Pre-existing bug, unrelated to i18n: QueryClientProvider.svelte renders its `children` prop
+	// via `{@render children()}`, expecting a Snippet. Passing `children: NotificationBadge as any`
+	// plus sibling props (authToken, etc.) invokes NotificationBadge as a snippet function with no
+	// arguments, so it never receives those props and $props() is undefined inside it.
 	it('renders badge with unread count', async () => {
 		render(QueryClientProvider, {
 			props: {
@@ -52,6 +56,7 @@ describe('NotificationBadge', () => {
 		expect(screen.getByLabelText('5 unread notifications')).toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('does not render badge when count is 0 by default', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 0 }
@@ -72,6 +77,7 @@ describe('NotificationBadge', () => {
 		expect(screen.queryByRole('status')).not.toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('renders badge when count is 0 if showZero is true', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 0 }
@@ -93,6 +99,7 @@ describe('NotificationBadge', () => {
 		expect(screen.getByText('0')).toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('displays "99+" when count exceeds maxCount', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 150 }
@@ -114,6 +121,7 @@ describe('NotificationBadge', () => {
 		expect(screen.getByLabelText('More than 99 unread notifications')).toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('uses custom maxCount', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 60 }
@@ -133,6 +141,7 @@ describe('NotificationBadge', () => {
 		});
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('calls onCountChange callback when count changes', async () => {
 		const onCountChange = vi.fn();
 
@@ -150,6 +159,7 @@ describe('NotificationBadge', () => {
 		});
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('includes authorization header in API call', async () => {
 		render(QueryClientProvider, {
 			props: {
@@ -166,6 +176,7 @@ describe('NotificationBadge', () => {
 		});
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('handles API errors gracefully', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -192,6 +203,7 @@ describe('NotificationBadge', () => {
 		consoleWarnSpy.mockRestore();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('has correct ARIA labels for accessibility', async () => {
 		vi.mocked(api.notificationUnreadCount).mockResolvedValue({
 			data: { count: 1 }
@@ -210,6 +222,7 @@ describe('NotificationBadge', () => {
 		});
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('applies custom className', async () => {
 		render(QueryClientProvider, {
 			props: {
@@ -226,6 +239,7 @@ describe('NotificationBadge', () => {
 		});
 	});
 
+	// Pre-existing bug, unrelated to i18n: same broken children-as-snippet render pattern as above.
 	it('has role="status" and aria-live="polite"', async () => {
 		render(QueryClientProvider, {
 			props: {

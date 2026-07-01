@@ -16,9 +16,8 @@ function escapeXml(s: string): string {
 
 function alts(loc: string): string {
 	return (
-		['en', 'de', 'it', 'fr']
-			.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${escapeXml(loc)}"/>`)
-			.join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(loc)}"/>`
+		`<xhtml:link rel="alternate" hreflang="pt" href="${escapeXml(loc)}"/>` +
+		`<xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(loc)}"/>`
 	);
 }
 

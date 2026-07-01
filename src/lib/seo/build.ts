@@ -5,9 +5,9 @@ import type {
 	EventSeriesRetrieveSchema
 } from '$lib/api/generated/types.gen';
 import { getBackendUrl } from '$lib/config/api';
-import { LANGS, OG_LOCALE, SITE_NAME, TWITTER_SITE, type Lang } from './constants';
+import { OG_LOCALE, SITE_NAME, TWITTER_SITE, type Lang } from './constants';
 import type { SeoConfig } from './types';
-import { sameUrlHreflang, landingPageHreflang } from './hreflang';
+import { sameUrlHreflang, selfHreflang } from './hreflang';
 import {
 	generateEventJsonLd,
 	generateOrganizationJsonLd,
@@ -71,8 +71,10 @@ function stripHtml(html: string | null | undefined): string {
 		.trim();
 }
 
-function alternateLocales(lang: Lang): string[] {
-	return LANGS.filter((l) => l !== lang).map((l) => OG_LOCALE[l]);
+// Single-language site: every page has exactly one URL and one locale, so
+// there is never a genuine alternate-language version to advertise.
+function alternateLocales(_lang: Lang): string[] {
+	return [];
 }
 
 function getEventImage(event: EventDetailSchema): string | undefined {
@@ -378,7 +380,7 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 					image: defaultOgImage(origin),
 					site: TWITTER_SITE
 				},
-				hreflang: landingPageHreflang(origin, input.slug),
+				hreflang: selfHreflang(input.lang, canonical),
 				jsonLd: [
 					generateBreadcrumbJsonLd([
 						{ name: 'Home', url: origin },

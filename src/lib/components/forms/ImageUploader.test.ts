@@ -66,8 +66,8 @@ describe('ImageUploader', () => {
 			}
 		});
 
-		expect(screen.getByRole('button', { name: /upload image/i })).toBeInTheDocument();
-		expect(screen.getByText(/click to upload or drag and drop/i)).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /enviar imagem/i })).toBeInTheDocument();
+		expect(screen.getByText(/clique para enviar ou arraste e solte/i)).toBeInTheDocument();
 	});
 
 	it('shows preview when preview URL provided', () => {
@@ -78,7 +78,7 @@ describe('ImageUploader', () => {
 			}
 		});
 
-		const img = screen.getByAltText('Preview') as HTMLImageElement;
+		const img = screen.getByAltText('Pré-visualização') as HTMLImageElement;
 		expect(img).toBeInTheDocument();
 		expect(img.src).toBe('https://example.com/image.jpg');
 	});
@@ -96,7 +96,7 @@ describe('ImageUploader', () => {
 
 		const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
 		const input = screen
-			.getByLabelText('Upload image')
+			.getByLabelText('Enviar imagem')
 			.closest('div')
 			?.querySelector('input[type="file"]') as HTMLInputElement;
 
@@ -118,7 +118,7 @@ describe('ImageUploader', () => {
 
 		const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
 		const input = screen
-			.getByLabelText('Upload image')
+			.getByLabelText('Enviar imagem')
 			.closest('div')
 			?.querySelector('input[type="file"]') as HTMLInputElement;
 
@@ -146,7 +146,7 @@ describe('ImageUploader', () => {
 		const file = new File([largeContent], 'large.jpg', { type: 'image/jpeg' });
 
 		const input = screen
-			.getByLabelText('Upload image')
+			.getByLabelText('Enviar imagem')
 			.closest('div')
 			?.querySelector('input[type="file"]') as HTMLInputElement;
 
@@ -166,7 +166,7 @@ describe('ImageUploader', () => {
 			}
 		});
 
-		expect(screen.getByRole('button', { name: /remove image/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /remover imagem/i })).toBeInTheDocument();
 	});
 
 	it('removes image when remove button clicked', async () => {
@@ -181,7 +181,7 @@ describe('ImageUploader', () => {
 			}
 		});
 
-		const removeButton = screen.getByRole('button', { name: /remove image/i });
+		const removeButton = screen.getByRole('button', { name: /remover imagem/i });
 		await user.click(removeButton);
 
 		expect(handleFileSelect).toHaveBeenCalledWith(null);
@@ -195,7 +195,7 @@ describe('ImageUploader', () => {
 			}
 		});
 
-		const uploadArea = screen.getByRole('button', { name: /upload image/i });
+		const uploadArea = screen.getByRole('button', { name: /enviar imagem/i });
 		expect(uploadArea).toHaveClass('cursor-not-allowed');
 	});
 
@@ -208,7 +208,7 @@ describe('ImageUploader', () => {
 			}
 		});
 
-		const uploadArea = screen.getByRole('button', { name: /upload image/i });
+		const uploadArea = screen.getByRole('button', { name: /enviar imagem/i });
 
 		// Should be focusable
 		uploadArea.focus();

@@ -5,7 +5,7 @@ import {
 	accountMe,
 	permissionMyPermissions
 } from '$lib/api/client';
-import { setLocale } from '$lib/paraglide/runtime.js';
+import { setLocale, locales } from '$lib/paraglide/runtime.js';
 import { getImpersonationInfo, type ImpersonationInfo } from '$lib/utils/impersonation';
 
 /**
@@ -345,10 +345,11 @@ class AuthStore {
 
 			this._user = data;
 
-			// Set user's preferred language if available
-			if (data.language && ['en', 'de', 'it', 'fr'].includes(data.language)) {
-				console.log('[AUTH STORE] Setting user preferred language:', data.language);
-				setLocale(data.language as 'en' | 'de' | 'it' | 'fr');
+			// Set user's preferred language, if it's one the UI actually ships (pt).
+			// Accounts can still store other values (e.g. from before the app went
+			// pt-only); those are silently ignored here.
+			if (data.language && (locales as readonly string[]).includes(data.language)) {
+				setLocale(data.language as (typeof locales)[number]);
 			}
 		} catch (err) {
 			// Check if this is a network error (likely ad blocker)

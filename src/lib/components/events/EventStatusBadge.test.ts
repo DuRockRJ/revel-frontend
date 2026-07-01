@@ -55,6 +55,10 @@ describe('EventStatusBadge', () => {
 
 	describe('Cancelled Status', () => {
 		it('shows "Cancelled" when event status is rejected', () => {
+			// Pre-existing bug, unrelated to i18n: 'rejected' is not a valid EventStatus
+			// ('open' | 'closed' | 'draft' | 'cancelled'), so this never hits the
+			// component's cancelled branch. Left failing/untouched per direction to
+			// only fix pure language mismatches.
 			const event = createMockEvent({
 				status: 'rejected',
 				start: '2025-12-01T18:00:00Z',
@@ -79,7 +83,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Full');
+			expect(screen.getByRole('status')).toHaveTextContent('Lotado');
 			expect(screen.getByRole('status')).toHaveClass('bg-destructive');
 		});
 
@@ -93,7 +97,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Full');
+			expect(screen.getByRole('status')).toHaveTextContent('Lotado');
 		});
 
 		it('does not show "Full" when max_attendees is 0 (unlimited)', () => {
@@ -106,7 +110,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).not.toHaveTextContent('Full');
+			expect(screen.getByRole('status')).not.toHaveTextContent('Lotado');
 		});
 
 		it('does not show "Full" when max_attendees is null', () => {
@@ -119,7 +123,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).not.toHaveTextContent('Full');
+			expect(screen.getByRole('status')).not.toHaveTextContent('Lotado');
 		});
 	});
 
@@ -134,7 +138,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Past');
+			expect(screen.getByRole('status')).toHaveTextContent('Passado');
 			expect(screen.getByRole('status')).toHaveClass('bg-secondary');
 		});
 	});
@@ -150,7 +154,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Ongoing');
+			expect(screen.getByRole('status')).toHaveTextContent('Em andamento');
 			expect(screen.getByRole('status')).toHaveClass('bg-green-600');
 		});
 
@@ -164,7 +168,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Ongoing');
+			expect(screen.getByRole('status')).toHaveTextContent('Em andamento');
 		});
 
 		it('shows "Ongoing" at the exact end time', () => {
@@ -177,7 +181,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Ongoing');
+			expect(screen.getByRole('status')).toHaveTextContent('Em andamento');
 		});
 	});
 
@@ -192,7 +196,7 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Happening Today');
+			expect(screen.getByRole('status')).toHaveTextContent('Acontece hoje');
 			expect(screen.getByRole('status')).toHaveClass('bg-green-600');
 		});
 
@@ -206,8 +210,8 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).not.toHaveTextContent('Happening Today');
-			expect(screen.getByRole('status')).toHaveTextContent('Upcoming');
+			expect(screen.getByRole('status')).not.toHaveTextContent('Acontece hoje');
+			expect(screen.getByRole('status')).toHaveTextContent('Em breve');
 		});
 	});
 
@@ -222,13 +226,16 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Upcoming');
+			expect(screen.getByRole('status')).toHaveTextContent('Em breve');
 			expect(screen.getByRole('status')).toHaveClass('bg-primary');
 		});
 	});
 
 	describe('Priority Order', () => {
 		it('prioritizes "Cancelled" over "Full"', () => {
+			// Pre-existing bug, unrelated to i18n: same invalid 'rejected' status as
+			// above, so this falls through to the Full check instead of Cancelled.
+			// Left failing/untouched per direction to only fix pure language mismatches.
 			const event = createMockEvent({
 				status: 'rejected',
 				max_attendees: 50,
@@ -254,10 +261,14 @@ describe('EventStatusBadge', () => {
 
 			render(EventStatusBadge, { props: { event } });
 
-			expect(screen.getByRole('status')).toHaveTextContent('Full');
+			expect(screen.getByRole('status')).toHaveTextContent('Lotado');
 		});
 
 		it('prioritizes "Past" over "Full" (event ended while full)', () => {
+			// Pre-existing bug, unrelated to i18n: the component checks the Full
+			// condition before the Past condition, so a full+ended event actually
+			// renders "Full", contradicting this test's premise. Left failing/
+			// untouched per direction to only fix pure language mismatches.
 			vi.setSystemTime(new Date('2025-12-02T10:00:00Z'));
 
 			const event = createMockEvent({
@@ -306,7 +317,9 @@ describe('EventStatusBadge', () => {
 
 			const badge = screen.getByRole('status');
 			// Text content should be meaningful
-			expect(badge.textContent).toMatch(/Upcoming|Happening Today|Ongoing|Past|Full|Cancelled/);
+			expect(badge.textContent).toMatch(
+				/Em breve|Acontece hoje|Em andamento|Passado|Lotado|Cancelado/
+			);
 		});
 	});
 

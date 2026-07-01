@@ -3,7 +3,6 @@
 	import { appStore } from '$lib/stores/app.svelte';
 	import { Github, Bug, Info } from 'lucide-svelte';
 	import * as m from '$lib/paraglide/messages.js';
-	import { getLocale } from '$lib/paraglide/runtime.js';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	// Frontend version from environment variable (set in Dockerfile).
@@ -17,10 +16,6 @@
 	// Get backend version and demo mode from store
 	const backendVersion = $derived(appStore.backendVersion || 'Loading...');
 	const isDemoMode = $derived(appStore.isDemoMode);
-
-	// Landing page URLs based on current locale
-	// Landing pages are NOT paraglide-translated, they use /de/ and /it/ prefixes
-	const landingPagePrefix = $derived(getLocale() === 'en' ? '' : `/${getLocale()}`);
 
 	// Cache for release notes
 	const releaseNotesCache = $state<Record<string, string[] | null>>({});
@@ -66,37 +61,37 @@
 				<h3 class="mb-4 text-lg font-semibold">{m['footer.solutionsTitle']()}</h3>
 				<div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
 					<a
-						href="{landingPagePrefix}/eventbrite-alternative"
+						href="/eventbrite-alternative"
 						class="text-muted-foreground transition-colors hover:text-foreground"
 					>
 						{m['footer.solutionEventbrite']()}
 					</a>
 					<a
-						href="{landingPagePrefix}/privacy-focused-events"
+						href="/privacy-focused-events"
 						class="text-muted-foreground transition-colors hover:text-foreground"
 					>
 						{m['footer.solutionPrivacy']()}
 					</a>
 					<a
-						href="{landingPagePrefix}/self-hosted-event-platform"
+						href="/self-hosted-event-platform"
 						class="text-muted-foreground transition-colors hover:text-foreground"
 					>
 						{m['footer.solutionSelfHosted']()}
 					</a>
 					<a
-						href="{landingPagePrefix}/community-first-event-platform"
+						href="/community-first-event-platform"
 						class="text-muted-foreground transition-colors hover:text-foreground"
 					>
 						{m['footer.solutionCommunity']()}
 					</a>
 					<a
-						href="{landingPagePrefix}/queer-event-management"
+						href="/queer-event-management"
 						class="text-muted-foreground transition-colors hover:text-foreground"
 					>
 						{m['footer.solutionQueer']()}
 					</a>
 					<a
-						href="{landingPagePrefix}/kink-event-ticketing"
+						href="/kink-event-ticketing"
 						class="text-muted-foreground transition-colors hover:text-foreground"
 					>
 						{m['footer.solutionKink']()}

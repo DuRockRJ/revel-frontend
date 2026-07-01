@@ -15,7 +15,7 @@
  *   3. visible text nodes:  >Some Text<
  *
  * Excluded (never scanned):
- *   - SEO landing pages: src/routes/(public)/{de,it,fr}/**, src/lib/data/landing-pages.ts
+ *   - SEO landing pages: src/lib/data/landing-pages.ts (hardcoded English by design)
  *   - generated / paraglide / data / *.test.* / *.spec.* / *.d.ts / *.example.*
  *   - <style> blocks, <svelte:head> blocks, HTML/JS comments
  *
@@ -50,7 +50,6 @@ const EXCLUDE = [
 	/\/paraglide\//,
 	/\/api\/generated\//,
 	/\/lib\/data\/landing-pages\.ts$/,
-	/\/routes\/\(public\)\/(de|it|fr)\//, // localized SEO landing pages
 	/\.test\./,
 	/\.spec\./,
 	/\.d\.ts$/,
@@ -257,10 +256,10 @@ for (const [file, hits] of Object.entries(newByFile)) {
 }
 console.error(`
 Fix one of these ways:
-  • Wrap the string in a Paraglide message:  m['scope.key']()  (add the key to messages/*.json for all locales)
+  • Wrap the string in a Paraglide message:  m['scope.key']()  (add the key to messages/pt.json)
   • If it is genuinely NOT translatable (brand name, code, format token), add an
     \`i18n-ignore\` comment on that line, OR
   • Accept it into the baseline:  make i18n-hardcoded-update   (only for legitimate non-prose)
 
-SEO landing pages (src/routes/(public)/{de,it,fr}, src/lib/data/landing-pages.ts) are intentionally excluded.`);
+SEO landing pages (src/lib/data/landing-pages.ts) are intentionally excluded.`);
 process.exit(1);

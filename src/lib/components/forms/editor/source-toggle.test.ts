@@ -12,8 +12,8 @@ describe('source toggle', () => {
 		const user = userEvent.setup();
 		const onValueChange = vi.fn();
 		render(MarkdownEditor, { props: { value: '**hi**', id: 'd', label: 'L', onValueChange } });
-		await waitFor(() => screen.getByRole('button', { name: /source/i }));
-		await user.click(screen.getByRole('button', { name: /source/i }));
+		await waitFor(() => screen.getByRole('button', { name: /origem/i }));
+		await user.click(screen.getByRole('button', { name: /origem/i }));
 		const ta = screen.getByRole('textbox') as HTMLTextAreaElement;
 		expect(ta.value).toContain('**hi**');
 		await user.clear(ta);
@@ -22,7 +22,7 @@ describe('source toggle', () => {
 		await waitFor(() =>
 			expect(onValueChange).toHaveBeenCalledWith(expect.stringContaining('## new'))
 		);
-		await user.click(screen.getByRole('button', { name: /back to editor|exit source|done/i }));
+		await user.click(screen.getByRole('button', { name: /voltar para o editor/i }));
 		// back in WYSIWYG; value updated
 		await waitFor(() => expect(screen.queryByRole('textbox')).not.toBeInTheDocument());
 	});

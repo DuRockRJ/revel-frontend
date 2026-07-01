@@ -13,7 +13,7 @@ describe('LinkDialog', () => {
 		const onApply = vi.fn();
 		render(LinkDialog, { props: { open: true, onApply, onClose: vi.fn() } });
 		await user.type(screen.getByLabelText(/url/i), 'javascript:alert(1)');
-		await user.click(screen.getByRole('button', { name: /apply|insert/i }));
+		await user.click(screen.getByRole('button', { name: /inserir/i }));
 		expect(onApply).not.toHaveBeenCalled();
 		expect(screen.getByRole('alert')).toBeInTheDocument();
 	});
@@ -24,7 +24,7 @@ describe('LinkDialog', () => {
 		render(LinkDialog, { props: { open: true, onApply, onClose: vi.fn() } });
 		await user.type(screen.getByLabelText(/url/i), 'https://example.com');
 		await user.type(screen.getByLabelText(/text/i), 'Example');
-		await user.click(screen.getByRole('button', { name: /apply|insert/i }));
+		await user.click(screen.getByRole('button', { name: /inserir/i }));
 		expect(onApply).toHaveBeenCalledWith({ url: 'https://example.com', text: 'Example' });
 	});
 

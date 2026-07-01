@@ -23,8 +23,8 @@ function ev(overrides: Partial<EventInListSchema>): EventInListSchema {
 describe('Tickets tab page', () => {
 	it('renders the empty state with a link to events when no events', () => {
 		render(Page, { props: { data: { organization, events: [] } as never } });
-		expect(screen.getByText('No ticketed events yet')).toBeInTheDocument();
-		const cta = screen.getByRole('link', { name: 'Go to Events' });
+		expect(screen.getByText('Ainda não há eventos com ingressos')).toBeInTheDocument();
+		const cta = screen.getByRole('link', { name: 'Ir para eventos' });
 		expect(cta).toHaveAttribute('href', '/org/acme/admin/events');
 	});
 

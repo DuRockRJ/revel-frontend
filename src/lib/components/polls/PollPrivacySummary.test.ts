@@ -43,14 +43,14 @@ const cases: Case[] = [
 			allowVoteChanges: true
 		},
 		expectVisible: [
-			'Who can vote: anyone',
-			'Results visible to: anyone (after you vote)',
-			'Your identity is hidden from other voters',
-			'You can change or withdraw your vote'
+			'Quem pode votar: qualquer pessoa',
+			'Resultados visíveis para: qualquer pessoa (depois de você votar)',
+			'Sua identidade está oculta dos outros eleitores',
+			'Você pode alterar ou retirar seu voto'
 		],
 		expectHidden: [
-			'Staff can see who voted what',
-			'Your identity is visible to anyone who can see results'
+			'A equipe pode ver quem votou em quê',
+			'Sua identidade é visível para quem pode ver os resultados'
 		]
 	},
 	{
@@ -64,14 +64,14 @@ const cases: Case[] = [
 			allowVoteChanges: false
 		},
 		expectVisible: [
-			'Who can vote: invited people only',
-			'Results visible to: invited people only (after the poll closes)',
-			'Your identity is visible to anyone who can see results'
+			'Quem pode votar: somente pessoas convidadas',
+			'Resultados visíveis para: somente pessoas convidadas (depois que a enquete encerrar)',
+			'Sua identidade é visível para quem pode ver os resultados'
 		],
 		expectHidden: [
-			'Your identity is hidden from other voters',
-			'You can change or withdraw your vote',
-			'Staff can see who voted what'
+			'Sua identidade está oculta dos outros eleitores',
+			'Você pode alterar ou retirar seu voto',
+			'A equipe pode ver quem votou em quê'
 		]
 	},
 	{
@@ -84,13 +84,16 @@ const cases: Case[] = [
 			publicAnonymous: true,
 			allowVoteChanges: true
 		},
-		expectVisible: ['Who can vote: members only', 'You can change or withdraw your vote'],
+		expectVisible: ['Quem pode votar: somente membros', 'Você pode alterar ou retirar seu voto'],
 		expectHidden: [
-			'Results visible to',
-			'Your identity is hidden from other voters',
-			'Staff can see who voted what'
+			'Resultados visíveis para',
+			'Sua identidade está oculta dos outros eleitores',
+			'A equipe pode ver quem votou em quê'
 		]
 	},
+	// Pre-existing bug, unrelated to i18n: PollPrivacySummary.svelte's `showResultsRow` is
+	// derived as `resultTiming !== 'never'`, so the results row is hidden entirely whenever
+	// resultTiming is 'never' — it never renders the "not shared" copy this case expects.
 	{
 		name: 'C4 (spec) — members-only/members-only/never → row 2 shown with "not shared" copy',
 		props: {
@@ -102,12 +105,12 @@ const cases: Case[] = [
 			allowVoteChanges: true
 		},
 		expectVisible: [
-			'Who can vote: members only',
-			'Results visible to: members only (results are not shared with voters)',
-			'Your identity is hidden from other voters',
-			'You can change or withdraw your vote'
+			'Quem pode votar: somente membros',
+			'Resultados visíveis para: somente membros (os resultados não são compartilhados com os eleitores)',
+			'Sua identidade está oculta dos outros eleitores',
+			'Você pode alterar ou retirar seu voto'
 		],
-		expectHidden: ['Staff can see who voted what']
+		expectHidden: ['A equipe pode ver quem votou em quê']
 	},
 	{
 		name: 'C5 — staff-only/staff-only/after_vote + staff_anon=false → amber staff chip, row 3 hidden',
@@ -120,14 +123,14 @@ const cases: Case[] = [
 			allowVoteChanges: false
 		},
 		expectVisible: [
-			'Who can vote: staff only',
-			'Results visible to: staff only (after you vote)',
-			'Staff can see who voted what'
+			'Quem pode votar: somente equipe',
+			'Resultados visíveis para: somente equipe (depois de você votar)',
+			'A equipe pode ver quem votou em quê'
 		],
 		expectHidden: [
-			'Your identity is hidden from other voters',
-			'Your identity is visible to anyone who can see results',
-			'You can change or withdraw your vote'
+			'Sua identidade está oculta dos outros eleitores',
+			'Sua identidade é visível para quem pode ver os resultados',
+			'Você pode alterar ou retirar seu voto'
 		]
 	},
 	{
@@ -140,12 +143,12 @@ const cases: Case[] = [
 			publicAnonymous: true,
 			allowVoteChanges: false
 		},
-		expectVisible: ['Who can vote: staff only'],
+		expectVisible: ['Quem pode votar: somente equipe'],
 		expectHidden: [
-			'Results visible to',
-			'Your identity is hidden from other voters',
-			'Staff can see who voted what',
-			'You can change or withdraw your vote'
+			'Resultados visíveis para',
+			'Sua identidade está oculta dos outros eleitores',
+			'A equipe pode ver quem votou em quê',
+			'Você pode alterar ou retirar seu voto'
 		]
 	}
 ];

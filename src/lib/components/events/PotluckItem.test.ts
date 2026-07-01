@@ -50,10 +50,10 @@ describe('PotluckItem', () => {
 
 		expect(screen.getByRole('article')).toBeInTheDocument();
 		expect(screen.getByText('Pasta Salad')).toBeInTheDocument();
-		expect(screen.getByText('Side Dish • Serves 8')).toBeInTheDocument();
-		expect(screen.getByText('Unclaimed')).toBeInTheDocument();
+		expect(screen.getByText('Acompanhamento • Serves 8')).toBeInTheDocument();
+		expect(screen.getByText('Não reservado')).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: /claim pasta salad/i })).toBeInTheDocument();
-		expect(screen.getByText("I'll bring this")).toBeInTheDocument();
+		expect(screen.getByText('Vou trazer isso')).toBeInTheDocument();
 	});
 
 	it('renders claimed item (owned by user) correctly', () => {
@@ -68,9 +68,9 @@ describe('PotluckItem', () => {
 		});
 
 		expect(screen.getByText('Homemade Brownies')).toBeInTheDocument();
-		expect(screen.getByText("You're bringing")).toBeInTheDocument();
+		expect(screen.getByText('Você vai trazer')).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: /unclaim homemade brownies/i })).toBeInTheDocument();
-		expect(screen.getByText('Unclaim')).toBeInTheDocument();
+		expect(screen.getByText('Desmarcar')).toBeInTheDocument();
 	});
 
 	it('renders claimed item (by other user) correctly', () => {
@@ -85,8 +85,8 @@ describe('PotluckItem', () => {
 		});
 
 		expect(screen.getByText('Red Wine')).toBeInTheDocument();
-		expect(screen.getByText('Claimed')).toBeInTheDocument();
-		expect(screen.getByText('(Already claimed)')).toBeInTheDocument();
+		expect(screen.getByText('Reservado')).toBeInTheDocument();
+		expect(screen.getByText('(Já reservado)')).toBeInTheDocument();
 
 		const button = screen.getByRole('button', { name: /claim red wine/i });
 		expect(button).toBeDisabled();
@@ -147,9 +147,14 @@ describe('PotluckItem', () => {
 
 		const button = screen.getByRole('button', { name: /claim pasta salad/i });
 		expect(button).toBeDisabled();
-		expect(screen.getByText('RSVP to claim')).toBeInTheDocument();
+		expect(screen.getByText('Confirme presença "Sim" para reservar')).toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: PotluckItem.svelte takes a
+	// `hasManagePermission` prop, not `isOrganizer` — these tests pass a prop
+	// the component doesn't read, so canEdit/canDelete stay false and the
+	// edit/delete buttons never render. Left failing/untouched per direction
+	// to only fix pure language mismatches.
 	it('shows organizer actions when isOrganizer is true', () => {
 		render(PotluckItem, {
 			props: {
@@ -182,6 +187,8 @@ describe('PotluckItem', () => {
 		expect(screen.queryByRole('button', { name: /delete pasta salad/i })).not.toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: see note above (isOrganizer vs
+	// hasManagePermission) — the edit button never renders.
 	it('calls onEdit when edit button is clicked', async () => {
 		const user = userEvent.setup();
 		const onEdit = vi.fn();
@@ -205,6 +212,8 @@ describe('PotluckItem', () => {
 		expect(onEdit).toHaveBeenCalledTimes(1);
 	});
 
+	// Pre-existing bug, unrelated to i18n: see note above (isOrganizer vs
+	// hasManagePermission) — the delete button never renders.
 	it('calls onDelete when delete button is clicked', async () => {
 		const user = userEvent.setup();
 		const onDelete = vi.fn();
@@ -261,11 +270,11 @@ describe('PotluckItem', () => {
 
 	it('displays correct item type labels', () => {
 		const testCases = [
-			{ item_type: 'main_course', expected: 'Main Course' },
-			{ item_type: 'dessert', expected: 'Dessert' },
-			{ item_type: 'alcohol', expected: 'Alcohol' },
-			{ item_type: 'labor', expected: 'Labor/Help' },
-			{ item_type: 'misc', expected: 'Other' }
+			{ item_type: 'main_course', expected: 'Prato principal' },
+			{ item_type: 'dessert', expected: 'Sobremesa' },
+			{ item_type: 'alcohol', expected: 'Bebida alcoólica' },
+			{ item_type: 'labor', expected: 'Mão de obra/Ajuda' },
+			{ item_type: 'misc', expected: 'Outro' }
 		];
 
 		testCases.forEach(({ item_type, expected }) => {
@@ -284,6 +293,8 @@ describe('PotluckItem', () => {
 		});
 	});
 
+	// Pre-existing bug, unrelated to i18n: see note above (isOrganizer vs
+	// hasManagePermission) — tabbing never reaches an edit button.
 	it('is keyboard accessible', async () => {
 		const user = userEvent.setup();
 		const onClaim = vi.fn();
@@ -332,7 +343,10 @@ describe('PotluckItem', () => {
 		});
 
 		const article = screen.getByRole('article');
-		expect(article).toHaveAttribute('aria-label', 'Pasta Salad, Side Dish, Serves 8, Unclaimed');
+		expect(article).toHaveAttribute(
+			'aria-label',
+			'Pasta Salad, Acompanhamento, Serves 8, Não reservado'
+		);
 	});
 
 	it('applies custom className', () => {

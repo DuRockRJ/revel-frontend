@@ -48,12 +48,12 @@ function createMockEvent(overrides: Partial<EventDetailSchema> = {}): EventDetai
 describe('EventDetails — open-ended end display', () => {
 	it('shows the end time for a timed event', () => {
 		render(EventDetails, { props: { event: createMockEvent() } });
-		expect(screen.getByText(/Ends/i)).toBeInTheDocument();
+		expect(screen.getByText(/Termina/i)).toBeInTheDocument();
 	});
 
 	it('hides the end time and shows the open-ended hint when is_open_ended', () => {
 		render(EventDetails, { props: { event: createMockEvent({ is_open_ended: true }) } });
-		expect(screen.queryByText(/Ends/i)).not.toBeInTheDocument();
-		expect(screen.getByText(/Open-ended/i)).toBeInTheDocument();
+		expect(screen.queryByText(/Termina/i)).not.toBeInTheDocument();
+		expect(screen.getByText(/Sem horário definido/i)).toBeInTheDocument();
 	});
 });

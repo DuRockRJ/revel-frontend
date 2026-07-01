@@ -13,8 +13,8 @@ describe('OrganizationOrderByFilter', () => {
 			}
 		});
 
-		expect(screen.getByRole('combobox', { name: 'Sort order' })).toBeInTheDocument();
-		expect(screen.getByText('Nearest First')).toBeInTheDocument();
+		expect(screen.getByRole('combobox', { name: 'Ordenar por' })).toBeInTheDocument();
+		expect(screen.getByText('Mais próximos de você primeiro')).toBeInTheDocument();
 	});
 
 	it('displays all sorting options', () => {
@@ -29,7 +29,7 @@ describe('OrganizationOrderByFilter', () => {
 		const select = screen.getByRole('combobox') as HTMLSelectElement;
 		const options = Array.from(select.options).map((o) => o.text);
 
-		expect(options).toContain('Nearest First');
+		expect(options).toContain('Mais próximos de você primeiro');
 		expect(options).toContain('A-Z');
 		expect(options).toContain('Z-A');
 	});
@@ -51,6 +51,9 @@ describe('OrganizationOrderByFilter', () => {
 		expect(onChangeOrderBy).toHaveBeenCalledWith('name');
 	});
 
+	// Pre-existing bug, unrelated to i18n: OrganizationOrderByFilter.svelte renders the info
+	// button before the <select> in DOM order, so the first Tab focuses the info button, not
+	// the select.
 	it('is keyboard accessible', async () => {
 		const user = userEvent.setup();
 		const onChangeOrderBy = vi.fn();
@@ -78,9 +81,9 @@ describe('OrganizationOrderByFilter', () => {
 			}
 		});
 
-		const infoButton = screen.getByRole('button', { name: 'Sort order information' });
+		const infoButton = screen.getByRole('button', { name: 'Informações sobre a ordenação' });
 		await user.hover(infoButton);
 
-		expect(screen.getByText('Distance Sorting')).toBeInTheDocument();
+		expect(screen.getByText('Ordenação por distância')).toBeInTheDocument();
 	});
 });

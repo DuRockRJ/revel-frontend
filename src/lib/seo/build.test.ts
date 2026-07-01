@@ -27,11 +27,11 @@ const fakeEvent = {
 
 describe('buildSeo', () => {
 	it('home: emits WebSite + Org JSON-LD and same-URL hreflang', () => {
-		const cfg = buildSeo({ kind: 'home', url: url('/'), lang: 'en' });
+		const cfg = buildSeo({ kind: 'home', url: url('/'), lang: 'pt' });
 		expect(cfg.canonical).toBe('https://letsrevel.io/');
-		expect(cfg.og.locale).toBe('en_US');
-		expect(cfg.og.localeAlternate).toEqual(['de_DE', 'it_IT', 'fr_FR']);
-		expect(cfg.hreflang.map((h) => h.lang)).toEqual(['en', 'de', 'it', 'fr', 'x-default']);
+		expect(cfg.og.locale).toBe('pt_BR');
+		expect(cfg.og.localeAlternate).toEqual([]);
+		expect(cfg.hreflang.map((h) => h.lang)).toEqual(['pt', 'x-default']);
 		expect(cfg.hreflang.every((h) => h.href === 'https://letsrevel.io/')).toBe(true);
 		expect(cfg.jsonLd.some((j: any) => j['@type'] === 'WebSite')).toBe(true);
 		expect(cfg.robots).toBeUndefined();
@@ -41,7 +41,7 @@ describe('buildSeo', () => {
 		const cfg = buildSeo({
 			kind: 'event',
 			url: url('/events/acme/my-event'),
-			lang: 'en',
+			lang: 'pt',
 			event: fakeEvent,
 			indexable: true
 		});
@@ -57,32 +57,31 @@ describe('buildSeo', () => {
 		const cfg = buildSeo({
 			kind: 'event',
 			url: url('/events/acme/my-event'),
-			lang: 'en',
+			lang: 'pt',
 			event: fakeEvent,
 			indexable: false
 		});
 		expect(cfg.robots).toBe('noindex,follow');
 	});
 
-	it('landing: hreflang uses per-locale URLs, not same-URL', () => {
+	it('landing: hreflang self-references the single (English) URL, no fake alternates', () => {
 		const cfg = buildSeo({
 			kind: 'landing',
-			url: url('/de/eventbrite-alternative'),
-			lang: 'de',
+			url: url('/eventbrite-alternative'),
+			lang: 'en',
 			slug: 'eventbrite-alternative'
 		});
-		const map = Object.fromEntries(cfg.hreflang.map((h) => [h.lang, h.href]));
-		expect(map.en).toBe('https://letsrevel.io/eventbrite-alternative');
-		expect(map.de).toBe('https://letsrevel.io/de/eventbrite-alternative');
-		expect(map.it).toBe('https://letsrevel.io/it/eventbrite-alternative');
-		expect(map['x-default']).toBe('https://letsrevel.io/eventbrite-alternative');
+		expect(cfg.hreflang).toEqual([
+			{ lang: 'en', href: 'https://letsrevel.io/eventbrite-alternative' },
+			{ lang: 'x-default', href: 'https://letsrevel.io/eventbrite-alternative' }
+		]);
 	});
 
 	it('auth pages emit noindex,follow', () => {
 		const cfg = buildSeo({
 			kind: 'auth',
 			url: url('/login'),
-			lang: 'en',
+			lang: 'pt',
 			page: 'login'
 		});
 		expect(cfg.robots).toBe('noindex,follow');

@@ -18,7 +18,7 @@ describe('EditorToolbar', () => {
 	it('exposes a toolbar with toggle buttons', () => {
 		render(EditorToolbar, { props: { editor, onToggleSource: vi.fn(), onInsertLink: vi.fn() } });
 		expect(screen.getByRole('toolbar')).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /bold/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /negrito/i })).toBeInTheDocument();
 	});
 
 	it('toggles bold on the editor when clicked', async () => {
@@ -26,13 +26,13 @@ describe('EditorToolbar', () => {
 		render(EditorToolbar, { props: { editor, onToggleSource: vi.fn(), onInsertLink: vi.fn() } });
 		editor.commands.setContent('hello', { contentType: 'markdown' });
 		editor.commands.selectAll();
-		await user.click(screen.getByRole('button', { name: /bold/i }));
+		await user.click(screen.getByRole('button', { name: /negrito/i }));
 		expect(editor.isActive('bold')).toBe(true);
 	});
 
 	it('reflects active state via aria-pressed', async () => {
 		render(EditorToolbar, { props: { editor, onToggleSource: vi.fn(), onInsertLink: vi.fn() } });
-		const boldBtn = screen.getByRole('button', { name: /bold/i });
+		const boldBtn = screen.getByRole('button', { name: /negrito/i });
 		expect(boldBtn).toHaveAttribute('aria-pressed');
 	});
 

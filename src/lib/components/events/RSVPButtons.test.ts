@@ -12,9 +12,9 @@ describe('RSVPButtons', () => {
 			}
 		});
 
-		expect(screen.getByRole('button', { name: /yes/i })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /maybe/i })).toBeInTheDocument();
-		expect(screen.getByRole('button', { name: /no/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /sim/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /talvez/i })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /não/i })).toBeInTheDocument();
 	});
 
 	it('calls onSelect when a button is clicked', async () => {
@@ -28,7 +28,7 @@ describe('RSVPButtons', () => {
 			}
 		});
 
-		const yesButton = screen.getByRole('button', { name: /yes/i });
+		const yesButton = screen.getByRole('button', { name: /sim/i });
 		await user.click(yesButton);
 
 		expect(onSelect).toHaveBeenCalledWith('yes');
@@ -42,9 +42,9 @@ describe('RSVPButtons', () => {
 			}
 		});
 
-		const yesButton = screen.getByRole('button', { name: /yes/i });
-		const maybeButton = screen.getByRole('button', { name: /maybe/i });
-		const noButton = screen.getByRole('button', { name: /no/i });
+		const yesButton = screen.getByRole('button', { name: /sim/i });
+		const maybeButton = screen.getByRole('button', { name: /talvez/i });
+		const noButton = screen.getByRole('button', { name: /não/i });
 
 		expect(yesButton).toBeDisabled();
 		expect(maybeButton).toBeDisabled();
@@ -60,9 +60,9 @@ describe('RSVPButtons', () => {
 			}
 		});
 
-		const yesButton = screen.getByRole('button', { name: /yes/i });
-		const maybeButton = screen.getByRole('button', { name: /maybe/i });
-		const noButton = screen.getByRole('button', { name: /no/i });
+		const yesButton = screen.getByRole('button', { name: /sim/i });
+		const maybeButton = screen.getByRole('button', { name: /talvez/i });
+		const noButton = screen.getByRole('button', { name: /não/i });
 
 		expect(yesButton).toBeDisabled();
 		expect(maybeButton).toBeDisabled();
@@ -80,7 +80,7 @@ describe('RSVPButtons', () => {
 		});
 
 		// Loading spinner should be visible (Loader2 icon)
-		const yesButton = screen.getByRole('button', { name: /yes/i });
+		const yesButton = screen.getByRole('button', { name: /sim/i });
 		expect(yesButton).toBeInTheDocument();
 		// Note: Testing for the actual spinner SVG would require checking the DOM structure
 	});
@@ -94,7 +94,7 @@ describe('RSVPButtons', () => {
 		});
 
 		// Lock icons should be visible
-		const yesButton = screen.getByRole('button', { name: /yes/i });
+		const yesButton = screen.getByRole('button', { name: /sim/i });
 		expect(yesButton).toBeInTheDocument();
 		expect(yesButton).toBeDisabled();
 	});
@@ -108,7 +108,7 @@ describe('RSVPButtons', () => {
 			}
 		});
 
-		const yesButton = screen.getByRole('button', { name: /yes/i });
+		const yesButton = screen.getByRole('button', { name: /sim/i });
 		expect(yesButton).toHaveAttribute('aria-pressed', 'true');
 	});
 
@@ -125,7 +125,7 @@ describe('RSVPButtons', () => {
 
 		// Tab to first button
 		await user.tab();
-		const yesButton = screen.getByRole('button', { name: /yes/i });
+		const yesButton = screen.getByRole('button', { name: /sim/i });
 		expect(yesButton).toHaveFocus();
 
 		// Press Enter to select
@@ -134,7 +134,7 @@ describe('RSVPButtons', () => {
 
 		// Tab to next button
 		await user.tab();
-		const maybeButton = screen.getByRole('button', { name: /maybe/i });
+		const maybeButton = screen.getByRole('button', { name: /talvez/i });
 		expect(maybeButton).toHaveFocus();
 	});
 
@@ -151,7 +151,7 @@ describe('RSVPButtons', () => {
 			}
 		});
 
-		const maybeButton = screen.getByRole('button', { name: /maybe/i });
+		const maybeButton = screen.getByRole('button', { name: /talvez/i });
 		await user.click(maybeButton);
 
 		// Should not call onSelect because it's loading
@@ -167,12 +167,12 @@ describe('RSVPButtons', () => {
 			}
 		});
 
-		const group = screen.getByRole('group', { name: /rsvp options/i });
+		const group = screen.getByRole('group', { name: /opções de rsvp/i });
 		expect(group).toBeInTheDocument();
 
-		const yesButton = screen.getByRole('button', { name: /yes/i });
-		const maybeButton = screen.getByRole('button', { name: /maybe/i });
-		const noButton = screen.getByRole('button', { name: /no/i });
+		const yesButton = screen.getByRole('button', { name: /sim/i });
+		const maybeButton = screen.getByRole('button', { name: /talvez/i });
+		const noButton = screen.getByRole('button', { name: /não/i });
 
 		expect(yesButton).toHaveAttribute('aria-pressed', 'false');
 		expect(maybeButton).toHaveAttribute('aria-pressed', 'true');

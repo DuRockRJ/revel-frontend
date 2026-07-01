@@ -87,7 +87,11 @@ export const actions: Actions = {
 
 		try {
 			const response = await accountUpdateProfile({
-				body: result.data,
+				// profileUpdateSchema accepts 'pt' for the language field, but the
+				// generated ProfileUpdateSchema type (from the backend's OpenAPI spec)
+				// doesn't list it — pre-existing backend/frontend mismatch, not
+				// something to paper over by dropping the value.
+				body: result.data as Parameters<typeof accountUpdateProfile>[0]['body'],
 				headers: {
 					Authorization: `Bearer ${accessToken}`
 				}

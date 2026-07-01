@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event';
 import TagInput from './TagInput.svelte';
 
 describe('TagInput', () => {
+	// Pre-existing bug, unrelated to i18n: TagInput.svelte sets the input's `id` from the
+	// (unset-in-tests) `id` prop instead of the derived `inputId` used for the label's `for`
+	// attribute, so the <label> is never associated with the <input> and getByLabelText() fails
+	// regardless of language.
 	it('renders with label', () => {
 		render(TagInput, {
 			props: {
@@ -50,6 +54,8 @@ describe('TagInput', () => {
 		expect(screen.getByText('Sports')).toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: TagInput.svelte's input `id` is not wired to the
+	// label's `for` attribute (see comment above), so getByLabelText('Tags') never finds it.
 	it('adds tag on Enter key', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -67,6 +73,7 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('adds tag on comma key', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -96,12 +103,13 @@ describe('TagInput', () => {
 			}
 		});
 
-		const removeButton = screen.getByRole('button', { name: /remove music/i });
+		const removeButton = screen.getByRole('button', { name: /remover music/i });
 		await user.click(removeButton);
 
 		expect(handleTagsChange).toHaveBeenCalledWith(['Food']);
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('removes last tag on Backspace when input is empty', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -121,6 +129,7 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('shows autocomplete suggestions', async () => {
 		const user = userEvent.setup();
 
@@ -140,6 +149,7 @@ describe('TagInput', () => {
 		expect(screen.getByRole('option', { name: 'Movies' })).toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('selects suggestion on click', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -161,6 +171,7 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('navigates suggestions with arrow keys', async () => {
 		const user = userEvent.setup();
 
@@ -187,6 +198,7 @@ describe('TagInput', () => {
 		expect(secondOption).toHaveAttribute('aria-selected', 'true');
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('selects highlighted suggestion on Enter', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -207,6 +219,7 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('prevents duplicate tags', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -226,6 +239,7 @@ describe('TagInput', () => {
 		expect(handleTagsChange).not.toHaveBeenCalled();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('respects maxTags limit', async () => {
 		const user = userEvent.setup();
 
@@ -243,6 +257,7 @@ describe('TagInput', () => {
 		expect(input).toHaveAttribute('readonly');
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('filters out already selected tags from suggestions', async () => {
 		const user = userEvent.setup();
 
@@ -262,6 +277,7 @@ describe('TagInput', () => {
 		expect(screen.getByRole('option', { name: 'Movies' })).toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('closes suggestions on Escape key', async () => {
 		const user = userEvent.setup();
 
@@ -284,6 +300,7 @@ describe('TagInput', () => {
 		expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('respects disabled state', () => {
 		render(TagInput, {
 			props: {
@@ -300,6 +317,7 @@ describe('TagInput', () => {
 		expect(screen.queryByRole('button', { name: /remove/i })).not.toBeInTheDocument();
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('trims whitespace from tags', async () => {
 		const user = userEvent.setup();
 		const handleTagsChange = vi.fn();
@@ -317,6 +335,7 @@ describe('TagInput', () => {
 		expect(handleTagsChange).toHaveBeenCalledWith(['Music']);
 	});
 
+	// Pre-existing bug, unrelated to i18n: same label/input id mismatch as above.
 	it('is keyboard accessible', () => {
 		render(TagInput, {
 			props: {
