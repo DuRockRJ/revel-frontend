@@ -5219,10 +5219,7 @@
 		"termsOfService": "Termos de serviço"
 	},
 	"theme": {
-		"toggleTheme": "Alternar tema",
-		"light": "Claro",
-		"dark": "Escuro",
-		"system": "Sistema"
+		"toggleTheme": "Alternar tema"
 	},
 	"ticket": {
 		"generalAdmission": "Admissão geral",
