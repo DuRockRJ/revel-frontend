@@ -2,7 +2,23 @@
 <html lang="%paraglide.lang%" dir="%paraglide.textDirection%">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/png" href="%sveltekit.assets%/favicon.png" />
+		<!-- Favicon follows the OS/browser color scheme: dark mark on light
+		     chrome, light mark on dark chrome. Order matters for browsers that
+		     ignore `media` on <link rel=icon> — they use the last match, so the
+		     light (no-media) fallback must come first. -->
+		<link rel="icon" type="image/png" href="%sveltekit.assets%/favicon-light.png" />
+		<link
+			rel="icon"
+			type="image/png"
+			href="%sveltekit.assets%/favicon-light.png"
+			media="(prefers-color-scheme: light)"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			href="%sveltekit.assets%/favicon-dark.png"
+			media="(prefers-color-scheme: dark)"
+		/>
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<meta name="theme-color" content="#de2121" />

@@ -17,7 +17,7 @@
 
 		<!-- Copyright -->
 		<div class="mt-6 text-center text-sm text-muted-foreground">
-			<p>&copy; {new Date().getFullYear()} DuRock RJ. {m['footer.copyright']()}</p>
+			<p>&copy; {new Date().getFullYear()} DuRock RJ • {m['footer.copyright']()}</p>
 		</div>
 	</div>
 </footer>
