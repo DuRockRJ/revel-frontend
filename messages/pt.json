@@ -2042,22 +2042,10 @@
 	"footer": {
 		"aboutTitle": "DuRock RJ",
 		"aboutDescription": "Plataforma de gerenciamento de eventos e emissão de ingressos de código aberto, focada na comunidade.",
-		"sendFeedback": "Enviar feedback",
-		"legalTitle": "Legal",
 		"privacyPolicy": "Política de privacidade",
 		"termsOfService": "Termos de serviço",
-		"contact": "Contato",
-		"resourcesTitle": "Recursos",
-		"github": "GitHub",
-		"copyright": "Código aberto e conduzido pela comunidade.",
-		"learnMore": "Saiba mais",
-		"solutionsTitle": "Soluções",
-		"solutionEventbrite": "Alternativa ao Eventbrite",
-		"solutionQueer": "Gestão de eventos queer",
-		"solutionKink": "Emissão de ingressos para eventos kink",
-		"solutionSelfHosted": "Plataforma auto-hospedada",
-		"solutionPrivacy": "Eventos focados em privacidade",
-		"solutionCommunity": "Plataforma centrada na comunidade"
+		"copyright": "Baseado no projeto Revel.",
+		"learnMore": "Saiba mais"
 	},
 	"guest_attendance": {
 		"rsvp_title": "Confirme presença sem uma conta",
