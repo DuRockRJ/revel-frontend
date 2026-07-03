@@ -964,7 +964,7 @@
 		{/if}
 		{#if invitation.waives_membership_required}
 			<span
-				class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+				class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-200"
 				title={m['invitationListTab.waivesMembershipTitle']()}
 			>
 				{m['eventInvitationsAdmin.noMembership']()}

@@ -623,8 +623,8 @@
 				>
 					<div class="flex items-start justify-between">
 						<div class="flex items-center gap-3">
-							<div class="rounded-full bg-purple-100 p-3 dark:bg-purple-950">
-								<Mail class="h-6 w-6 text-purple-600 dark:text-purple-400" aria-hidden="true" />
+							<div class="rounded-full bg-amber-100 p-3 dark:bg-amber-950">
+								<Mail class="h-6 w-6 text-amber-600 dark:text-amber-400" aria-hidden="true" />
 							</div>
 							<div>
 								<p class="text-sm font-medium text-muted-foreground">

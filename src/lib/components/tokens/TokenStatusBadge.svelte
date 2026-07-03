@@ -24,7 +24,7 @@
 		},
 		staff: {
 			label: m['tokenStatusBadge.staff'](),
-			classes: 'bg-purple-100 text-purple-800 border-purple-200'
+			classes: 'bg-blue-100 text-blue-800 border-blue-200'
 		}
 	};
 

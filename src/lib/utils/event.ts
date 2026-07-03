@@ -65,11 +65,11 @@ export function getSpotsRemaining(event: EventInListSchema): number | null {
  */
 export function getEventFallbackGradient(eventId: string): string {
 	const gradients = [
-		'from-purple-500 to-pink-500',
+		'from-rose-500 to-pink-500',
 		'from-blue-500 to-cyan-500',
 		'from-green-500 to-emerald-500',
 		'from-orange-500 to-red-500',
-		'from-indigo-500 to-purple-500',
+		'from-indigo-500 to-zinc-600',
 		'from-teal-500 to-green-500'
 	];
 

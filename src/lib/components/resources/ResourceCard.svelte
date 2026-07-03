@@ -67,7 +67,7 @@
 				return {
 					icon: Ticket,
 					label: m['resourceCard.visibilityAttendeesOnly'](),
-					color: 'text-purple-600 dark:text-purple-400'
+					color: 'text-teal-600 dark:text-teal-400'
 				};
 			case 'private':
 				return {

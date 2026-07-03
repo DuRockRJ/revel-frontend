@@ -69,7 +69,7 @@
 
 <!-- Hero Section -->
 <section
-	class="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-violet-700 py-16 md:py-24"
+	class="relative overflow-hidden bg-gradient-to-br from-red-700 via-red-600 to-orange-700 py-16 md:py-24"
 >
 	<div class="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
 	<div class="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -77,7 +77,7 @@
 			<h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
 				{content.hero.headline}
 			</h1>
-			<p class="mx-auto mt-4 max-w-3xl text-lg text-violet-100 sm:text-xl md:mt-6">
+			<p class="mx-auto mt-4 max-w-3xl text-lg text-red-100 sm:text-xl md:mt-6">
 				{content.hero.subheadline}
 			</p>
 			<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row md:mt-10">
@@ -93,7 +93,7 @@
 						{variant}
 						size="lg"
 						class={button.variant === 'primary'
-							? 'bg-white text-violet-700 hover:bg-violet-50'
+							? 'bg-white text-red-700 hover:bg-red-50'
 							: button.variant === 'secondary'
 								? 'border-white/30 bg-white/10 text-white hover:bg-white/20'
 								: 'border-white/30 text-white hover:bg-white/10'}
@@ -193,12 +193,12 @@
 </section>
 
 <!-- CTA Section -->
-<section class="bg-gradient-to-br from-violet-600 via-purple-600 to-violet-700 py-12 md:py-16">
+<section class="bg-gradient-to-br from-red-700 via-red-600 to-orange-700 py-12 md:py-16">
 	<div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
 		<h2 class="text-2xl font-bold text-white md:text-3xl">
 			{content.cta.title}
 		</h2>
-		<p class="mx-auto mt-4 max-w-2xl text-violet-100">
+		<p class="mx-auto mt-4 max-w-2xl text-red-100">
 			{content.cta.description}
 		</p>
 		<div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -212,7 +212,7 @@
 							: 'outline'}
 					size="lg"
 					class={button.variant === 'primary'
-						? 'bg-white text-violet-700 hover:bg-violet-50'
+						? 'bg-white text-red-700 hover:bg-red-50'
 						: button.variant === 'secondary'
 							? 'border-white/30 bg-white/10 text-white hover:bg-white/20'
 							: 'border-white/30 text-white hover:bg-white/10'}

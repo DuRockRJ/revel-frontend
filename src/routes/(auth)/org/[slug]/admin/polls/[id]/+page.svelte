@@ -457,7 +457,7 @@
 						{#each allFt as question (question.id)}
 							<div class="rounded-lg border p-4">
 								<span
-									class="mb-2 inline-block rounded bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700"
+									class="mb-2 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700"
 									>{m['questionAnswerDisplay.freeText']()}</span
 								>
 								<p class="font-medium">{question.question}</p>

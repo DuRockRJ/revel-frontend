@@ -87,7 +87,7 @@
 			<!-- Content -->
 			<div class="flex-1 space-y-3">
 				<div class="flex items-center gap-2">
-					<Sparkles class="h-4 w-4 text-purple-500" aria-hidden="true" />
+					<Sparkles class="h-4 w-4 text-cyan-500" aria-hidden="true" />
 					<Badge variant="outline" class="text-xs"
 						>{m['autoEvalRecommendation.aiRecommendation']()}</Badge
 					>

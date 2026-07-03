@@ -30,7 +30,7 @@
 		const hash = seriesId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
 		const gradients = [
 			'bg-gradient-to-br from-blue-500 to-indigo-600',
-			'bg-gradient-to-br from-purple-500 to-pink-600',
+			'bg-gradient-to-br from-rose-500 to-pink-600',
 			'bg-gradient-to-br from-green-500 to-teal-600',
 			'bg-gradient-to-br from-orange-500 to-red-600',
 			'bg-gradient-to-br from-cyan-500 to-blue-600'

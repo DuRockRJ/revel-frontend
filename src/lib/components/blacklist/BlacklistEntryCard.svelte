@@ -50,7 +50,7 @@
 				</h3>
 				{#if isLinkedUser}
 					<span
-						class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-100"
+						class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-100"
 					>
 						<User class="mr-1 h-3 w-3" />
 						{m['blacklistEntryCard.registeredUser']()}

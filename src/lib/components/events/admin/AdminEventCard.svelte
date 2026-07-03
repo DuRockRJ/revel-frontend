@@ -262,7 +262,7 @@
 				<button
 					type="button"
 					onclick={manageInvitations}
-					class="inline-flex items-center gap-1 rounded-md bg-purple-600 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-purple-700"
+					class="inline-flex items-center gap-1 rounded-md bg-teal-600 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-teal-700"
 				>
 					<Mail class="h-4 w-4" aria-hidden="true" />
 					{m['orgAdmin.events.actions.invitations']()}

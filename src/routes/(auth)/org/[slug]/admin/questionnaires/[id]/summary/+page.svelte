@@ -219,8 +219,8 @@
 						</p>
 						<p class="text-3xl font-bold">{summary.unique_users}</p>
 					</div>
-					<div class="rounded-full bg-purple-100 p-3 dark:bg-purple-950">
-						<Users class="h-6 w-6 text-purple-900 dark:text-purple-100" aria-hidden="true" />
+					<div class="rounded-full bg-teal-100 p-3 dark:bg-teal-950">
+						<Users class="h-6 w-6 text-teal-900 dark:text-teal-100" aria-hidden="true" />
 					</div>
 				</div>
 			</Card>

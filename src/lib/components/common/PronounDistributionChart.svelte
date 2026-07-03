@@ -18,7 +18,7 @@
 
 	// IMPORTANT: Avoid bg-blue-* and bg-slate-* as they can blend with bg-secondary background
 	const colorClasses = [
-		'bg-violet-500',
+		'bg-teal-500',
 		'bg-orange-500',
 		'bg-emerald-500',
 		'bg-amber-500',

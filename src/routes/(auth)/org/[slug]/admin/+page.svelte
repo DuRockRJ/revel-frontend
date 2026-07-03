@@ -202,8 +202,8 @@
 			description: m['orgAdmin.dashboard.quickActions.settings.description'](),
 			icon: Settings,
 			href: `/org/${organization.slug}/admin/settings`,
-			color: 'text-purple-600 dark:text-purple-400',
-			bgColor: 'bg-purple-50 dark:bg-purple-950',
+			color: 'text-slate-600 dark:text-slate-400',
+			bgColor: 'bg-slate-50 dark:bg-slate-950',
 			badge: undefined as string | undefined
 		}
 	]);

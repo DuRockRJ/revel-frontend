@@ -42,10 +42,10 @@
 
 	// Fallback gradient based on series ID
 	const gradients = [
-		'from-blue-500 to-purple-600',
+		'from-blue-500 to-cyan-600',
 		'from-green-500 to-teal-600',
 		'from-orange-500 to-pink-600',
-		'from-purple-500 to-indigo-600',
+		'from-slate-500 to-zinc-600',
 		'from-red-500 to-orange-600'
 	];
 	const fallbackGradient = $derived(gradients[series.id.charCodeAt(0) % gradients.length]);

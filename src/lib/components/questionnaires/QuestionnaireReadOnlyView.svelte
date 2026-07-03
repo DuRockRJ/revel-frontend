@@ -39,7 +39,7 @@
 									<span
 										class="rounded px-2 py-0.5 text-xs font-medium {condQ.type === 'multiple_choice'
 											? 'bg-blue-100 text-blue-700'
-											: 'bg-purple-100 text-purple-700'}"
+											: 'bg-amber-100 text-amber-700'}"
 									>
 										{condQ.type === 'multiple_choice' ? 'MC' : 'FT'}
 									</span>
@@ -85,7 +85,7 @@
 												class="rounded px-2 py-0.5 text-xs font-medium {condQ.type ===
 												'multiple_choice'
 													? 'bg-blue-100 text-blue-700'
-													: 'bg-purple-100 text-purple-700'}"
+													: 'bg-amber-100 text-amber-700'}"
 											>
 												{condQ.type === 'multiple_choice' ? 'MC' : 'FT'}
 											</span>
@@ -109,7 +109,7 @@
 				? 'bg-blue-100 text-blue-700'
 				: question.type === 'file_upload'
 					? 'bg-green-100 text-green-700'
-					: 'bg-purple-100 text-purple-700'}"
+					: 'bg-amber-100 text-amber-700'}"
 		>
 			{question.type === 'multiple_choice'
 				? 'Multiple Choice'
