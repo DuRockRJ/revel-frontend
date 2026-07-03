@@ -16,7 +16,6 @@
 	import ActiveOfferBanner from '$lib/components/events/waitlist/ActiveOfferBanner.svelte';
 	import OrganizationInfo from '$lib/components/events/OrganizationInfo.svelte';
 	import PotluckSection from '$lib/components/events/PotluckSection.svelte';
-	import DietarySummary from '$lib/components/events/DietarySummary.svelte';
 	import EventResources from '$lib/components/events/EventResources.svelte';
 	import EventSchedule from '$lib/components/events/EventSchedule.svelte';
 	import EventAnnouncements from '$lib/components/announcements/EventAnnouncements.svelte';
@@ -759,13 +758,6 @@
 					<!-- Show if potluck is open OR if there are existing items -->
 					{#if event.potluck_open || data.potluckItems.length > 0}
 						<div class="space-y-6">
-							<!-- Dietary Summary -->
-							<DietarySummary
-								eventId={event.id}
-								authToken={authStore.accessToken}
-								isAuthenticated={data.isAuthenticated}
-							/>
-
 							<!-- Potluck Items -->
 							<PotluckSection
 								{event}

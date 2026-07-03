@@ -8,8 +8,6 @@
 	import { COMMON_PRONOUNS } from '$lib/schemas/profile';
 	import type { VisibilityValue } from '$lib/schemas/preferences';
 	import { Loader2, Check, Info, ShieldCheck, ShieldAlert, Mail, Eye } from 'lucide-svelte';
-	import DietaryPreferencesManager from '$lib/components/profile/DietaryPreferencesManager.svelte';
-	import DietaryRestrictionsManager from '$lib/components/profile/DietaryRestrictionsManager.svelte';
 	import TelegramConnectionManager from '$lib/components/profile/TelegramConnectionManager.svelte';
 	import ProfilePictureUploader from '$lib/components/profile/ProfilePictureUploader.svelte';
 	import AttendeeVisibilitySelect from '$lib/components/profile/AttendeeVisibilitySelect.svelte';
@@ -592,37 +590,7 @@
 		</div>
 	</form>
 
-	<!-- Dietary Preferences & Restrictions Section -->
 	{#if authStore.accessToken}
-		<div class="mt-12 space-y-6" id="dietary-section">
-			<div class="border-t pt-8">
-				<div class="mb-6">
-					<h2 class="text-2xl font-bold tracking-tight">{m['dietary.profile_heading']()}</h2>
-					<p class="mt-2 text-sm text-muted-foreground">
-						{m['dietary.profile_description']()}
-					</p>
-
-					<!-- Visibility Info -->
-					<div
-						class="mt-4 flex gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-950"
-					>
-						<Info
-							class="h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400"
-							aria-hidden="true"
-						/>
-						<p class="text-sm text-blue-800 dark:text-blue-200">
-							{m['dietary.profile_visibilityInfo']()}
-						</p>
-					</div>
-				</div>
-
-				<div class="space-y-8">
-					<DietaryPreferencesManager authToken={authStore.accessToken} />
-					<DietaryRestrictionsManager authToken={authStore.accessToken} />
-				</div>
-			</div>
-		</div>
-
 		<!-- Telegram Connection Section -->
 		<div class="mt-12" id="telegram-section">
 			<div class="border-t pt-8">
