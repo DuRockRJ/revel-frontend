@@ -20,6 +20,7 @@
 	import { EventCard, EventSeriesCard } from '$lib/components/events';
 	import { OrganizationDescription } from '$lib/components/organizations';
 	import { getImageUrl } from '$lib/utils/url';
+	import { formatCityRegion } from '$lib/utils/city';
 	import { createQuery } from '@tanstack/svelte-query';
 	import {
 		eventpublicdiscoveryListEvents,
@@ -57,10 +58,8 @@
 	// Compute location display
 	const locationDisplay = $derived.by(() => {
 		if (!organization.city) return organization.address || null;
-		const cityCountry = organization.city.country
-			? `${organization.city.name}, ${organization.city.country}`
-			: organization.city.name;
-		return organization.address ? `${organization.address}, ${cityCountry}` : cityCountry;
+		const cityRegion = formatCityRegion(organization.city);
+		return organization.address ? `${organization.address}, ${cityRegion}` : cityRegion;
 	});
 
 	// Check if organization has any social links

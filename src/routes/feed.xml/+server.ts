@@ -1,5 +1,6 @@
 import { eventpublicdiscoveryListEvents } from '$lib/api';
 import { getBackendUrl } from '$lib/config/api';
+import { formatCityRegion } from '$lib/utils/city';
 import type { RequestHandler } from './$types';
 
 /**
@@ -96,8 +97,7 @@ ${events
 			description.length > 500 ? description.slice(0, 497) + '...' : description;
 		const imageUrl = event.cover_art || event.logo;
 		const eventDate = new Date(event.start);
-		const locationParts = [event.city?.name, event.city?.country].filter(Boolean);
-		const location = locationParts.join(', ');
+		const location = event.city ? formatCityRegion(event.city) : '';
 		/* eslint-disable no-restricted-syntax -- RSS server endpoint, no request locale; fixed en-US by design */
 		const eventDateFormatted = event.start
 			? eventDate.toLocaleDateString('en-US', {

@@ -48,7 +48,9 @@
 		onUpdateFilters({ tags: newTags.length > 0 ? newTags : undefined });
 	}
 
-	function handleChangeCity(city: { id: number; name: string; country: string } | null): void {
+	function handleChangeCity(
+		city: { id: number; name: string; admin_name: string | null | undefined } | null
+	): void {
 		onUpdateFilters({ cityId: city?.id });
 	}
 

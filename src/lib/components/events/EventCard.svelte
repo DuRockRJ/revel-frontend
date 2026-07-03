@@ -4,6 +4,7 @@
 	import { cn } from '$lib/utils/cn';
 	import { formatEventDate, formatEventDateForScreenReader, isEventPast } from '$lib/utils/date';
 	import { getEventAccessDisplay } from '$lib/utils/event';
+	import { formatCityRegion } from '$lib/utils/city';
 	import { Calendar, MapPin, Ticket, Tag } from 'lucide-svelte';
 	import BookmarkButton from './BookmarkButton.svelte';
 	import EventCoverImage from './EventCoverImage.svelte';
@@ -27,15 +28,14 @@
 		if (event.venue) {
 			const city = event.venue.city || event.city;
 			if (city) {
-				const cityDisplay = city.country ? `${city.name}, ${city.country}` : city.name;
-				return `${event.venue.name}, ${cityDisplay}`;
+				return `${event.venue.name}, ${formatCityRegion(city)}`;
 			}
 			return event.venue.name;
 		}
 
 		// Fall back to event's city
 		if (!event.city) return m['eventCard.location_tbd']();
-		return event.city.country ? `${event.city.name}, ${event.city.country}` : event.city.name;
+		return formatCityRegion(event.city);
 	});
 	const accessDisplay = $derived(
 		getEventAccessDisplay(event, false, false) // TODO: Pass actual user membership status

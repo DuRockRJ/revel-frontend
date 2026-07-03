@@ -3,6 +3,7 @@
 	import type { CitySchema, VenueDetailSchema, ResourceVisibility } from '$lib/api/generated';
 	import CityAutocomplete from '$lib/components/forms/CityAutocomplete.svelte';
 	import VenueSelector from './VenueSelector.svelte';
+	import { formatCityRegion } from '$lib/utils/city';
 	import {
 		MapPin,
 		Building2,
@@ -160,10 +161,7 @@
 	 */
 	function formatCity(city: CitySchema | null): string {
 		if (!city) return '';
-		const parts = [city.name];
-		if (city.admin_name) parts.push(city.admin_name);
-		if (city.country) parts.push(city.country);
-		return parts.join(', ');
+		return formatCityRegion(city);
 	}
 </script>
 

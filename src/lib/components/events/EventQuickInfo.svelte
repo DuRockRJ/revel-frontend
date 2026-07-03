@@ -15,6 +15,7 @@
 	} from 'lucide-svelte';
 	import VenueInfoModal from '$lib/components/venues/VenueInfoModal.svelte';
 	import { sanitizeMapEmbedUrl } from '$lib/utils/maps';
+	import { formatCityRegion } from '$lib/utils/city';
 
 	interface Props {
 		event: EventDetailSchema;
@@ -44,13 +45,9 @@
 				primaryParts.push(event.venue.address);
 			}
 
-			// City/country goes on secondary line
+			// City/region goes on secondary line
 			const city = event.venue.city || event.city;
-			const secondary = city
-				? city.country
-					? `${city.name}, ${city.country}`
-					: city.name
-				: undefined;
+			const secondary = city ? formatCityRegion(city) : undefined;
 
 			return { primary: primaryParts.join(', '), secondary };
 		}
@@ -60,17 +57,15 @@
 			return { primary: event.address || m['eventQuickInfo.locationTbd']() };
 		}
 
-		const cityCountry = event.city.country
-			? `${event.city.name}, ${event.city.country}`
-			: event.city.name;
+		const cityRegion = formatCityRegion(event.city);
 
 		// If we have an address, it's primary and city is secondary
 		if (event.address) {
-			return { primary: event.address, secondary: cityCountry };
+			return { primary: event.address, secondary: cityRegion };
 		}
 
-		// Just city/country on primary line
-		return { primary: cityCountry };
+		// Just city/region on primary line
+		return { primary: cityRegion };
 	});
 
 	function formatEventTypeLabel(value: string): string {

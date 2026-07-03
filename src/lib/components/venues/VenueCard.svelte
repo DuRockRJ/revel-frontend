@@ -1,8 +1,9 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages.js';
-	import type { VenueDetailSchema, CitySchema } from '$lib/api/generated/types.gen';
+	import type { VenueDetailSchema } from '$lib/api/generated/types.gen';
 	import { MapPin, Users, Edit, Trash2, LayoutGrid } from 'lucide-svelte';
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
+	import { formatCityRegion } from '$lib/utils/city';
 
 	interface Props {
 		venue: VenueDetailSchema;
@@ -14,13 +15,6 @@
 	const { venue, onEdit, onDelete, onManageSectors }: Props = $props();
 
 	const sectorCount = $derived(venue.sectors?.length ?? 0);
-
-	function formatCity(city: CitySchema): string {
-		const parts = [city.name];
-		if (city.admin_name) parts.push(city.admin_name);
-		parts.push(city.country);
-		return parts.join(', ');
-	}
 </script>
 
 <div
@@ -39,7 +33,7 @@
 				{#if venue.city || venue.address}
 					<span class="inline-flex items-center gap-1">
 						<MapPin class="h-4 w-4" aria-hidden="true" />
-						{venue.city ? formatCity(venue.city) : venue.address || ''}
+						{venue.city ? formatCityRegion(venue.city) : venue.address || ''}
 					</span>
 				{/if}
 

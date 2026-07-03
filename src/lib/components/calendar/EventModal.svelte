@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Calendar, Clock, MapPin, Building2, X } from 'lucide-svelte';
 	import { formatDate, formatTimeOfDay } from '$lib/utils/date';
+	import { formatCityRegion } from '$lib/utils/city';
 	import { getImageUrl } from '$lib/utils/url';
 	import * as m from '$lib/paraglide/messages.js';
 
@@ -81,7 +82,7 @@
 							{/if}
 							{#if event.city}
 								<p class="text-sm text-muted-foreground">
-									{event.city.name}, {event.city.country}
+									{formatCityRegion(event.city)}
 								</p>
 							{/if}
 						</div>

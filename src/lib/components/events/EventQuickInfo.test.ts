@@ -19,7 +19,7 @@ const mockEvent: EventDetailSchema = {
 		id: 'org-1',
 		name: 'Test Organization',
 		slug: 'test-org',
-		city: { id: 1, name: 'San Francisco', country: 'USA' },
+		city: { id: 1, name: 'San Francisco', country: 'USA', admin_name: 'Zona Sul' },
 		description: 'Test organization',
 		logo: null,
 		cover_art: null,
@@ -30,7 +30,8 @@ const mockEvent: EventDetailSchema = {
 	city: {
 		id: 1,
 		name: 'San Francisco',
-		country: 'USA'
+		country: 'USA',
+		admin_name: 'Zona Sul'
 	},
 	start: '2025-10-25T19:00:00Z',
 	end: '2025-10-25T22:00:00Z',
@@ -57,7 +58,7 @@ describe('EventQuickInfo', () => {
 		expect(screen.getByText(/25 out/i)).toBeInTheDocument();
 
 		// Check that location is rendered
-		expect(screen.getByText('San Francisco, USA')).toBeInTheDocument();
+		expect(screen.getByText('San Francisco, Zona Sul')).toBeInTheDocument();
 	});
 
 	it('displays event type correctly', () => {
@@ -120,14 +121,14 @@ describe('EventQuickInfo', () => {
 		expect(screen.getByText('Local a definir')).toBeInTheDocument();
 	});
 
-	it('handles city without country', () => {
+	it('handles city without region', () => {
 		const eventWithCityOnly = {
 			...mockEvent,
-			city: { id: 1, name: 'San Francisco', country: null }
+			city: { id: 1, name: 'San Francisco', country: 'USA', admin_name: null }
 		};
 		render(EventQuickInfo, { props: { event: eventWithCityOnly } });
 		expect(screen.getByText('San Francisco')).toBeInTheDocument();
-		expect(screen.queryByText(/USA/)).not.toBeInTheDocument();
+		expect(screen.queryByText(/Zona Sul/)).not.toBeInTheDocument();
 	});
 
 	it('applies custom className', () => {

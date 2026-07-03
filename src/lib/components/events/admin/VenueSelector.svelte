@@ -6,6 +6,7 @@
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { Building2, ChevronDown, X, MapPin, Users } from 'lucide-svelte';
 	import { cn } from '$lib/utils/cn';
+	import { formatCityRegion } from '$lib/utils/city';
 
 	interface Props {
 		organizationSlug: string;
@@ -83,10 +84,9 @@
 	// Format city display
 	function formatCity(venue: VenueDetailSchema): string {
 		if (!venue.city) return venue.address || '';
-		const parts = [venue.city.name];
-		if (venue.city.country) parts.push(venue.city.country);
-		if (venue.address) return `${venue.address}, ${parts.join(', ')}`;
-		return parts.join(', ');
+		const cityRegion = formatCityRegion(venue.city);
+		if (venue.address) return `${venue.address}, ${cityRegion}`;
+		return cityRegion;
 	}
 </script>
 

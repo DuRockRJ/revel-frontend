@@ -5,6 +5,7 @@
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
 	import { ExternalLink, MapPin, Users } from 'lucide-svelte';
 	import { sanitizeMapEmbedUrl } from '$lib/utils/maps';
+	import { formatCityRegion } from '$lib/utils/city';
 
 	interface Props {
 		open: boolean;
@@ -23,10 +24,7 @@
 		}
 
 		if (venue.city) {
-			const cityPart = venue.city.country
-				? `${venue.city.name}, ${venue.city.country}`
-				: venue.city.name;
-			parts.push(cityPart);
+			parts.push(formatCityRegion(venue.city));
 		}
 
 		return parts.join(', ');

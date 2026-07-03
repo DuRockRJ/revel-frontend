@@ -3,6 +3,7 @@
 	import type { EventDetailSchema } from '$lib/api/generated/types.gen';
 	import { formatEventDate, formatEventDateRange } from '$lib/utils/date';
 	import { getEventFallbackGradient, getEventCoverArt, getEventLogo } from '$lib/utils/event';
+	import { formatCityRegion } from '$lib/utils/city';
 	import { getImageUrl } from '$lib/utils/url';
 	import { downloadRevelEventICalFile } from '$lib/utils/ical';
 	import { MapPin, Calendar, Share2, ExternalLink } from 'lucide-svelte';
@@ -32,18 +33,15 @@
 			// Use venue's city if available, otherwise fall back to event's city
 			const city = event.venue.city || event.city;
 			if (city) {
-				const cityCountry = city.country ? `${city.name}, ${city.country}` : city.name;
-				return `${venueName}, ${cityCountry}`;
+				return `${venueName}, ${formatCityRegion(city)}`;
 			}
 			return venueName;
 		}
 
 		// Fall back to event's address/city
 		if (!event.city) return event.address || m['eventHeader.locationTbd']();
-		const cityCountry = event.city.country
-			? `${event.city.name}, ${event.city.country}`
-			: event.city.name;
-		return event.address ? `${event.address}, ${cityCountry}` : cityCountry;
+		const cityRegion = formatCityRegion(event.city);
+		return event.address ? `${event.address}, ${cityRegion}` : cityRegion;
 	});
 
 	// Compute maps URL - prioritize event's URL, fall back to venue's URL

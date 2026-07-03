@@ -3,6 +3,7 @@
 	import { cityListCities } from '$lib/api/generated';
 	import type { CitySchema } from '$lib/api/generated';
 	import { Search, X, Loader2, MapPin } from 'lucide-svelte';
+	import { formatCityRegion } from '$lib/utils/city';
 
 	interface Props {
 		value: CitySchema | null;
@@ -32,16 +33,8 @@
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 	let inputElement = $state<HTMLInputElement | null>(null);
 
-	// Format city for display
-	function formatCity(city: CitySchema): string {
-		const parts = [city.name];
-		if (city.admin_name) parts.push(city.admin_name);
-		parts.push(city.country);
-		return parts.join(', ');
-	}
-
 	// Derived display value
-	const displayValue = $derived(value ? formatCity(value) : searchQuery);
+	const displayValue = $derived(value ? formatCityRegion(value) : searchQuery);
 
 	// Debounced search function
 	async function performSearch(query: string) {
@@ -187,7 +180,7 @@
 			>
 				<div class="flex items-center gap-2">
 					<MapPin class="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-					<span>{formatCity(value)}</span>
+					<span>{formatCityRegion(value)}</span>
 				</div>
 				{#if !disabled}
 					<button
@@ -255,7 +248,7 @@
 							>
 								<div class="flex items-center gap-2">
 									<MapPin class="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-									<span>{formatCity(city)}</span>
+									<span>{formatCityRegion(city)}</span>
 								</div>
 							</li>
 						{/each}

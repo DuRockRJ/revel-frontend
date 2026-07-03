@@ -29,6 +29,7 @@
 		organizationadminmembersListMembershipTiers
 	} from '$lib/api/generated/sdk.gen';
 	import { authStore } from '$lib/stores/auth.svelte';
+	import { formatCityRegion } from '$lib/utils/city';
 
 	const { data }: { data: PageData } = $props();
 
@@ -337,7 +338,7 @@
 							{m['orgAdmin.dashboard.orgDetails.location']()}
 						</dt>
 						<dd class="mt-1 text-base">
-							{organization.city.name}, {organization.city.country}
+							{formatCityRegion(organization.city)}
 						</dd>
 					</div>
 				{/if}

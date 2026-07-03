@@ -4,6 +4,7 @@
 	import type { EventInListSchema } from '$lib/api/generated/types.gen';
 	import { cn } from '$lib/utils/cn';
 	import { formatDateTime } from '$lib/utils/date';
+	import { formatCityRegion } from '$lib/utils/city';
 	import { getEventStatusColor } from '$lib/utils/status-colors';
 	import EventCoverImage from '$lib/components/events/EventCoverImage.svelte';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -193,7 +194,7 @@
 			{#if event.city}
 				<div class="flex items-center gap-2">
 					<MapPin class="h-4 w-4" aria-hidden="true" />
-					{event.city.name}, {event.city.country}
+					{formatCityRegion(event.city)}
 				</div>
 			{/if}
 			{#if showAttendeeCount}

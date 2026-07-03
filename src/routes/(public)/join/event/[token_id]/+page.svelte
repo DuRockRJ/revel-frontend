@@ -18,6 +18,7 @@
 	import { toast } from 'svelte-sonner';
 	import { getExpirationDisplay, formatTokenUsage } from '$lib/utils/tokens';
 	import { formatEventDate } from '$lib/utils/date';
+	import { formatCityRegion } from '$lib/utils/city';
 
 	const { data }: { data: PageData } = $props();
 
@@ -105,7 +106,7 @@
 						<div>
 							<div class="font-medium">{m['joinEventPage.whereLabel']()}</div>
 							<div class="text-muted-foreground">
-								{event.city.name}{#if event.city.country}, {event.city.country}{/if}
+								{formatCityRegion(event.city)}
 							</div>
 						</div>
 					</div>

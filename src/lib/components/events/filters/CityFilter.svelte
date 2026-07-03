@@ -6,8 +6,10 @@
 	import * as m from '$lib/paraglide/messages.js';
 
 	interface Props {
-		selectedCity?: { id: number; name: string; country: string } | null;
-		onChangeCity: (city: { id: number; name: string; country: string } | null) => void;
+		selectedCity?: { id: number; name: string; admin_name: string | null | undefined } | null;
+		onChangeCity: (
+			city: { id: number; name: string; admin_name: string | null | undefined } | null
+		) => void;
 		class?: string;
 	}
 
@@ -67,7 +69,7 @@
 
 	function handleSelectCity(city: CitySchema): void {
 		if (city.id) {
-			onChangeCity({ id: city.id, name: city.name, country: city.country });
+			onChangeCity({ id: city.id, name: city.name, admin_name: city.admin_name });
 			searchQuery = '';
 			searchResults = [];
 			isDropdownOpen = false;
@@ -102,7 +104,9 @@
 		>
 			<div class="flex-1">
 				<div class="text-sm font-medium">{selectedCity.name}</div>
-				<div class="text-xs text-muted-foreground">{selectedCity.country}</div>
+				{#if selectedCity.admin_name}
+					<div class="text-xs text-muted-foreground">{selectedCity.admin_name}</div>
+				{/if}
 			</div>
 			<button
 				type="button"
@@ -148,7 +152,9 @@
 							<MapPin class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
 							<div class="flex-1">
 								<div class="font-medium">{city.name}</div>
-								<div class="text-xs text-muted-foreground">{city.country}</div>
+								{#if city.admin_name}
+									<div class="text-xs text-muted-foreground">{city.admin_name}</div>
+								{/if}
 							</div>
 						</button>
 					{/each}

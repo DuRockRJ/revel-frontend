@@ -3,6 +3,7 @@
 	import { cn } from '$lib/utils/cn';
 	import { getImageUrl } from '$lib/utils/url';
 	import { stripMarkdown } from '$lib/seo';
+	import { formatCityRegion } from '$lib/utils/city';
 	import { MapPin, Users, Tag } from 'lucide-svelte';
 	import * as m from '$lib/paraglide/messages.js';
 
@@ -20,9 +21,7 @@
 	// Computed values
 	const locationDisplay = $derived.by(() => {
 		if (!organization.city) return m['organizationProfile.location_tbd']();
-		return organization.city.country
-			? `${organization.city.name}, ${organization.city.country}`
-			: organization.city.name;
+		return formatCityRegion(organization.city);
 	});
 
 	// Image URLs with backend URL prepended

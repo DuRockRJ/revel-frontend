@@ -8,6 +8,7 @@ import type {
 	MinimalEventSchema
 } from '$lib/api/generated/types.gen';
 import * as m from '$lib/paraglide/messages.js';
+import { formatCityRegion } from './city';
 
 /**
  * Get display string for event access/pricing
@@ -96,12 +97,9 @@ export function formatEventLocation(event: EventDetailSchema): string | undefine
 		parts.push(event.address);
 	}
 
-	// Add city and country if available
+	// Add city and region if available
 	if (event.city) {
-		const cityPart = [event.city.name, event.city.country].filter(Boolean).join(', ');
-		if (cityPart) {
-			parts.push(cityPart);
-		}
+		parts.push(formatCityRegion(event.city));
 	}
 
 	return parts.length > 0 ? parts.join(', ') : undefined;

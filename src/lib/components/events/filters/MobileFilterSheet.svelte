@@ -67,7 +67,9 @@
 		onUpdateFilters({ eventType: type });
 	}
 
-	function handleChangeCity(city: { id: number; name: string; country: string } | null): void {
+	function handleChangeCity(
+		city: { id: number; name: string; admin_name: string | null | undefined } | null
+	): void {
 		onUpdateFilters({ cityId: city?.id });
 	}
 
