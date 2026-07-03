@@ -791,7 +791,8 @@
 		"preferredCityDescription": "Selecione sua cidade preferida para recomendações de eventos",
 		"citySearchError": "Erro na busca de cidade:",
 		"clearCitySelection": "Limpar seleção de cidade",
-		"searchForCity": "Buscar uma cidade..."
+		"searchForCity": "Buscar uma cidade...",
+		"noResultsFound": "Nenhuma cidade encontrada para \"{query}\". Selecione uma cidade da lista."
 	},
 	"claimInvitationButton": {
 		"claimed": "Resgatado!",

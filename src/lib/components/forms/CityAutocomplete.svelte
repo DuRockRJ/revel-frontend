@@ -26,6 +26,7 @@
 	let searchQuery = $state('');
 	let isSearching = $state(false);
 	let searchResults = $state<CitySchema[]>([]);
+	let hasSearched = $state(false);
 	let showDropdown = $state(false);
 	let selectedIndex = $state(-1);
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -46,6 +47,7 @@
 	async function performSearch(query: string) {
 		if (!query.trim()) {
 			searchResults = [];
+			hasSearched = false;
 			showDropdown = false;
 			return;
 		}
@@ -61,11 +63,13 @@
 			});
 
 			searchResults = response.data?.results || [];
-			showDropdown = searchResults.length > 0;
+			hasSearched = true;
+			showDropdown = true;
 			selectedIndex = -1;
 		} catch (err) {
 			console.error('City search error:', err);
 			searchResults = [];
+			hasSearched = false;
 			showDropdown = false;
 		} finally {
 			isSearching = false;
@@ -76,6 +80,7 @@
 	function handleInput(e: Event) {
 		const target = e.target as HTMLInputElement;
 		searchQuery = target.value;
+		hasSearched = false;
 
 		// Clear current selection when user types
 		if (value) {
@@ -98,6 +103,7 @@
 		onSelect(city);
 		searchQuery = '';
 		searchResults = [];
+		hasSearched = false;
 		showDropdown = false;
 		selectedIndex = -1;
 		inputElement?.blur();
@@ -108,6 +114,7 @@
 		onSelect(null);
 		searchQuery = '';
 		searchResults = [];
+		hasSearched = false;
 		showDropdown = false;
 		selectedIndex = -1;
 		inputElement?.focus();
@@ -151,9 +158,9 @@
 		}, 200);
 	}
 
-	// Handle focus (reopen dropdown if there are results)
+	// Handle focus (reopen dropdown if there are results, or a "no results" state to show)
 	function handleFocus() {
-		if (searchResults.length > 0 && !value) {
+		if ((searchResults.length > 0 || hasSearched) && !value) {
 			showDropdown = true;
 		}
 	}
@@ -253,6 +260,14 @@
 							</li>
 						{/each}
 					</ul>
+				</div>
+			{:else if showDropdown && hasSearched && !isSearching && searchResults.length === 0}
+				<div
+					class="absolute z-50 mt-1 w-full rounded-md border border-input bg-background p-3 shadow-lg"
+				>
+					<p class="text-sm text-muted-foreground">
+						{m['cityAutocomplete.noResultsFound']({ query: searchQuery })}
+					</p>
 				</div>
 			{/if}
 		{/if}
