@@ -6584,9 +6584,7 @@
 		"item_announcements": "Anúncios",
 		"item_announcementsDesc": "As últimas atualizações do organizador",
 		"item_attendees": "Quem vai",
-		"item_attendeesDesc": "A lista de convidados deste evento",
-		"item_dietary": "Preferências alimentares",
-		"item_dietaryDesc": "Necessidades e restrições alimentares dos participantes"
+		"item_attendeesDesc": "A lista de convidados deste evento"
 	},
 	"announcementCard.moreActions": "Mais ações",
 	"blacklistEntryCard.unknown": "Desconhecido",

@@ -2,15 +2,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { page } from '$app/stores';
 	import type { EventDetailSchema } from '$lib/api/generated/types.gen';
-	import {
-		LogIn,
-		ChevronDown,
-		ChevronUp,
-		UtensilsCrossed,
-		Megaphone,
-		Users,
-		Salad
-	} from 'lucide-svelte';
+	import { LogIn, ChevronDown, ChevronUp, UtensilsCrossed, Megaphone, Users } from 'lucide-svelte';
 
 	interface Props {
 		event: EventDetailSchema;
@@ -53,11 +45,6 @@
 				icon: Users,
 				label: m['eventGuestPrompt.item_attendees'](),
 				description: m['eventGuestPrompt.item_attendeesDesc']()
-			},
-			{
-				icon: Salad,
-				label: m['eventGuestPrompt.item_dietary'](),
-				description: m['eventGuestPrompt.item_dietaryDesc']()
 			}
 		);
 		return items;
