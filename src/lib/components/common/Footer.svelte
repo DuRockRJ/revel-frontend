@@ -1,56 +1,5 @@
 <script lang="ts">
-	import { env } from '$env/dynamic/public';
-	import { appStore } from '$lib/stores/app.svelte';
-	import { Github, Bug, Info } from 'lucide-svelte';
 	import * as m from '$lib/paraglide/messages.js';
-	import * as Tooltip from '$lib/components/ui/tooltip';
-
-	// Frontend version from environment variable (set in Dockerfile).
-	// Read via $env/dynamic/public so it has no compile-time requirement —
-	// a checkout without a populated .env still type-checks and falls back to 'dev'.
-	// Remove leading 'v' if present since we add it in the template.
-	const FRONTEND_VERSION = env.PUBLIC_VERSION ? env.PUBLIC_VERSION.replace(/^v/, '') : 'dev';
-	const FRONTEND_REPO = 'https://github.com/letsrevel/revel-frontend';
-	const BACKEND_REPO = 'https://github.com/letsrevel/revel-backend';
-
-	// Get backend version and demo mode from store
-	const backendVersion = $derived(appStore.backendVersion || 'Loading...');
-	const isDemoMode = $derived(appStore.isDemoMode);
-
-	// Cache for release notes
-	const releaseNotesCache = $state<Record<string, string[] | null>>({});
-	const loadingNotes = $state<Record<string, boolean>>({});
-
-	async function fetchReleaseNotes(repo: 'frontend' | 'backend', version: string) {
-		const cacheKey = `${repo}-${version}`;
-		if (releaseNotesCache[cacheKey] !== undefined || loadingNotes[cacheKey]) return;
-
-		loadingNotes[cacheKey] = true;
-		try {
-			const repoName = repo === 'frontend' ? 'revel-frontend' : 'revel-backend';
-			const response = await fetch(
-				`https://api.github.com/repos/letsrevel/${repoName}/releases/tags/v${version}`
-			);
-			if (!response.ok) throw new Error('Not found');
-
-			const data = await response.json();
-			releaseNotesCache[cacheKey] = parseReleaseNotes(data.body);
-		} catch {
-			releaseNotesCache[cacheKey] = null;
-		} finally {
-			loadingNotes[cacheKey] = false;
-		}
-	}
-
-	function parseReleaseNotes(body: string | null): string[] {
-		if (!body) return [];
-		// Extract bullet points, strip author/PR links
-		return body
-			.split('\n')
-			.filter((line) => line.startsWith('* '))
-			.map((line) => line.replace(/^\* /, '').replace(/ by @.+$/, ''))
-			.filter(Boolean);
-	}
 </script>
 
 <footer class="border-t bg-muted/30">
@@ -171,99 +120,17 @@
 			</div>
 		</div>
 
-		<!-- Version Info - Compact inline -->
-		<Tooltip.Provider>
-			<div
-				class="mt-8 flex flex-wrap items-center justify-center gap-4 border-t pt-6 text-xs text-muted-foreground"
-			>
-				<Tooltip.Root>
-					<Tooltip.Trigger
-						onmouseenter={() => fetchReleaseNotes('frontend', FRONTEND_VERSION)}
-						onfocus={() => fetchReleaseNotes('frontend', FRONTEND_VERSION)}
-					>
-						<a
-							href={FRONTEND_REPO}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="flex items-center gap-1.5 transition-colors hover:text-foreground"
-							aria-label="{m['footer.frontend']()} repository on GitHub"
-						>
-							<Github class="h-3.5 w-3.5" aria-hidden="true" />
-							<span>FE v{FRONTEND_VERSION}</span>
-							<Info class="h-3 w-3 text-muted-foreground/70" aria-hidden="true" />
-						</a>
-					</Tooltip.Trigger>
-					<Tooltip.Content class="max-w-xs">
-						{#if loadingNotes[`frontend-${FRONTEND_VERSION}`]}
-							<p class="text-xs">{m['footer.loadingNotes']()}</p>
-						{:else if releaseNotesCache[`frontend-${FRONTEND_VERSION}`]?.length}
-							<ul class="space-y-1 text-xs">
-								{#each releaseNotesCache[`frontend-${FRONTEND_VERSION}`] as note, i (i)}
-									<li>- {note}</li>
-								{/each}
-							</ul>
-						{:else}
-							<p class="text-xs">{m['footer.noReleaseNotes']()}</p>
-						{/if}
-					</Tooltip.Content>
-				</Tooltip.Root>
-
-				<span class="text-muted-foreground/50">|</span>
-
-				<Tooltip.Root>
-					<Tooltip.Trigger
-						onmouseenter={() => fetchReleaseNotes('backend', backendVersion)}
-						onfocus={() => fetchReleaseNotes('backend', backendVersion)}
-					>
-						<a
-							href={BACKEND_REPO}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="flex items-center gap-1.5 transition-colors hover:text-foreground"
-							aria-label="{m['footer.backend']()} repository on GitHub"
-						>
-							<Github class="h-3.5 w-3.5" aria-hidden="true" />
-							<span>BE v{backendVersion}{isDemoMode ? ' (demo)' : ''}</span>
-							<Info class="h-3 w-3 text-muted-foreground/70" aria-hidden="true" />
-						</a>
-					</Tooltip.Trigger>
-					<Tooltip.Content class="max-w-xs">
-						{#if loadingNotes[`backend-${backendVersion}`]}
-							<p class="text-xs">{m['footer.loadingNotes']()}</p>
-						{:else if releaseNotesCache[`backend-${backendVersion}`]?.length}
-							<ul class="space-y-1 text-xs">
-								{#each releaseNotesCache[`backend-${backendVersion}`] as note, i (i)}
-									<li>- {note}</li>
-								{/each}
-							</ul>
-						{:else}
-							<p class="text-xs">{m['footer.noReleaseNotes']()}</p>
-						{/if}
-					</Tooltip.Content>
-				</Tooltip.Root>
-
-				<span class="text-muted-foreground/50">|</span>
-
-				<a
-					href="https://forms.gle/c6ovKV92nMQEbR877"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="flex items-center gap-1.5 transition-colors hover:text-foreground"
-					aria-label={m['footer.reportBug']()}
-				>
-					<Bug class="h-3.5 w-3.5" aria-hidden="true" />
-					<span>{m['footer.reportBug']()}</span>
-				</a>
-			</div>
-		</Tooltip.Provider>
-
-		<!-- Cookie Notice -->
-		<div class="mt-8 border-t pt-8">
-			<div class="rounded-lg bg-muted/50 p-4 text-center text-sm text-muted-foreground">
-				<p>
-					{m['footer.cookieNotice']()}
-				</p>
-			</div>
+		<!-- Bottom links -->
+		<div
+			class="mt-8 flex flex-wrap items-center justify-center gap-4 border-t pt-6 text-sm text-muted-foreground"
+		>
+			<a href="/legal/privacy" class="transition-colors hover:text-foreground">
+				{m['footer.privacyPolicy']()}
+			</a>
+			<span class="text-muted-foreground/50">|</span>
+			<a href="/legal/terms" class="transition-colors hover:text-foreground">
+				{m['footer.termsOfService']()}
+			</a>
 		</div>
 
 		<!-- Copyright -->
