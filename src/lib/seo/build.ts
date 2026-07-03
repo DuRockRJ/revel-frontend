@@ -130,9 +130,9 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 
 	switch (input.kind) {
 		case 'home': {
-			const title = `${SITE_NAME} — Community-Focused Event Management`;
+			const title = `${SITE_NAME} — Shows e eventos de rock`;
 			const description =
-				'Discover community events, connect with organizers, and create unforgettable experiences. Open-source event management and ticketing platform.';
+				'Descubra shows de rock, conecte-se com organizadores e viva experiências inesquecíveis.';
 			return {
 				title,
 				description,
@@ -149,8 +149,8 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 				},
 				twitter: {
 					card: 'summary_large_image',
-					title: 'Revel — Community Events',
-					description: 'Discover community events and create unforgettable experiences',
+					title: `${SITE_NAME} — Shows de rock`,
+					description: 'Descubra shows de rock e viva experiências inesquecíveis',
 					image: defaultOgImage(origin),
 					site: TWITTER_SITE
 				},
@@ -160,9 +160,8 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 		}
 
 		case 'events-listing': {
-			const title = 'Browse Events | Revel';
-			const description =
-				'Discover community events happening near you. Find concerts, workshops, meetups, and more on Revel.';
+			const title = `Eventos | ${SITE_NAME}`;
+			const description = 'Descubra shows e eventos de rock perto de você.';
 			return {
 				title,
 				description,
@@ -180,32 +179,31 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 				twitter: {
 					card: 'summary_large_image',
 					title,
-					description: 'Discover community events near you',
+					description: 'Descubra eventos perto de você',
 					image: defaultOgImage(origin),
 					site: TWITTER_SITE
 				},
 				hreflang: sameUrlHreflang(canonical),
 				jsonLd: [
 					generateBreadcrumbJsonLd([
-						{ name: 'Home', url: origin },
-						{ name: 'Events', url: canonical }
+						{ name: 'Início', url: origin },
+						{ name: 'Eventos', url: canonical }
 					])
 				]
 			};
 		}
 
 		case 'orgs-listing': {
-			const title = 'Discover Organizations | Revel';
-			const description =
-				'Browse and discover community organizations on Revel. Find event organizers, communities, and groups creating amazing experiences.';
+			const title = `Organizações | ${SITE_NAME}`;
+			const description = `Veja as organizações da comunidade no ${SITE_NAME}. Encontre organizadores, comunidades e grupos criando experiências incríveis.`;
 			const ld: object[] = [
 				generateBreadcrumbJsonLd([
-					{ name: 'Home', url: origin },
-					{ name: 'Organizations', url: canonical }
+					{ name: 'Início', url: origin },
+					{ name: 'Organizações', url: canonical }
 				])
 			];
 			if (input.items?.length) {
-				ld.push(generateItemListJsonLd(input.items, 'Organizations on Revel'));
+				ld.push(generateItemListJsonLd(input.items, `Organizações no ${SITE_NAME}`));
 			}
 			return {
 				title,
@@ -224,7 +222,7 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 				twitter: {
 					card: 'summary_large_image',
 					title,
-					description: 'Browse community organizations near you',
+					description: 'Veja organizações da comunidade perto de você',
 					image: defaultOgImage(origin),
 					site: TWITTER_SITE
 				},
@@ -238,8 +236,9 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 			const desc = stripHtml(event.description);
 			const truncated = truncate(desc, 155);
 			const image = getEventImage(event);
-			const title = `${event.name} | Revel`;
-			const description = truncated || `Join ${event.name} organized by ${event.organization.name}`;
+			const title = `${event.name} | ${SITE_NAME}`;
+			const description =
+				truncated || `Participe de ${event.name}, organizado por ${event.organization.name}`;
 			return {
 				title,
 				description,
@@ -258,7 +257,7 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 				twitter: {
 					card: 'summary_large_image',
 					title: event.name,
-					description: truncate(desc, 200) || `Join ${event.name}`,
+					description: truncate(desc, 200) || `Participe de ${event.name}`,
 					image,
 					site: TWITTER_SITE
 				},
@@ -266,8 +265,8 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 				jsonLd: [
 					generateEventJsonLd(event, canonical),
 					generateBreadcrumbJsonLd([
-						{ name: 'Home', url: origin },
-						{ name: 'Events', url: `${origin}/events` },
+						{ name: 'Início', url: origin },
+						{ name: 'Eventos', url: `${origin}/events` },
 						{ name: event.organization.name, url: `${origin}/org/${event.organization.slug}` },
 						{ name: event.name, url: canonical }
 					])
@@ -280,8 +279,9 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 			const desc = stripHtml(org.description);
 			const truncated = truncate(desc, 155);
 			const image = getOrgImage(org);
-			const title = `${org.name} | Revel`;
-			const description = truncated || `${org.name} on Revel - Community events and experiences`;
+			const title = `${org.name} | ${SITE_NAME}`;
+			const description =
+				truncated || `${org.name} no ${SITE_NAME} - Eventos e experiências da comunidade`;
 			return {
 				title,
 				description,
@@ -299,7 +299,7 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 				twitter: {
 					card: 'summary_large_image',
 					title: org.name,
-					description: truncate(desc, 200) || `${org.name} on Revel`,
+					description: truncate(desc, 200) || `${org.name} no ${SITE_NAME}`,
 					image,
 					site: TWITTER_SITE
 				},
@@ -307,8 +307,8 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 				jsonLd: [
 					generateOrganizationJsonLd(org, canonical),
 					generateBreadcrumbJsonLd([
-						{ name: 'Home', url: origin },
-						{ name: 'Organizations', url: `${origin}/organizations` },
+						{ name: 'Início', url: origin },
+						{ name: 'Organizações', url: `${origin}/organizations` },
 						{ name: org.name, url: canonical }
 					])
 				]
@@ -320,9 +320,9 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 			const desc = stripHtml(series.description);
 			const truncated = truncate(desc, 155);
 			const image = getSeriesImage(series);
-			const title = `${series.name} | ${series.organization.name} | Revel`;
+			const title = `${series.name} | ${series.organization.name} | ${SITE_NAME}`;
 			const description =
-				truncated || `${series.name} - Event series by ${series.organization.name}`;
+				truncated || `${series.name} - Série de eventos por ${series.organization.name}`;
 			return {
 				title,
 				description,
@@ -348,7 +348,7 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 				jsonLd: [
 					generateSeriesJsonLd(series, canonical),
 					generateBreadcrumbJsonLd([
-						{ name: 'Home', url: origin },
+						{ name: 'Início', url: origin },
 						{ name: series.organization.name, url: `${origin}/org/${series.organization.slug}` },
 						{ name: series.name, url: canonical }
 					])
@@ -393,8 +393,8 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 
 		case 'legal': {
 			const titles: Record<typeof input.doc, string> = {
-				privacy: 'Privacy Policy | Revel',
-				terms: 'Terms of Service | Revel'
+				privacy: `Política de Privacidade | ${SITE_NAME}`,
+				terms: `Termos de Serviço | ${SITE_NAME}`
 			};
 			return {
 				title: titles[input.doc],
@@ -423,11 +423,11 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 
 		case 'auth': {
 			const titles: Record<typeof input.page, string> = {
-				login: 'Log in | Revel',
-				register: 'Create your account | Revel',
-				'password-reset': 'Reset your password | Revel',
-				verify: 'Verify your account | Revel',
-				unsubscribe: 'Unsubscribe | Revel'
+				login: `Entrar | ${SITE_NAME}`,
+				register: `Criar sua conta | ${SITE_NAME}`,
+				'password-reset': `Redefinir sua senha | ${SITE_NAME}`,
+				verify: `Verificar sua conta | ${SITE_NAME}`,
+				unsubscribe: `Cancelar inscrição | ${SITE_NAME}`
 			};
 			const t = titles[input.page];
 			return {
