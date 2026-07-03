@@ -16,6 +16,8 @@ describe('calendar formatting follows the app UI locale (#508)', () => {
 		expect(formatMonthYear(2026, 1)).toContain('janvier');
 		getLocale.mockReturnValue('de');
 		expect(formatMonthYear(2026, 1)).toContain('Januar');
+		getLocale.mockReturnValue('pt');
+		expect(formatMonthYear(2026, 1)).toContain('janeiro');
 	});
 
 	it('formatWeekRange uses a textual month (never a bare number)', () => {
@@ -57,5 +59,11 @@ describe('formatWeekdayShort (#510)', () => {
 		getLocale.mockReturnValue('fr');
 		// French Monday short form is "lun." in most ICU versions
 		expect(formatWeekdayShort(monday)).toMatch(/lun/i);
+	});
+
+	it('pt locale produces a Portuguese abbreviation for Monday', () => {
+		getLocale.mockReturnValue('pt');
+		// Portuguese Monday short form is "seg." in most ICU versions
+		expect(formatWeekdayShort(monday)).toMatch(/seg/i);
 	});
 });
