@@ -56,8 +56,19 @@
 	<div class="container mx-auto flex h-16 items-center justify-between px-4">
 		<!-- Logo -->
 		<div class="flex items-center gap-6">
-			<a href="/" class="text-2xl font-bold text-primary transition-colors hover:text-primary/80">
-				DuRock RJ
+			<a
+				href="/"
+				class="flex items-center gap-2 text-2xl font-bold text-primary transition-opacity hover:opacity-80"
+			>
+				<img
+					src="/logo-mark.png"
+					alt=""
+					aria-hidden="true"
+					width="31"
+					height="32"
+					class="h-8 w-auto dark:invert"
+				/>
+				<span><span class="text-accent">Du</span>Rock <span class="text-base">RJ</span></span>
 			</a>
 
 			<!-- Desktop Navigation -->
