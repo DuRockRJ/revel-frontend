@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 
-// Force a stable locale so 12-hour formatting (gated on en-US) is deterministic
-// regardless of the machine running the tests.
+// Force a stable locale so date/month formatting is deterministic regardless
+// of the machine running the tests. Times are always 24h (app is pt-BR only),
+// independent of this mock.
 vi.mock('$lib/paraglide/runtime.js', () => ({
 	getLocale: () => 'en'
 }));
@@ -20,7 +21,7 @@ import {
 } from './date';
 
 // A fixed winter instant (no DST ambiguity):
-//   19:00 UTC  →  14:00 (2:00 PM) EST in New York,  20:00 (8:00 PM) CET in Vienna.
+//   19:00 UTC  →  14:00 in New York (EST),  20:00 in Vienna (CET).
 const WINTER_UTC = '2026-02-06T19:00:00Z';
 
 describe('formatEventDate with an explicit timezone (#474)', () => {
@@ -28,24 +29,24 @@ describe('formatEventDate with an explicit timezone (#474)', () => {
 		const ny = formatEventDate(WINTER_UTC, 'America/New_York');
 		const vienna = formatEventDate(WINTER_UTC, 'Europe/Vienna');
 
-		expect(ny).toContain('2:00 PM');
-		expect(vienna).toContain('8:00 PM');
+		expect(ny).toContain('14:00');
+		expect(vienna).toContain('20:00');
 		expect(ny).not.toBe(vienna);
 	});
 
-	it('appends a timezone abbreviation when a timezone is supplied', () => {
+	it('omits the timezone abbreviation by default, even with a timezone supplied', () => {
+		expect(formatEventDate(WINTER_UTC, 'America/New_York')).not.toContain('EST');
+	});
+
+	it('appends a timezone abbreviation when withAbbreviation is explicitly true', () => {
 		// New York's short name is reliably "EST" in winter across ICU versions.
-		expect(formatEventDate(WINTER_UTC, 'America/New_York')).toContain('EST');
+		const out = formatEventDate(WINTER_UTC, 'America/New_York', true);
+		expect(out).toContain('14:00');
+		expect(out).toContain('EST');
 	});
 
 	it('omits the timezone abbreviation when no timezone is supplied (backward compatible)', () => {
 		expect(formatEventDate(WINTER_UTC)).not.toContain('EST');
-	});
-
-	it('omits the abbreviation when withAbbreviation is false (paired with a tz label)', () => {
-		const out = formatEventDate(WINTER_UTC, 'America/New_York', false);
-		expect(out).toContain('2:00 PM');
-		expect(out).not.toContain('EST');
 	});
 });
 
@@ -69,7 +70,7 @@ describe('formatEventDateRange same-day detection is timezone-aware', () => {
 
 	it('collapses to a single date when both ends fall on the same local day', () => {
 		const ny = formatEventDateRange(start, end, 'America/New_York');
-		expect(ny).toContain('5:00 PM - 10:00 PM');
+		expect(ny).toContain('17:00 - 22:00');
 	});
 
 	it('shows two dates when the local days differ', () => {
@@ -84,10 +85,11 @@ describe('formatEventDateRange same-day detection is timezone-aware', () => {
 		const out = formatEventDateRange(
 			'2026-03-28T22:00:00Z',
 			'2026-03-29T11:00:00Z',
-			'Europe/Vienna'
+			'Europe/Vienna',
+			true
 		);
-		expect(out).toContain('11:00 PM GMT+1');
-		expect(out).toContain('1:00 PM GMT+2');
+		expect(out).toContain('23:00 GMT+1');
+		expect(out).toContain('13:00 GMT+2');
 	});
 });
 
@@ -105,17 +107,17 @@ describe('formatDate applies the timezone to the calendar day without an abbrevi
 	});
 });
 
-describe('formatDateTime and screen-reader format carry the timezone', () => {
-	it('formatDateTime includes the localized time and abbreviation', () => {
+describe('formatDateTime and screen-reader format', () => {
+	it('formatDateTime renders a 24h time and never appends a timezone abbreviation', () => {
 		const out = formatDateTime(WINTER_UTC, 'America/New_York');
-		expect(out).toContain('2:00 PM');
-		expect(out).toContain('EST');
+		expect(out).toContain('14:00');
+		expect(out).not.toContain('EST');
 	});
 
-	it('screen-reader format spells out the date in the event timezone', () => {
+	it('screen-reader format spells out the date in the event timezone, with abbreviation', () => {
 		const out = formatEventDateForScreenReader(WINTER_UTC, 'America/New_York');
 		expect(out).toContain('February');
-		expect(out).toContain('2:00 PM');
+		expect(out).toContain('14:00');
 		expect(out).toContain('EST');
 	});
 });
@@ -179,15 +181,15 @@ describe('formatDateTimeVerbose (#510)', () => {
 		expect(out).toMatch(/\d+:\d+/);
 	});
 
-	it('includes AM/PM for en-US locale', () => {
+	it('never includes AM/PM — the app is 24h-only', () => {
 		const out = formatDateTimeVerbose('2026-06-07T12:00:00Z');
-		expect(out).toMatch(/AM|PM/);
+		expect(out).not.toMatch(/AM|PM/);
 	});
 
 	it('respects a supplied timezone', () => {
-		// 2026-02-06T19:00:00Z → 2:00 PM EST in New York
+		// 2026-02-06T19:00:00Z → 14:00 in New York (EST)
 		const out = formatDateTimeVerbose('2026-02-06T19:00:00Z', 'America/New_York');
-		expect(out).toContain('2:00 PM');
+		expect(out).toContain('14:00');
 		expect(out).toContain('February');
 	});
 });

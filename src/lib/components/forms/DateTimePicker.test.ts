@@ -150,7 +150,7 @@ describe('DateTimePicker', () => {
 		render(DateTimePicker, {
 			props: { label: 'Start Time', value: '2025-10-20T14:30:00' }
 		});
-		const readback = screen.getByText(/Oct 20, 2025/);
+		const readback = screen.getByText(/20 de out\. de 2025/);
 		expect(readback).toBeInTheDocument();
 		expect(readback.textContent).not.toMatch(/10\/20/); // never numeric month/day
 	});

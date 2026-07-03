@@ -27,14 +27,19 @@ describe('formatDateLongMonth locale switching (#510)', () => {
 		getLocale.mockReturnValue('de');
 		expect(formatDateLongMonth(JUNE_UTC)).toContain('Juni');
 	});
+
+	it('pt → contains "junho"', () => {
+		getLocale.mockReturnValue('pt');
+		expect(formatDateLongMonth(JUNE_UTC)).toContain('junho');
+	});
 });
 
 describe('formatDateTimeVerbose locale switching (#510)', () => {
-	it('en → contains "June" and uses 12-hour AM/PM', () => {
+	it('en → contains "June" and uses 24-hour (no AM/PM)', () => {
 		getLocale.mockReturnValue('en');
 		const out = formatDateTimeVerbose(JUNE_UTC);
 		expect(out).toContain('June');
-		expect(out).toMatch(/AM|PM/);
+		expect(out).not.toMatch(/AM|PM/);
 	});
 
 	it('fr → contains "juin" and does NOT use AM/PM (24-hour)', () => {
@@ -50,6 +55,13 @@ describe('formatDateTimeVerbose locale switching (#510)', () => {
 		expect(out).toContain('Juni');
 		expect(out).not.toMatch(/AM|PM/);
 	});
+
+	it('pt → contains "junho" and does NOT use AM/PM (24-hour)', () => {
+		getLocale.mockReturnValue('pt');
+		const out = formatDateTimeVerbose(JUNE_UTC);
+		expect(out).toContain('junho');
+		expect(out).not.toMatch(/AM|PM/);
+	});
 });
 
 describe('formatMonthYearLabel locale switching (#510)', () => {
@@ -61,5 +73,10 @@ describe('formatMonthYearLabel locale switching (#510)', () => {
 	it('fr → contains "juin 2026"', () => {
 		getLocale.mockReturnValue('fr');
 		expect(formatMonthYearLabel(JUNE_UTC)).toContain('juin 2026');
+	});
+
+	it('pt → contains "junho de 2026"', () => {
+		getLocale.mockReturnValue('pt');
+		expect(formatMonthYearLabel(JUNE_UTC)).toContain('junho de 2026');
 	});
 });

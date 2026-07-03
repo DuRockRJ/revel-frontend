@@ -84,14 +84,15 @@ function withTz(formatted: string, abbreviation: string): string {
  * Format a date-time string for event display
  * @param dateString ISO 8601 date-time string
  * @param timeZone Optional IANA timezone to render in (e.g. the event's timezone)
- * @param withAbbreviation Append the tz abbreviation/offset (default true). Pass
- *   false on surfaces that show a separate "Times shown in …" label instead.
- * @returns Formatted date string (e.g., "Fri, Oct 20 • 8:00 PM GMT+1")
+ * @param withAbbreviation Append the tz abbreviation/offset (default false — the
+ *   app is single-timezone, so it's redundant noise on most surfaces). Pass
+ *   true on surfaces that need to call out a non-viewer timezone explicitly.
+ * @returns Formatted date string (e.g., "Fri, Oct 20 • 20:00")
  */
 export function formatEventDate(
 	dateString: string,
 	timeZone?: string,
-	withAbbreviation = true
+	withAbbreviation = false
 ): string {
 	const date = new Date(dateString);
 	const locale = getDateLocale();
@@ -102,7 +103,7 @@ export function formatEventDate(
 	const time = date.toLocaleTimeString(locale, {
 		hour: 'numeric',
 		minute: '2-digit',
-		hour12: locale === 'en-US', // Only use 12-hour format for English
+		hour12: false, // App is 24h-only (single pt-BR locale, no AM/PM)
 		...tzOpt(timeZone)
 	});
 
@@ -115,15 +116,16 @@ export function formatEventDate(
  * @param startString ISO 8601 start date-time string
  * @param endString ISO 8601 end date-time string
  * @param timeZone Optional IANA timezone to render in (e.g. the event's timezone)
- * @param withAbbreviation Append the tz abbreviation/offset (default true). Pass
- *   false on surfaces that show a separate "Times shown in …" label instead.
- * @returns Formatted date range (e.g., "Fri, Oct 20 • 8:00 PM - 11:00 PM GMT+1")
+ * @param withAbbreviation Append the tz abbreviation/offset (default false — the
+ *   app is single-timezone, so it's redundant noise on most surfaces). Pass
+ *   true on surfaces that need to call out a non-viewer timezone explicitly.
+ * @returns Formatted date range (e.g., "Fri, Oct 20 • 20:00 - 23:00")
  */
 export function formatEventDateRange(
 	startString: string,
 	endString: string,
 	timeZone?: string,
-	withAbbreviation = true
+	withAbbreviation = false
 ): string {
 	const start = new Date(startString);
 	const end = new Date(endString);
@@ -136,13 +138,13 @@ export function formatEventDateRange(
 	const startTime = start.toLocaleTimeString(locale, {
 		hour: 'numeric',
 		minute: '2-digit',
-		hour12: locale === 'en-US',
+		hour12: false, // App is 24h-only (single pt-BR locale, no AM/PM)
 		...tzOpt(timeZone)
 	});
 	const endTime = end.toLocaleTimeString(locale, {
 		hour: 'numeric',
 		minute: '2-digit',
-		hour12: locale === 'en-US',
+		hour12: false, // App is 24h-only (single pt-BR locale, no AM/PM)
 		...tzOpt(timeZone)
 	});
 
@@ -278,8 +280,8 @@ export function isRSVPClosingSoon(deadlineString: string | null): boolean {
  * Format a date for screen readers (more verbose)
  * @param dateString ISO 8601 date-time string
  * @param timeZone Optional IANA timezone to render in (e.g. the event's timezone);
- *   when supplied, the tz abbreviation is appended (e.g. "… at 8:00 PM CET")
- * @returns Verbose date string (e.g., "Friday, October 20th, 2025 at 8:00 PM CET")
+ *   when supplied, the tz abbreviation is appended (e.g. "… at 20:00 CET")
+ * @returns Verbose date string (e.g., "quinta-feira, 20 de outubro de 2025 20:00 CET")
  */
 export function formatEventDateForScreenReader(dateString: string, timeZone?: string): string {
 	const date = new Date(dateString);
@@ -292,7 +294,7 @@ export function formatEventDateForScreenReader(dateString: string, timeZone?: st
 	const time = date.toLocaleTimeString(locale, {
 		hour: 'numeric',
 		minute: '2-digit',
-		hour12: locale === 'en-US',
+		hour12: false, // App is 24h-only (single pt-BR locale, no AM/PM)
 		...tzOpt(timeZone)
 	});
 	const tz = getTimeZoneAbbreviation(date, locale, timeZone);
@@ -335,7 +337,7 @@ function getOrdinalSuffix(day: number): string {
  *
  * @param dateString ISO 8601 date-time string
  * @param timeZone Optional IANA timezone to render in (e.g. the event's timezone)
- * @returns Formatted time string (e.g., "8:00 PM" for en-US or "20:00" for de-DE)
+ * @returns Formatted time string, 24h (e.g., "20:00")
  */
 export function formatTimeOfDay(dateString: string, timeZone?: string): string {
 	const date = new Date(dateString);
@@ -344,32 +346,31 @@ export function formatTimeOfDay(dateString: string, timeZone?: string): string {
 	return date.toLocaleTimeString(locale, {
 		hour: 'numeric',
 		minute: '2-digit',
-		hour12: locale === 'en-US',
+		hour12: false, // App is 24h-only (single pt-BR locale, no AM/PM)
 		...tzOpt(timeZone)
 	});
 }
 
 /**
  * Format a date for display in admin pages and lists
- * Uses locale-aware formatting with medium date and short time
+ * Uses locale-aware formatting with medium date and short time, 24h clock,
+ * no timezone abbreviation (the app is single-timezone, so it's redundant).
  * @param dateString ISO 8601 date-time string
- * @returns Formatted date string (e.g., "Oct 20, 2025, 8:00 PM" for en-US or "20. Okt. 2025, 20:00" for de-DE)
+ * @returns Formatted date string (e.g., "20 de out. de 2025, 20:00")
  */
 export function formatDateTime(dateString: string, timeZone?: string): string {
 	const date = new Date(dateString);
 	const locale = getDateLocale();
 
-	const formatted = date.toLocaleString(locale, {
+	return date.toLocaleString(locale, {
 		year: 'numeric',
 		month: 'short',
 		day: 'numeric',
 		hour: 'numeric',
 		minute: '2-digit',
-		hour12: locale === 'en-US',
+		hour12: false, // App is 24h-only (single pt-BR locale, no AM/PM)
 		...tzOpt(timeZone)
 	});
-
-	return withTz(formatted, getTimeZoneAbbreviation(date, locale, timeZone));
 }
 
 /**
@@ -382,7 +383,7 @@ export function formatDateTime(dateString: string, timeZone?: string): string {
  * can render nothing before a value is picked.
  *
  * @param value datetime-local or ISO 8601 string (may be empty/null/undefined)
- * @returns e.g. "Oct 20, 2025, 2:30 PM" (locale-dependent), or ""
+ * @returns e.g. "Oct 20, 2025, 14:30" (locale-dependent), or ""
  */
 export function formatDateTimeReadback(value: string | null | undefined): string {
 	if (!value) return '';
@@ -394,7 +395,7 @@ export function formatDateTimeReadback(value: string | null | undefined): string
 /**
  * Format a date without time for display
  * @param dateString ISO 8601 date-time string
- * @returns Formatted date string (e.g., "Oct 20, 2025" for en-US or "20. Okt. 2025" for de-DE)
+ * @returns Formatted date string (e.g., "20 de out. de 2025" for pt-BR or "20. Okt. 2025" for de-DE)
  */
 export function formatDate(dateString: string, timeZone?: string): string {
 	const date = new Date(dateString);
@@ -420,7 +421,7 @@ export function formatDateLongMonth(dateString: string, timeZone?: string): stri
 	});
 }
 
-/** Long-month date + time, e.g. "October 20, 2025, 8:00 PM". */
+/** Long-month date + time, 24h, e.g. "20 de outubro de 2025, 20:00". */
 export function formatDateTimeVerbose(dateString: string, timeZone?: string): string {
 	const locale = getDateLocale();
 	return new Date(dateString).toLocaleString(locale, {
@@ -429,7 +430,7 @@ export function formatDateTimeVerbose(dateString: string, timeZone?: string): st
 		day: 'numeric',
 		hour: 'numeric',
 		minute: '2-digit',
-		hour12: locale === 'en-US',
+		hour12: false, // App is 24h-only (single pt-BR locale, no AM/PM)
 		...tzOpt(timeZone)
 	});
 }
