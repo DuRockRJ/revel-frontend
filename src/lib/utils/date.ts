@@ -81,13 +81,22 @@ function withTz(formatted: string, abbreviation: string): string {
 }
 
 /**
+ * Intl's short weekday/month abbreviations in pt-BR always carry a trailing
+ * "." (e.g. "seg.", "out."). Strip it for the app's dot-free abbreviation
+ * style. Exported so calendar.ts shares it.
+ */
+export function stripAbbrevDot(s: string): string {
+	return s.replace(/\.$/, '');
+}
+
+/**
  * Format a date-time string for event display
  * @param dateString ISO 8601 date-time string
  * @param timeZone Optional IANA timezone to render in (e.g. the event's timezone)
  * @param withAbbreviation Append the tz abbreviation/offset (default false — the
  *   app is single-timezone, so it's redundant noise on most surfaces). Pass
  *   true on surfaces that need to call out a non-viewer timezone explicitly.
- * @returns Formatted date string (e.g., "Fri, Oct 20 • 20:00")
+ * @returns Formatted date string (e.g., "sáb, 31 out • 20:00")
  */
 export function formatEventDate(
 	dateString: string,
@@ -97,8 +106,12 @@ export function formatEventDate(
 	const date = new Date(dateString);
 	const locale = getDateLocale();
 
-	const dayOfWeek = date.toLocaleDateString(locale, { weekday: 'short', ...tzOpt(timeZone) });
-	const month = date.toLocaleDateString(locale, { month: 'short', ...tzOpt(timeZone) });
+	const dayOfWeek = stripAbbrevDot(
+		date.toLocaleDateString(locale, { weekday: 'short', ...tzOpt(timeZone) })
+	);
+	const month = stripAbbrevDot(
+		date.toLocaleDateString(locale, { month: 'short', ...tzOpt(timeZone) })
+	);
 	const day = dayOfMonthInZone(date, locale, timeZone);
 	const time = date.toLocaleTimeString(locale, {
 		hour: 'numeric',
@@ -107,7 +120,7 @@ export function formatEventDate(
 		...tzOpt(timeZone)
 	});
 
-	const base = `${dayOfWeek}, ${month} ${day} • ${time}`;
+	const base = `${dayOfWeek}, ${day} ${month} • ${time}`;
 	return withAbbreviation ? withTz(base, getTimeZoneAbbreviation(date, locale, timeZone)) : base;
 }
 
@@ -119,7 +132,7 @@ export function formatEventDate(
  * @param withAbbreviation Append the tz abbreviation/offset (default false — the
  *   app is single-timezone, so it's redundant noise on most surfaces). Pass
  *   true on surfaces that need to call out a non-viewer timezone explicitly.
- * @returns Formatted date range (e.g., "Fri, Oct 20 • 20:00 - 23:00")
+ * @returns Formatted date range (e.g., "sáb, 31 out • 20:00 - 23:00")
  */
 export function formatEventDateRange(
 	startString: string,
@@ -131,8 +144,12 @@ export function formatEventDateRange(
 	const end = new Date(endString);
 	const locale = getDateLocale();
 
-	const dayOfWeek = start.toLocaleDateString(locale, { weekday: 'short', ...tzOpt(timeZone) });
-	const month = start.toLocaleDateString(locale, { month: 'short', ...tzOpt(timeZone) });
+	const dayOfWeek = stripAbbrevDot(
+		start.toLocaleDateString(locale, { weekday: 'short', ...tzOpt(timeZone) })
+	);
+	const month = stripAbbrevDot(
+		start.toLocaleDateString(locale, { month: 'short', ...tzOpt(timeZone) })
+	);
 	const day = dayOfMonthInZone(start, locale, timeZone);
 
 	const startTime = start.toLocaleTimeString(locale, {
@@ -152,12 +169,16 @@ export function formatEventDateRange(
 
 	// If same day, show date once.
 	if (isSameDayInZone(start, end, timeZone)) {
-		return withTz(`${dayOfWeek}, ${month} ${day} • ${startTime} - ${endTime}`, startTz);
+		return withTz(`${dayOfWeek}, ${day} ${month} • ${startTime} - ${endTime}`, startTz);
 	}
 
 	// Different days
-	const endDayOfWeek = end.toLocaleDateString(locale, { weekday: 'short', ...tzOpt(timeZone) });
-	const endMonth = end.toLocaleDateString(locale, { month: 'short', ...tzOpt(timeZone) });
+	const endDayOfWeek = stripAbbrevDot(
+		end.toLocaleDateString(locale, { weekday: 'short', ...tzOpt(timeZone) })
+	);
+	const endMonth = stripAbbrevDot(
+		end.toLocaleDateString(locale, { month: 'short', ...tzOpt(timeZone) })
+	);
 	const endDay = dayOfMonthInZone(end, locale, timeZone);
 	const endTz = withAbbreviation ? getTimeZoneAbbreviation(end, locale, timeZone) : '';
 
@@ -166,11 +187,11 @@ export function formatEventDateRange(
 	// to its own time so the end isn't mislabelled with the start's offset; when
 	// they match, append once at the end as before.
 	if (startTz !== endTz) {
-		return `${dayOfWeek}, ${month} ${day} • ${withTz(startTime, startTz)} - ${endDayOfWeek}, ${endMonth} ${endDay} • ${withTz(endTime, endTz)}`;
+		return `${dayOfWeek}, ${day} ${month} • ${withTz(startTime, startTz)} - ${endDayOfWeek}, ${endDay} ${endMonth} • ${withTz(endTime, endTz)}`;
 	}
 
 	return withTz(
-		`${dayOfWeek}, ${month} ${day} • ${startTime} - ${endDayOfWeek}, ${endMonth} ${endDay} • ${endTime}`,
+		`${dayOfWeek}, ${day} ${month} • ${startTime} - ${endDayOfWeek}, ${endDay} ${endMonth} • ${endTime}`,
 		startTz
 	);
 }

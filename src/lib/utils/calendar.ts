@@ -3,7 +3,7 @@
  * Week system: Monday-Sunday (ISO 8601 standard)
  */
 
-import { getDateLocale } from './date';
+import { getDateLocale, stripAbbrevDot } from './date';
 
 export type CalendarView = 'month' | 'week' | 'year';
 
@@ -230,9 +230,9 @@ export function isInMonth(date: Date, year: number, month: number): boolean {
 	return date.getFullYear() === year && date.getMonth() === month - 1;
 }
 
-/** Short weekday name in the active locale, e.g. "Mon". */
+/** Short weekday name in the active locale, dot-free, e.g. "seg". */
 export function formatWeekdayShort(date: Date): string {
-	return date.toLocaleDateString(getDateLocale(), { weekday: 'short' });
+	return stripAbbrevDot(date.toLocaleDateString(getDateLocale(), { weekday: 'short' }));
 }
 
 /**
@@ -243,11 +243,10 @@ export function formatCalendarDate(date: Date, format: 'short' | 'long' = 'short
 	if (format === 'short') {
 		return date.toLocaleDateString(locale, { day: 'numeric' });
 	}
-	return date.toLocaleDateString(locale, {
-		weekday: 'short',
-		month: 'short',
-		day: 'numeric'
-	});
+	const weekday = stripAbbrevDot(date.toLocaleDateString(locale, { weekday: 'short' }));
+	const month = stripAbbrevDot(date.toLocaleDateString(locale, { month: 'short' }));
+	const day = date.toLocaleDateString(locale, { day: 'numeric' });
+	return `${weekday}, ${day} ${month}`;
 }
 
 /**
@@ -266,14 +265,13 @@ export function formatWeekRange(year: number, week: number): string {
 	const end = getWeekEndDate(year, week);
 	const locale = getDateLocale();
 
-	const startStr = start.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
-	const endStr = end.toLocaleDateString(locale, {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
-	});
+	const startMonth = stripAbbrevDot(start.toLocaleDateString(locale, { month: 'short' }));
+	const startDay = start.toLocaleDateString(locale, { day: 'numeric' });
+	const endMonth = stripAbbrevDot(end.toLocaleDateString(locale, { month: 'short' }));
+	const endDay = end.toLocaleDateString(locale, { day: 'numeric' });
+	const endYear = end.toLocaleDateString(locale, { year: 'numeric' });
 
-	return `${startStr} - ${endStr}`;
+	return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${endYear}`;
 }
 
 /**
