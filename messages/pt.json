@@ -1403,7 +1403,9 @@
 	"eventCard": {
 		"viewDetails": "Ver detalhes do evento",
 		"location_tbd": "A definir",
-		"loading": "Carregando..."
+		"loading": "Carregando...",
+		"accessTicketed": "Com ingresso",
+		"accessFreeRsvp": "RSVP gratuito"
 	},
 	"eventCardSkeleton": {
 		"loading": "Carregando cartão do evento..."

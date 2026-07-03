@@ -7,6 +7,7 @@ import type {
 	EventDetailSchema,
 	MinimalEventSchema
 } from '$lib/api/generated/types.gen';
+import * as m from '$lib/paraglide/messages.js';
 
 /**
  * Get display string for event access/pricing
@@ -29,11 +30,11 @@ export function getEventAccessDisplay(
 	// For everyone, indicate ticket requirement
 	if (event.requires_ticket) {
 		// Could be free or paid, we don't know without fetching ticket tiers
-		return 'Ticketed';
+		return m['eventCard.accessTicketed']();
 	}
 
 	// No ticket required = free RSVP
-	return 'Free RSVP';
+	return m['eventCard.accessFreeRsvp']();
 }
 
 /**
