@@ -30,7 +30,7 @@
 </script>
 
 <div
-	class="calendar-day"
+	class="calendar-day group"
 	class:calendar-day--current-month={isCurrentMonth}
 	class:calendar-day--other-month={!isCurrentMonth}
 	class:calendar-day--today={isToday}
@@ -99,6 +99,7 @@
 
 	.calendar-day-number {
 		@apply inline-flex h-6 w-6 items-center justify-center rounded-full text-sm font-medium;
+		@apply group-hover:text-accent-foreground group-focus-visible:text-accent-foreground;
 	}
 
 	.calendar-day--today .calendar-day-number {
