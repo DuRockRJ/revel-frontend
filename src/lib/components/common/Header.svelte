@@ -68,7 +68,10 @@
 					height="32"
 					class="h-8 w-auto dark:invert"
 				/>
-				<span><span class="text-accent">Du</span>Rock <span class="text-base">RJ</span></span>
+				<span
+					><span class="text-accent">Du</span>Rock
+					<span class="text-base text-accent">RJ</span></span
+				>
 			</a>
 
 			<!-- Desktop Navigation -->

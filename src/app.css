@@ -18,9 +18,10 @@
 		--secondary-foreground: 173 30% 10%;
 		--muted: 0 0% 96%;
 		--muted-foreground: 0 0% 38%;
-		/* Single red accent pop */
-		--accent: 0 74% 50%;
-		--accent-foreground: 0 0% 100%;
+		/* FFB90F gold — only ~1.7:1 contrast on white (fails WCAG AA even at large
+		   text sizes); kept per explicit request over the darkened alternative. */
+		--accent: 42 100% 53%;
+		--accent-foreground: 0 0% 6%;
 		--destructive: 3 78% 46%;
 		--destructive-foreground: 0 0% 100%;
 		--border: 0 0% 87%;
@@ -43,8 +44,9 @@
 		--secondary-foreground: 0 0% 96%;
 		--muted: 0 0% 12%;
 		--muted-foreground: 0 0% 62%;
-		--accent: 0 85% 65%;
-		--accent-foreground: 0 0% 100%;
+		/* FFD60A gold — foreground flips to near-black; white text fails on this bright yellow */
+		--accent: 50 100% 52%;
+		--accent-foreground: 0 0% 6%;
 		--destructive: 3 76% 56%;
 		--destructive-foreground: 0 0% 100%;
 		--border: 0 0% 17%;
