@@ -41,4 +41,23 @@ describe('CityAutocomplete', () => {
 		expect(screen.getByText(/Rio de Janeiro/)).toBeInTheDocument();
 		expect(screen.queryByText(/Nenhuma cidade encontrada/)).not.toBeInTheDocument();
 	});
+
+	it('recolors the pin icon on the keyboard-highlighted option to match its accent background', async () => {
+		mockCityListCities.mockResolvedValue({
+			data: { results: [{ id: 1, name: 'Bangu', admin_name: 'Zona Oeste', country: 'Brasil' }] }
+		});
+		const user = userEvent.setup();
+
+		render(CityAutocomplete, { props: { value: null, onSelect: vi.fn() } });
+
+		const input = screen.getByRole('textbox');
+		await user.type(input, 'Bangu');
+		await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument());
+
+		await user.keyboard('{ArrowDown}');
+
+		const option = screen.getByRole('option');
+		expect(option.className).toContain('bg-accent');
+		expect(option.querySelector('svg')?.getAttribute('class')).toContain('text-accent-foreground');
+	});
 });

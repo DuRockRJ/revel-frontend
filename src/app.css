@@ -18,9 +18,9 @@
 		--secondary-foreground: 173 30% 10%;
 		--muted: 0 0% 96%;
 		--muted-foreground: 0 0% 38%;
-		/* FFB90F gold — only ~1.7:1 contrast on white (fails WCAG AA even at large
-		   text sizes); kept per explicit request over the darkened alternative. */
-		--accent: 42 100% 53%;
+		/* E09A00 gold — ~2.4:1 contrast on white (still fails WCAG AA's 3:1 large-text
+		   minimum); kept per explicit request over the fully-compliant alternative. */
+		--accent: 41 100% 44%;
 		--accent-foreground: 0 0% 6%;
 		--destructive: 3 78% 46%;
 		--destructive-foreground: 0 0% 100%;

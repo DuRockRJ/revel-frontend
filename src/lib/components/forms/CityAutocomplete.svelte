@@ -247,7 +247,12 @@
 								onkeydown={(e) => handleListItemKeydown(e, city)}
 							>
 								<div class="flex items-center gap-2">
-									<MapPin class="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+									<MapPin
+										class="h-4 w-4 {index === selectedIndex
+											? 'text-accent-foreground'
+											: 'text-muted-foreground'}"
+										aria-hidden="true"
+									/>
 									<span>{formatCityRegion(city)}</span>
 								</div>
 							</li>

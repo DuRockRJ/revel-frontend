@@ -123,7 +123,7 @@
 	}
 
 	.week-day-number--today {
-		@apply bg-primary text-primary-foreground;
+		@apply bg-accent text-accent-foreground;
 	}
 
 	.week-day-events {

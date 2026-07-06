@@ -102,7 +102,7 @@
 	}
 
 	.calendar-day--today .calendar-day-number {
-		@apply bg-primary text-primary-foreground;
+		@apply bg-accent text-accent-foreground;
 	}
 
 	.calendar-day-events {

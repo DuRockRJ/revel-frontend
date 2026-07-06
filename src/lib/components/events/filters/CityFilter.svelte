@@ -147,13 +147,24 @@
 						<button
 							type="button"
 							onclick={() => handleSelectCity(city)}
-							class="flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
+							class="group flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
 						>
-							<MapPin class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+							<MapPin
+								class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground group-hover:text-accent-foreground group-focus-visible:text-accent-foreground"
+								aria-hidden="true"
+							/>
 							<div class="flex-1">
-								<div class="font-medium">{city.name}</div>
+								<div
+									class="font-medium group-hover:text-accent-foreground group-focus-visible:text-accent-foreground"
+								>
+									{city.name}
+								</div>
 								{#if city.admin_name}
-									<div class="text-xs text-muted-foreground">{city.admin_name}</div>
+									<div
+										class="text-xs text-muted-foreground group-hover:text-accent-foreground group-focus-visible:text-accent-foreground"
+									>
+										{city.admin_name}
+									</div>
 								{/if}
 							</div>
 						</button>
