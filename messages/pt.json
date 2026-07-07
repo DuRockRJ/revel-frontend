@@ -1070,6 +1070,8 @@
 		"addTagsPlaceholder": "Adicionar tags...",
 		"add": "Adicionar",
 		"removeTag": "Remover tag {tag}",
+		"bands": "Bandas",
+		"addBandsPlaceholder": "Adicionar bandas...",
 		"eventSeries": "Série de eventos",
 		"saveToAssignQuestionnaires": "Salve o evento primeiro para atribuir questionários",
 		"media": "Mídia",
@@ -1401,9 +1403,6 @@
 		"locationTbd": "Local a definir",
 		"linkCopiedToClipboard": "Link copiado para a área de transferência!",
 		"failedToCopyLink": "Falha ao copiar o link"
-	},
-	"eventTime": {
-		"shownIn": "Horários exibidos em {label}"
 	},
 	"eventInvitationsAdmin": {
 		"backToEvents": "Voltar para eventos",
@@ -1946,6 +1945,18 @@
 			"add": "Adicionar filtro {tag}",
 			"count": "{count} {tagPlural} selecionada(s)",
 			"noTags": "Nenhuma tag disponível"
+		},
+		"bands": {
+			"heading": "Bandas",
+			"loading": "Carregando bandas",
+			"failed": "Falha ao carregar as bandas",
+			"remove": "Remover filtro {band}",
+			"add": "Adicionar filtro {band}",
+			"count": "{count} {bandPlural} selecionada(s)",
+			"noBands": "Nenhuma banda disponível",
+			"placeholder": "Buscar uma banda...",
+			"label": "Buscar uma banda",
+			"noResultsFound": "Nenhuma banda encontrada para \"{query}\""
 		},
 		"mobile": {
 			"closeFilters": "Fechar filtros",
@@ -5123,6 +5134,14 @@
 		"required": "obrigatório",
 		"tagAriaLabel": "Tag: {tag}, pressione Delete para remover",
 		"removeTag": "Remover {tag}"
+	},
+	"bandInput": {
+		"required": "obrigatório",
+		"bandAriaLabel": "Banda: {band}, pressione Delete para remover",
+		"removeBand": "Remover {band}",
+		"helpAddBand": "Digite para buscar ou pressione Enter para adicionar uma banda",
+		"helpRemoveBand": "Pressione Backspace para remover a última banda",
+		"noResultsFound": "Nenhuma banda encontrada para \"{query}\". Pressione Enter para adicioná-la."
 	},
 	"telegram": {
 		"heading": "Telegram",

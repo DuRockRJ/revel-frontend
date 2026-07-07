@@ -14,6 +14,8 @@
 		questionnaireListOrgQuestionnaires,
 		eventadmincoreAddTags,
 		eventadmincoreRemoveTags,
+		eventadmincoreAddBands,
+		eventadmincoreRemoveBands,
 		eventadmincoreUpdateEventSchedule
 	} from '$lib/api/generated/sdk.gen';
 	import { toDateTimeLocal, toISOString } from '$lib/utils/datetime';
@@ -85,12 +87,14 @@
 	let initialResourceIds = $state<string[]>([]);
 	let assignedQuestionnaires = $state<OrganizationQuestionnaireInListSchema[]>([]);
 	let initialTags = $state<string[]>(existingEvent?.tags || []);
+	let initialBands = $state<string[]>(existingEvent?.bands || []);
 
 	// Form data state (must be declared before derived state that references it)
 	let formData = $state<
 		Partial<EventCreateSchema> & {
 			id?: string;
 			tags?: string[];
+			bands?: string[];
 			logo?: string;
 			cover_art?: string;
 			organization_logo?: string;
@@ -136,6 +140,7 @@
 		event_series_id: existingEvent?.event_series?.id || null,
 		venue_id: existingEvent?.venue?.id || null,
 		tags: existingEvent?.tags || [],
+		bands: existingEvent?.bands || [],
 		logo: existingEvent?.logo || undefined,
 		cover_art: existingEvent?.cover_art || undefined,
 		organization_logo: organization.logo || undefined,
@@ -397,6 +402,28 @@
 		initialTags = [...currentTags];
 	}
 
+	async function saveBandAssociations(currentEventId: string): Promise<void> {
+		const currentBands = formData.bands || [];
+		const addedBands = currentBands.filter((band) => !initialBands.includes(band));
+		const removedBands = initialBands.filter((band) => !currentBands.includes(band));
+
+		if (addedBands.length > 0) {
+			await eventadmincoreAddBands({
+				path: { event_id: currentEventId },
+				body: { bands: addedBands }
+			});
+		}
+
+		if (removedBands.length > 0) {
+			await eventadmincoreRemoveBands({
+				path: { event_id: currentEventId },
+				body: { bands: removedBands }
+			});
+		}
+
+		initialBands = [...currentBands];
+	}
+
 	async function saveSchedule(currentEventId: string): Promise<void> {
 		const response = await eventadmincoreUpdateEventSchedule({
 			path: { event_id: currentEventId },
@@ -553,6 +580,7 @@
 			// Save associations
 			await saveResourceAssociations(eventId);
 			await saveTagAssociations(eventId);
+			await saveBandAssociations(eventId);
 			await saveSchedule(eventId);
 
 			// Invalidate queries
@@ -585,6 +613,7 @@
 	function updateFormData(
 		updates: Partial<EventCreateSchema> & {
 			tags?: string[];
+			bands?: string[];
 			logo?: string;
 			cover_art?: string;
 			organization_logo?: string;

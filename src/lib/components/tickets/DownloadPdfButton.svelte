@@ -41,6 +41,9 @@
 				parseAs: 'stream'
 			});
 
+			if (!response.response) {
+				throw new Error('Failed to download PDF');
+			}
 			if (!response.response.ok) {
 				if (response.response.status === 404) {
 					throw new Error('Ticket not found');

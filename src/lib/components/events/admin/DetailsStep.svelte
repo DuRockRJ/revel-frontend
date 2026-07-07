@@ -32,11 +32,13 @@
 	import AdmissionScreeningSection from './AdmissionScreeningSection.svelte';
 	import type { OrganizationQuestionnaireInListSchema } from '$lib/api/generated';
 	import { tagListTags } from '$lib/api/generated/sdk.gen';
+	import BandInput from '$lib/components/forms/BandInput.svelte';
 
 	interface Props {
 		formData: Partial<EventCreateSchema> & {
 			id?: string;
 			tags?: string[];
+			bands?: string[];
 			logo?: string;
 			cover_art?: string;
 			organization_logo?: string;
@@ -70,6 +72,7 @@
 		onUpdate: (
 			data: Partial<EventCreateSchema> & {
 				tags?: string[];
+				bands?: string[];
 				requires_full_profile?: boolean;
 				address_visibility?: ResourceVisibility;
 				venue_id?: string | null;
@@ -148,18 +151,20 @@
 	}
 
 	// Accordion state. "basic" is always open; "advanced" auto-opens when the
-	// event already has tags, and "admission & screening" auto-opens when any of
-	// its controls is already set, so existing configuration isn't hidden behind
-	// a collapsed header on load.
+	// event already has tags or bands, and "admission & screening" auto-opens
+	// when any of its controls is already set, so existing configuration isn't
+	// hidden behind a collapsed header on load.
 	const hasScreeningSettings =
 		!!formData.accept_invitation_requests ||
 		!!formData.requires_full_profile ||
 		!!formData.apply_before;
+	const hasAdvancedContent =
+		(formData.tags && formData.tags.length > 0) || (formData.bands && formData.bands.length > 0);
 	let openSections = $state<Set<string>>(
 		new Set(
 			[
 				'basic',
-				formData.tags && formData.tags.length > 0 ? 'advanced' : null,
+				hasAdvancedContent ? 'advanced' : null,
 				hasScreeningSettings ? 'screening' : null
 			].filter((s): s is string => s !== null)
 		)
@@ -876,6 +881,9 @@
 						</div>
 					{/if}
 				</div>
+
+				<!-- Bands -->
+				<BandInput value={formData.bands ?? []} onBandsChange={(bands) => onUpdate({ bands })} />
 
 				<!-- Event Series -->
 				{#if eventSeries.length > 0}

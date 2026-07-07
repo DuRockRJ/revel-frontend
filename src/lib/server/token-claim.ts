@@ -60,7 +60,7 @@ export async function claimPendingTokens(
 				fetch: fetchFn
 			});
 
-			if (response.response.ok && response.data) {
+			if (response.response?.ok && response.data) {
 				console.log(
 					'[TOKEN-CLAIM] Successfully claimed organization invitation:',
 					response.data.name
@@ -101,7 +101,7 @@ export async function claimPendingTokens(
 				fetch: fetchFn
 			});
 
-			if (response.response.ok && response.data) {
+			if (response.response?.ok && response.data) {
 				console.log('[TOKEN-CLAIM] Successfully claimed event invitation:', response.data.name);
 				results.event = {
 					type: 'event',

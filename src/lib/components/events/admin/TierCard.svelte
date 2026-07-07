@@ -145,7 +145,7 @@
 			<!-- Header -->
 			<div class="flex items-center gap-2">
 				<h3 class="text-lg font-semibold">🎟️ {tier.name}</h3>
-				{#if tier.name === 'General Admission'}
+				{#if tier.name === 'General Admission' || tier.name === 'Entrada Geral'}
 					<span
 						class="rounded bg-blue-100 px-2 py-1 text-xs text-blue-700 dark:bg-blue-950 dark:text-blue-300"
 						>{m['tierCard.default']()}</span

@@ -7,6 +7,7 @@
 	import DateFilter from './DateFilter.svelte';
 	import TicketedFilter from './TicketedFilter.svelte';
 	import TagsFilter from './TagsFilter.svelte';
+	import BandsFilter from './BandsFilter.svelte';
 	import EventTypeFilter from './EventTypeFilter.svelte';
 	import CityFilter from './CityFilter.svelte';
 	import OrganizationFilter from './OrganizationFilter.svelte';
@@ -61,6 +62,14 @@
 			? currentTags.filter((t) => t !== tag)
 			: [...currentTags, tag];
 		onUpdateFilters({ tags: newTags.length > 0 ? newTags : undefined });
+	}
+
+	function handleToggleBand(band: string): void {
+		const currentBands = filters.bands || [];
+		const newBands = currentBands.includes(band)
+			? currentBands.filter((b) => b !== band)
+			: [...currentBands, band];
+		onUpdateFilters({ bands: newBands.length > 0 ? newBands : undefined });
 	}
 
 	function handleChangeEventType(type: FilterState['eventType']): void {
@@ -304,6 +313,12 @@
 
 				<!-- Tags Filter -->
 				<TagsFilter selectedTags={filters.tags ?? []} onToggleTag={handleToggleTag} />
+
+				<!-- Divider -->
+				<div class="border-t" role="separator"></div>
+
+				<!-- Bands Filter -->
+				<BandsFilter selectedBands={filters.bands ?? []} onToggleBand={handleToggleBand} />
 
 				<!-- Future filters: Organization, Visibility -->
 			</div>

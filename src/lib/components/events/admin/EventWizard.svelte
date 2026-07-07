@@ -13,7 +13,9 @@
 		organizationadminresourcesUpdateResource,
 		questionnaireListOrgQuestionnaires,
 		eventadmincoreAddTags,
-		eventadmincoreRemoveTags
+		eventadmincoreRemoveTags,
+		eventadmincoreAddBands,
+		eventadmincoreRemoveBands
 	} from '$lib/api/generated/sdk.gen';
 	import { toDateTimeLocal, toISOString } from '$lib/utils/datetime';
 	import type {
@@ -60,6 +62,7 @@
 	let initialResourceIds = $state<string[]>([]); // Track initial state for comparison
 	let assignedQuestionnaires = $state<OrganizationQuestionnaireInListSchema[]>([]);
 	let initialTags = $state<string[]>(existingEvent?.tags || []); // Track initial tags for comparison
+	let initialBands = $state<string[]>(existingEvent?.bands || []); // Track initial bands for comparison
 
 	// Auto-scroll to top when step changes
 	$effect(() => {
@@ -109,6 +112,7 @@
 	let formData = $state<
 		Partial<EventCreateSchema> & {
 			tags?: string[];
+			bands?: string[];
 			logo?: string;
 			cover_art?: string;
 			organization_logo?: string;
@@ -146,6 +150,7 @@
 		event_series_id: existingEvent?.event_series?.id || null,
 		venue_id: existingEvent?.venue?.id || null,
 		tags: existingEvent?.tags || [],
+		bands: existingEvent?.bands || [],
 		logo: existingEvent?.logo || undefined,
 		cover_art: existingEvent?.cover_art || undefined,
 		organization_logo: organization.logo || undefined,
@@ -422,6 +427,36 @@
 	}
 
 	/**
+	 * Save band associations (add/remove bands)
+	 */
+	async function saveBandAssociations(currentEventId: string): Promise<void> {
+		const currentBands = formData.bands || [];
+
+		// Determine which bands were added and removed
+		const addedBands = currentBands.filter((band) => !initialBands.includes(band));
+		const removedBands = initialBands.filter((band) => !currentBands.includes(band));
+
+		// Add new bands
+		if (addedBands.length > 0) {
+			await eventadmincoreAddBands({
+				path: { event_id: currentEventId },
+				body: { bands: addedBands }
+			});
+		}
+
+		// Remove deleted bands
+		if (removedBands.length > 0) {
+			await eventadmincoreRemoveBands({
+				path: { event_id: currentEventId },
+				body: { bands: removedBands }
+			});
+		}
+
+		// Update initialBands to current state for future comparisons
+		initialBands = [...currentBands];
+	}
+
+	/**
 	 * Validate Step 1 (Essentials)
 	 */
 	function validateStep1(): boolean {
@@ -618,6 +653,9 @@
 			// Save tag associations (add/remove tags)
 			await saveTagAssociations(eventId);
 
+			// Save band associations (add/remove bands)
+			await saveBandAssociations(eventId);
+
 			// Invalidate queries
 			queryClient.invalidateQueries({ queryKey: ['events'] });
 			queryClient.invalidateQueries({ queryKey: ['event', eventId] });
@@ -646,6 +684,7 @@
 	function updateFormData(
 		updates: Partial<EventCreateSchema> & {
 			tags?: string[];
+			bands?: string[];
 			logo?: string;
 			cover_art?: string;
 			organization_logo?: string;

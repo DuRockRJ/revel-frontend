@@ -35,6 +35,9 @@
 			});
 
 			// Check if we got a valid response
+			if (!response.response) {
+				throw new Error(m['addToWallet.downloadFailed']());
+			}
 			if (!response.response.ok) {
 				if (response.response.status === 503) {
 					throw new Error(m['addToWallet.notConfigured']());

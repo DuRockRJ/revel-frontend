@@ -4,7 +4,6 @@
 	import { formatTimeOfDay, formatDate } from '$lib/utils/date';
 	import { AlertCircle, MapPin } from 'lucide-svelte';
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
-	import EventTimezoneNote from './EventTimezoneNote.svelte';
 
 	interface Props {
 		/** Display-only timeline entries; times are relative to the event start. */
@@ -13,11 +12,9 @@
 		eventStart: string;
 		/** IANA timezone the event runs in; sessions render in it, not the viewer's. */
 		timezone?: string | null;
-		/** Human place name (e.g. the event's city) for the timezone note. */
-		place?: string | null;
 	}
 
-	const { schedule = [], eventStart, timezone = null, place = null }: Props = $props();
+	const { schedule = [], eventStart, timezone = null }: Props = $props();
 
 	const tz = $derived(timezone ?? undefined);
 	const startMs = $derived(new Date(eventStart).getTime());
@@ -54,10 +51,7 @@
 {#if hasSchedule}
 	<section class="rounded-lg border bg-card p-6" aria-labelledby="schedule-heading">
 		<h2 id="schedule-heading" class="mb-4 text-xl font-bold">{m['eventSchedule.title']()}</h2>
-		<p class="mb-2 text-sm text-muted-foreground">{m['eventSchedule.description']()}</p>
-
-		<!-- Times below are in the event timezone, not the viewer's — shown once here. -->
-		<EventTimezoneNote start={eventStart} timeZone={timezone} {place} class="mb-6" />
+		<p class="mb-6 text-sm text-muted-foreground">{m['eventSchedule.description']()}</p>
 
 		<ol class="space-y-3">
 			{#each sessions as session, index (index)}

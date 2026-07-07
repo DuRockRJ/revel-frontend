@@ -68,6 +68,7 @@
 					event_type: currentFilters.eventType as any,
 					visibility: currentFilters.visibility as any,
 					tags: currentFilters.tags,
+					bands: currentFilters.bands,
 					requires_ticket:
 						currentFilters.ticketType === 'ticketed'
 							? true

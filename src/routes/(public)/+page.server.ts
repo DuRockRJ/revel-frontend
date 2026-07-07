@@ -20,6 +20,8 @@ export const load: PageServerLoad = async ({ request, url, fetch, locals }) => {
 	const visibility = url.searchParams.get('visibility') || undefined;
 	const tagsParam = url.searchParams.get('tags');
 	const tags = tagsParam ? tagsParam.split(',').filter(Boolean) : undefined;
+	const bandsParam = url.searchParams.get('bands');
+	const bands = bandsParam ? bandsParam.split(',').filter(Boolean) : undefined;
 	const includePast = url.searchParams.get('include_past') === 'true';
 	const ticketType = url.searchParams.get('ticket_type') || undefined;
 	const requiresTicket =
@@ -35,6 +37,7 @@ export const load: PageServerLoad = async ({ request, url, fetch, locals }) => {
 			event_type: eventType as any,
 			visibility: visibility as any,
 			tags,
+			bands,
 			page,
 			page_size: pageSize,
 			include_past: includePast,
@@ -83,6 +86,7 @@ export const load: PageServerLoad = async ({ request, url, fetch, locals }) => {
 				eventType,
 				visibility,
 				tags,
+				bands,
 				includePast,
 				orderBy
 			}

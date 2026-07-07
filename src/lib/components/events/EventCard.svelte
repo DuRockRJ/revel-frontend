@@ -5,7 +5,7 @@
 	import { formatEventDate, formatEventDateForScreenReader, isEventPast } from '$lib/utils/date';
 	import { getEventAccessDisplay } from '$lib/utils/event';
 	import { formatCityRegion } from '$lib/utils/city';
-	import { Calendar, MapPin, Ticket, Tag } from 'lucide-svelte';
+	import { Calendar, MapPin, Ticket, Tag, Music } from 'lucide-svelte';
 	import BookmarkButton from './BookmarkButton.svelte';
 	import EventCoverImage from './EventCoverImage.svelte';
 	import * as m from '$lib/paraglide/messages.js';
@@ -173,6 +173,28 @@
 					<Ticket class="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
 					<span class="truncate">{accessDisplay}</span>
 				</div>
+
+				<!-- Bands (if available) -->
+				{#if event.bands && event.bands.length > 0}
+					<div class="flex items-start gap-2 text-sm">
+						<Music class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+						<div class="flex flex-wrap gap-1">
+							{#each event.bands.slice(0, 3) as band}
+								<span
+									class="inline-block rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent"
+								>
+									{band}
+								</span>
+							{/each}
+							{#if event.bands.length > 3}
+								<span class="inline-block px-2 py-0.5 text-xs text-muted-foreground">
+									+{event.bands.length - 3}
+									{m['common.text_more']()}
+								</span>
+							{/if}
+						</div>
+					</div>
+				{/if}
 
 				<!-- Tags (if available) -->
 				{#if event.tags && event.tags.length > 0}

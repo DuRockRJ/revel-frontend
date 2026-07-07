@@ -14,7 +14,6 @@ import {
 	formatDateTime,
 	formatDateTimeReadback,
 	formatDate,
-	formatEventTimezoneLabel,
 	formatDateLongMonth,
 	formatDateTimeVerbose,
 	formatMonthYearLabel
@@ -47,18 +46,6 @@ describe('formatEventDate with an explicit timezone (#474)', () => {
 
 	it('omits the timezone abbreviation when no timezone is supplied (backward compatible)', () => {
 		expect(formatEventDate(WINTER_UTC)).not.toContain('EST');
-	});
-});
-
-describe('formatEventTimezoneLabel', () => {
-	it('combines the place name with the DST-aware offset', () => {
-		expect(formatEventTimezoneLabel(WINTER_UTC, 'America/New_York', 'New York')).toBe(
-			'New York (EST)'
-		);
-	});
-
-	it('falls back to the IANA zone tail when no place is given', () => {
-		expect(formatEventTimezoneLabel(WINTER_UTC, 'America/New_York')).toBe('New York (EST)');
 	});
 });
 

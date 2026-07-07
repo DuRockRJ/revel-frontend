@@ -204,10 +204,10 @@
 				}
 			});
 			if (res.error) {
-				if (res.response.status === 422) {
+				if (res.response?.status === 422) {
 					saveError = parseValidationErrors(res.error);
 				} else {
-					saveError = m['pollNewPage.saveError']({ status: res.response.status });
+					saveError = m['pollNewPage.saveError']({ status: res.response?.status ?? 0 });
 				}
 				return;
 			}

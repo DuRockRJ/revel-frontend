@@ -5,7 +5,6 @@
 	import { cn } from '$lib/utils/cn';
 	import * as m from '$lib/paraglide/messages.js';
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
-	import EventTimezoneNote from './EventTimezoneNote.svelte';
 
 	interface Props {
 		event: EventDetailSchema;
@@ -46,7 +45,7 @@
 		return m['orgAdmin.waitlist.offer.seatsHeldHint']({ count: held });
 	});
 
-	function formatVisibilityLabel(value: string): string {
+	function formatAccessTypeLabel(value: string): string {
 		switch (value) {
 			case 'public':
 				return m['eventBadges.public']();
@@ -66,7 +65,7 @@
 		const eventType = (event.event_type as string) || 'public';
 		const visibility = event.visibility || 'public';
 		if (eventType === visibility) return null;
-		return formatVisibilityLabel(visibility);
+		return formatAccessTypeLabel(visibility);
 	});
 </script>
 
@@ -111,12 +110,6 @@
 								{formatEventDate(event.end, event.timezone, false)}
 							</time>
 						{/if}
-						<EventTimezoneNote
-							start={event.start}
-							timeZone={event.timezone}
-							place={event.city?.name}
-							class="mt-2"
-						/>
 					</div>
 				</div>
 			</div>
@@ -180,8 +173,8 @@
 					<div class="text-sm font-medium text-muted-foreground">
 						{m['eventDetails.eventType_label']()}
 					</div>
-					<div class="mt-1 font-medium capitalize">
-						{event.event_type.replace('-', ' ')}
+					<div class="mt-1 font-medium">
+						{formatAccessTypeLabel(event.event_type)}
 					</div>
 					{#if visibilityMismatch}
 						<div class="mt-1 flex items-center gap-1 text-sm text-muted-foreground">

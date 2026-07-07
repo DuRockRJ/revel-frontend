@@ -464,26 +464,3 @@ export function formatMonthYearLabel(dateString: string, timeZone?: string): str
 		...tzOpt(timeZone)
 	});
 }
-
-/**
- * Human label naming the timezone an event's times are shown in, e.g.
- * "London (GMT+1)". Pair it with abbreviation-free times (pass
- * `withAbbreviation: false` to the formatters) so a viewer understands the
- * times are the event's local times, not their own — without a separate
- * disclaimer.
- * @param referenceString ISO 8601 instant used to resolve the (DST-aware) offset
- * @param timeZone IANA timezone (e.g. the event's timezone)
- * @param place Optional human place name (e.g. the event's city); falls back to
- *   the IANA zone's last segment ("Europe/London" → "London")
- * @returns e.g. "London (GMT+1)", or just the place name when no offset is available
- */
-export function formatEventTimezoneLabel(
-	referenceString: string,
-	timeZone: string,
-	place?: string | null
-): string {
-	const locale = getDateLocale();
-	const offset = getTimeZoneAbbreviation(new Date(referenceString), locale, timeZone);
-	const name = place?.trim() || timeZone.split('/').pop()?.replace(/_/g, ' ') || timeZone;
-	return offset ? `${name} (${offset})` : name;
-}

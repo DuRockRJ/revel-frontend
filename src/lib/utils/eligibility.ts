@@ -282,7 +282,7 @@ export function getTicketStatusText(status?: TicketStatus): string {
 	if (status === 'active') return 'You have a ticket';
 	if (status === 'cancelled') return 'Ticket canceled'; // Note: backend uses 'cancelled' not 'canceled'
 	if (status === 'checked_in') return 'Checked in';
-	if (status === 'pending') return 'Ticket pending';
+	if (status === 'pending') return 'Ingresso pendente';
 
 	return 'You have a ticket';
 }

@@ -15,6 +15,7 @@ export interface EventFilters {
 	eventType?: 'public' | 'private' | 'members-only';
 	visibility?: 'public' | 'private' | 'members-only' | 'staff-only';
 	tags?: string[];
+	bands?: string[];
 	includePast?: boolean;
 	ticketType?: 'ticketed' | 'free';
 	orderBy?: 'start' | '-start' | 'distance';
@@ -75,6 +76,10 @@ export function parseFilters(searchParams: URLSearchParams): EventFilters {
 	const tags = searchParams.get('tags');
 	if (tags) filters.tags = tags.split(',').filter(Boolean);
 
+	// Bands (comma-separated)
+	const bands = searchParams.get('bands');
+	if (bands) filters.bands = bands.split(',').filter(Boolean);
+
 	// Include past events
 	const includePast = searchParams.get('include_past');
 	if (includePast === 'true') filters.includePast = true;
@@ -118,6 +123,7 @@ export function filtersToParams(filters: EventFilters): URLSearchParams {
 	if (filters.eventType) params.set('event_type', filters.eventType);
 	if (filters.visibility) params.set('visibility', filters.visibility);
 	if (filters.tags && filters.tags.length > 0) params.set('tags', filters.tags.join(','));
+	if (filters.bands && filters.bands.length > 0) params.set('bands', filters.bands.join(','));
 	if (filters.includePast) params.set('include_past', 'true');
 	if (filters.ticketType) params.set('ticket_type', filters.ticketType);
 	if (filters.orderBy) params.set('order_by', filters.orderBy);
@@ -142,6 +148,7 @@ export function filtersToApiParams(filters: EventFilters) {
 		event_type: filters.eventType,
 		visibility: filters.visibility,
 		tags: filters.tags,
+		bands: filters.bands,
 		include_past: filters.includePast ?? false,
 		requires_ticket:
 			filters.ticketType === 'ticketed' ? true : filters.ticketType === 'free' ? false : undefined,
@@ -164,6 +171,7 @@ export function hasActiveFilters(filters: EventFilters): boolean {
 		filters.eventType ||
 		filters.visibility ||
 		(filters.tags && filters.tags.length > 0) ||
+		(filters.bands && filters.bands.length > 0) ||
 		filters.includePast ||
 		filters.ticketType ||
 		(filters.orderBy && filters.orderBy !== 'distance') // 'distance' is now the default
@@ -184,6 +192,7 @@ export function countActiveFilters(filters: EventFilters): number {
 	if (filters.eventType) count++;
 	if (filters.visibility) count++;
 	if (filters.tags && filters.tags.length > 0) count += filters.tags.length;
+	if (filters.bands && filters.bands.length > 0) count += filters.bands.length;
 	if (filters.includePast) count++;
 	if (filters.ticketType) count++;
 	if (filters.orderBy && filters.orderBy !== 'distance') count++; // 'distance' is now the default
@@ -283,6 +292,10 @@ export function getFilterDescriptions(filters: EventFilters): string[] {
 
 	if (filters.tags && filters.tags.length > 0) {
 		descriptions.push(`Tags: ${filters.tags.join(', ')}`);
+	}
+
+	if (filters.bands && filters.bands.length > 0) {
+		descriptions.push(`Bands: ${filters.bands.join(', ')}`);
 	}
 
 	if (filters.includePast) {

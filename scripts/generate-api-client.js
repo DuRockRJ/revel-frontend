@@ -17,8 +17,7 @@ try {
 		input: OPENAPI_PATH,
 		output: {
 			path: './src/lib/api/generated',
-			format: 'prettier',
-			lint: 'eslint'
+			postProcess: ['prettier']
 		},
 		types: {
 			enums: 'typescript'
@@ -45,6 +44,26 @@ try {
 
 	writeFileSync(sdkPath, sdkContent);
 	console.log('✅ Hash suffixes removed from SDK!');
+
+	// generated/index.ts re-exports the same function names from sdk.gen.ts in a
+	// separate `export { ... } from './sdk.gen'` statement — hey-api 0.99 added
+	// this barrel file, and it needs the identical hash-stripping treatment, or
+	// TS resolves calls like eventpublicticketsTicketCheckout(...) to a symbol
+	// that no longer exists in sdk.gen.ts post-rename. Only touch the function
+	// export line, not the sibling `export type { ... } from './types.gen'` line
+	// — those type names (e.g. BandListBandsData) intentionally keep their hash
+	// and aren't referenced by hand-written app code.
+	const barrelPath = './src/lib/api/generated/index.ts';
+	let barrelContent = readFileSync(barrelPath, 'utf-8');
+	barrelContent = barrelContent.replace(
+		/export \{([^}]+)\} from '\.\/sdk\.gen';/,
+		(match, names) => {
+			const stripped = names.replace(/\b([a-zA-Z]+)[0-9A-Fa-f]{8,}\b/g, '$1');
+			return `export {${stripped}} from './sdk.gen';`;
+		}
+	);
+	writeFileSync(barrelPath, barrelContent);
+	console.log('✅ Hash suffixes removed from generated barrel!');
 
 	// Point the client's baseUrl at the centralized, RUNTIME-resolved API URL.
 	// API_BASE_URL reads $env/dynamic/public, so a single prebuilt image can be
