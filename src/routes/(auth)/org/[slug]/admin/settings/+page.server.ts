@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ parent }) => {
  * Form actions for updating organization settings
  */
 export const actions: Actions = {
-	default: async ({ request, params, cookies }) => {
+	default: async ({ request, params, cookies, fetch }) => {
 		const accessToken = cookies.get('access_token');
 
 		if (!accessToken) {
@@ -106,7 +106,8 @@ export const actions: Actions = {
 				body: updateData,
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			});
 
 			if (apiError || !data) {

@@ -9,7 +9,7 @@ import { profileUpdateSchema } from '$lib/schemas/profile';
 import { extractErrorMessage } from '$lib/utils/errors';
 import { log } from '$lib/server/logger';
 
-export const load: PageServerLoad = async ({ cookies }) => {
+export const load: PageServerLoad = async ({ cookies, fetch }) => {
 	const accessToken = cookies.get('access_token');
 
 	if (!accessToken) {
@@ -24,7 +24,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		const { data } = await accountMe({
 			headers: {
 				Authorization: `Bearer ${accessToken}`
-			}
+			},
+			fetch
 		});
 		user = data;
 	} catch (error) {
@@ -40,7 +41,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const { data: generalPreferences } = await userpreferencesGetGeneralPreferences({
 		headers: {
 			Authorization: `Bearer ${accessToken}`
-		}
+		},
+		fetch
 	}).catch(() => ({ data: undefined }));
 
 	return {
@@ -50,7 +52,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 };
 
 export const actions: Actions = {
-	updateProfile: async ({ request, cookies }) => {
+	updateProfile: async ({ request, cookies, fetch }) => {
 		const accessToken = cookies.get('access_token');
 
 		if (!accessToken) {
@@ -94,7 +96,8 @@ export const actions: Actions = {
 				body: result.data as Parameters<typeof accountUpdateProfile>[0]['body'],
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			});
 
 			if (response.data) {

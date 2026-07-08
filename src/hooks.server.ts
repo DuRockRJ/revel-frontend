@@ -102,7 +102,14 @@ async function refreshSession(
 	const rememberMe = event.cookies.get('remember_me') === 'true';
 
 	try {
-		const { data, error: refreshError } = await tokenRefresh({ body: { refresh: refreshToken } });
+		// Forward event.fetch (not the generated client's default fetch) so this
+		// goes through handleFetch's INTERNAL_API_URL rewrite. Without it, this
+		// call — which fires on every request carrying a refresh_token cookie —
+		// hits the public API origin instead of the internal Docker network.
+		const { data, error: refreshError } = await tokenRefresh({
+			body: { refresh: refreshToken },
+			fetch: event.fetch
+		});
 
 		if (refreshError || !data || !data.access || !data.refresh) {
 			log.warning('token_refresh_failed', { error: refreshError });

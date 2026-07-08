@@ -16,7 +16,7 @@ import { log } from '$lib/server/logger';
  * Load current user's 2FA status
  * Fetches fresh user data from the API to ensure totp_active is up-to-date
  */
-export const load: PageServerLoad = async ({ cookies, depends }) => {
+export const load: PageServerLoad = async ({ cookies, depends, fetch }) => {
 	depends('app:user');
 
 	const accessToken = cookies.get('access_token');
@@ -32,7 +32,8 @@ export const load: PageServerLoad = async ({ cookies, depends }) => {
 		const { data } = await accountMe({
 			headers: {
 				Authorization: `Bearer ${accessToken}`
-			}
+			},
+			fetch
 		});
 
 		return {
@@ -55,7 +56,7 @@ export const actions: Actions = {
 	/**
 	 * Get TOTP provisioning URI to set up 2FA
 	 */
-	setup: async ({ cookies }) => {
+	setup: async ({ cookies, fetch }) => {
 		const accessToken = cookies.get('access_token');
 
 		if (!accessToken) {
@@ -67,7 +68,8 @@ export const actions: Actions = {
 			const response = await otpSetupOtp({
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			});
 
 			log.debug('totp_setup_response_received');
@@ -107,7 +109,7 @@ export const actions: Actions = {
 	/**
 	 * Verify TOTP code and activate 2FA
 	 */
-	verify: async ({ request, cookies }) => {
+	verify: async ({ request, cookies, fetch }) => {
 		const accessToken = cookies.get('access_token');
 
 		if (!accessToken) {
@@ -134,7 +136,8 @@ export const actions: Actions = {
 				},
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			});
 
 			if (response.data) {
@@ -167,7 +170,7 @@ export const actions: Actions = {
 	/**
 	 * Disable 2FA after verifying current TOTP code
 	 */
-	disable: async ({ request, cookies }) => {
+	disable: async ({ request, cookies, fetch }) => {
 		const accessToken = cookies.get('access_token');
 
 		if (!accessToken) {
@@ -194,7 +197,8 @@ export const actions: Actions = {
 				},
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			});
 
 			if (response.data) {
@@ -231,7 +235,7 @@ export const actions: Actions = {
 	 * silent globally-banned no-op — we treat that as success because the BE
 	 * deliberately doesn't distinguish, to avoid signalling ban presence).
 	 */
-	requestEmailChange: async ({ request, cookies }) => {
+	requestEmailChange: async ({ request, cookies, fetch }) => {
 		const accessToken = cookies.get('access_token');
 
 		if (!accessToken) {
@@ -261,7 +265,8 @@ export const actions: Actions = {
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 					'Accept-Language': 'en'
-				}
+				},
+				fetch
 			});
 
 			if (response.response?.ok) {

@@ -4,7 +4,7 @@ import { extractErrorMessage } from '$lib/utils/errors';
 import { log } from '$lib/server/logger';
 
 export const actions: Actions = {
-	exportData: async ({ cookies }) => {
+	exportData: async ({ cookies, fetch }) => {
 		const accessToken = cookies.get('access_token');
 
 		if (!accessToken) {
@@ -19,7 +19,8 @@ export const actions: Actions = {
 			await accountExportData({
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			});
 
 			return {
@@ -53,7 +54,7 @@ export const actions: Actions = {
 		}
 	},
 
-	requestDeletion: async ({ cookies }) => {
+	requestDeletion: async ({ cookies, fetch }) => {
 		const accessToken = cookies.get('access_token');
 
 		if (!accessToken) {
@@ -69,7 +70,8 @@ export const actions: Actions = {
 			await accountDeleteAccountRequest({
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			});
 
 			return {

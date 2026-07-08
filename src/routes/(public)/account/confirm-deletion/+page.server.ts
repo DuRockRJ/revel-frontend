@@ -4,7 +4,7 @@ import { accountDeleteAccountConfirm } from '$lib/api/generated';
 import { log } from '$lib/server/logger';
 
 export const actions: Actions = {
-	confirmDeletion: async ({ request, cookies }) => {
+	confirmDeletion: async ({ request, cookies, fetch }) => {
 		const formData = await request.formData();
 		const token = formData.get('token') as string;
 
@@ -29,7 +29,8 @@ export const actions: Actions = {
 			await accountDeleteAccountConfirm({
 				body: {
 					token: result.data.token
-				}
+				},
+				fetch
 			});
 
 			// Clear all authentication cookies

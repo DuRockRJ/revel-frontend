@@ -6,7 +6,7 @@ import {
 } from '$lib/api/client';
 import { log } from '$lib/server/logger';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
+export const load: PageServerLoad = async ({ params, locals, fetch }) => {
 	const { org_slug, event_slug, id: questionnaireId } = params;
 
 	// Prepare headers with authentication if user is logged in
@@ -18,7 +18,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 	// Fetch the event to get its ID (pass auth to see private events)
 	const { data: event, error: eventError } = await eventpublicdetailsGetEventBySlugs({
 		path: { event_slug, org_slug },
-		headers
+		headers,
+		fetch
 	});
 
 	if (eventError || !event) {
@@ -44,7 +45,8 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			path: { event_id: event.id, questionnaire_id: questionnaireId },
 			headers: {
 				Authorization: `Bearer ${locals.user.accessToken}`
-			}
+			},
+			fetch
 		});
 
 	if (questionnaireError || !questionnaire) {

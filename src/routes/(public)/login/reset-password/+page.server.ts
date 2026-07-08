@@ -4,7 +4,7 @@ import { accountResetPassword } from '$lib/api/generated';
 import { log } from '$lib/server/logger';
 
 export const actions: Actions = {
-	resetPassword: async ({ request }) => {
+	resetPassword: async ({ request, fetch }) => {
 		const formData = await request.formData();
 		const password = formData.get('password') as string;
 		const confirmPassword = formData.get('confirmPassword') as string;
@@ -37,7 +37,8 @@ export const actions: Actions = {
 					password1: result.data.password,
 					password2: result.data.confirmPassword,
 					token: result.data.token
-				}
+				},
+				fetch
 			});
 
 			return {

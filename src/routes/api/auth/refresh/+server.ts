@@ -22,7 +22,7 @@ import {
  * The client can't access the httpOnly refresh token cookie directly,
  * so this server endpoint reads it and calls the backend.
  */
-export const POST: RequestHandler = async ({ cookies }) => {
+export const POST: RequestHandler = async ({ cookies, fetch }) => {
 	const refreshToken = cookies.get('refresh_token');
 	// Read the "remember me" preference to preserve cookie behavior
 	const rememberMe = cookies.get('remember_me') === 'true';
@@ -38,11 +38,14 @@ export const POST: RequestHandler = async ({ cookies }) => {
 	console.log('[API /auth/refresh] Attempting token refresh, rememberMe:', rememberMe);
 
 	try {
-		// Call backend to refresh the token
+		// Call backend to refresh the token. Forward event.fetch (not the
+		// generated client's default fetch) so this goes through handleFetch's
+		// INTERNAL_API_URL rewrite instead of the public API origin.
 		const { data, error: refreshError } = await tokenRefresh({
 			body: {
 				refresh: refreshToken
-			}
+			},
+			fetch
 		});
 
 		if (refreshError || !data || !data.access) {

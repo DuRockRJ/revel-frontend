@@ -6,7 +6,7 @@ import {
 } from '$lib/api/generated';
 import { log } from '$lib/server/logger';
 
-export const load: PageServerLoad = async ({ cookies }) => {
+export const load: PageServerLoad = async ({ cookies, fetch }) => {
 	const accessToken = cookies.get('access_token');
 
 	if (!accessToken) {
@@ -21,12 +21,14 @@ export const load: PageServerLoad = async ({ cookies }) => {
 			notificationpreferenceGetPreferences({
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			}),
 			userpreferencesGetGeneralPreferences({
 				headers: {
 					Authorization: `Bearer ${accessToken}`
-				}
+				},
+				fetch
 			})
 		]);
 
