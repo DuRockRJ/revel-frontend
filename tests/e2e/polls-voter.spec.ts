@@ -112,7 +112,7 @@ test.describe('polls voter', () => {
 		await logout(page);
 		await loginAsDemoUser(page, CHARLIE_EMAIL);
 
-		await page.goto(`/org/${ORG_SLUG}/polls/${pollId}`);
+		await page.goto(`/org/${ORG_SLUG}/enquetes/${pollId}`);
 		// Same hydration guard as on the admin form — wait for the network
 		// to settle so the RadioGroupItem click handlers are bound before we
 		// click them.

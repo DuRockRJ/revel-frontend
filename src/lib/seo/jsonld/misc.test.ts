@@ -7,7 +7,7 @@ describe('breadcrumb jsonld', () => {
 	it('numbers items 1..n with the right shape', () => {
 		const ld = generateBreadcrumbJsonLd([
 			{ name: 'Home', url: '/' },
-			{ name: 'Events', url: '/events' }
+			{ name: 'Events', url: '/eventos' }
 		]);
 		expect(ld['@type']).toBe('BreadcrumbList');
 		expect(ld.itemListElement).toHaveLength(2);
@@ -41,7 +41,7 @@ describe('website jsonld', () => {
 		const ld = generateWebSiteJsonLd('https://letsrevel.io');
 		expect(ld['@type']).toBe('WebSite');
 		expect(ld.potentialAction?.target.urlTemplate).toBe(
-			'https://letsrevel.io/events?search={search_term_string}'
+			'https://letsrevel.io/eventos?search={search_term_string}'
 		);
 	});
 });

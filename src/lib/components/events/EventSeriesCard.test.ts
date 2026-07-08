@@ -130,7 +130,7 @@ describe('EventSeriesCard', () => {
 		});
 
 		const link = screen.getByLabelText(/tech talk series/i);
-		expect(link).toHaveAttribute('href', '/events/tech-community/series/tech-talk-series');
+		expect(link).toHaveAttribute('href', '/eventos/tech-community/serie/tech-talk-series');
 	});
 
 	it('has accessible card label for screen readers', () => {

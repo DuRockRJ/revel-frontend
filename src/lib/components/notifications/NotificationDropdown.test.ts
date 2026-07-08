@@ -144,7 +144,7 @@ describe('NotificationDropdown', () => {
 		const viewAllButton = screen.getByText('Ver todas as notificações');
 		await user.click(viewAllButton);
 
-		expect(mockGoto).toHaveBeenCalledWith('/account/notifications');
+		expect(mockGoto).toHaveBeenCalledWith('/conta/notificacoes');
 	});
 
 	it('is keyboard accessible', async () => {

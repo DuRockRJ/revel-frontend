@@ -50,7 +50,7 @@ describe('PollCard', () => {
 	it('shows the URL strip when poll is OPEN', () => {
 		renderCard(makePoll({ status: 'open' }));
 		const input = screen.getByRole('textbox', { name: /URL de compartilhamento da enquete/i });
-		expect((input as HTMLInputElement).value).toContain('/org/acme/polls/p1');
+		expect((input as HTMLInputElement).value).toContain('/org/acme/enquetes/p1');
 	});
 
 	it('shows the Open poll CTA and hides the URL strip when DRAFT', () => {

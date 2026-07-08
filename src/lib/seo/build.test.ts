@@ -44,13 +44,13 @@ describe('buildSeo', () => {
 	it('event indexable: includes Event + Breadcrumb JSON-LD; no robots tag', () => {
 		const cfg = buildSeo({
 			kind: 'event',
-			url: url('/events/acme/my-event'),
+			url: url('/eventos/acme/my-event'),
 			lang: 'pt',
 			event: fakeEvent,
 			indexable: true
 		});
 		expect(cfg.title).toContain('My Event');
-		expect(cfg.canonical).toBe('https://letsrevel.io/events/acme/my-event');
+		expect(cfg.canonical).toBe('https://letsrevel.io/eventos/acme/my-event');
 		expect(cfg.robots).toBeUndefined();
 		const types = cfg.jsonLd.map((j: any) => j['@type']);
 		expect(types).toContain('Event');
@@ -60,7 +60,7 @@ describe('buildSeo', () => {
 	it('event non-indexable: emits noindex,follow', () => {
 		const cfg = buildSeo({
 			kind: 'event',
-			url: url('/events/acme/my-event'),
+			url: url('/eventos/acme/my-event'),
 			lang: 'pt',
 			event: fakeEvent,
 			indexable: false

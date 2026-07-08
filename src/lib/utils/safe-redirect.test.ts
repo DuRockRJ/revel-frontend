@@ -5,9 +5,7 @@ describe('safeReturnUrl', () => {
 	it('accepts genuine relative paths', () => {
 		expect(safeReturnUrl('/dashboard')).toBe('/dashboard');
 		expect(safeReturnUrl('/org/acme/admin/members')).toBe('/org/acme/admin/members');
-		expect(safeReturnUrl('/account/notifications?tab=email')).toBe(
-			'/account/notifications?tab=email'
-		);
+		expect(safeReturnUrl('/conta/notificacoes?tab=email')).toBe('/conta/notificacoes?tab=email');
 	});
 
 	it('rejects absolute URLs', () => {

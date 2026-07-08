@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 //
 // Coverage:
 //   - Admin: open the new Subscriptions tab in /admin/members.
-//   - Member: visit /account/memberships (renders list or empty state).
+//   - Member: visit /conta/associacoes (renders list or empty state).
 
 test.describe('Subscriptions Phase 1', () => {
 	test('admin can open the Subscriptions tab in /admin/members', async ({ page }) => {
@@ -22,10 +22,10 @@ test.describe('Subscriptions Phase 1', () => {
 		await expect(createBtn).toBeVisible();
 	});
 
-	test('member sees /account/memberships', async ({ page }) => {
+	test('member sees /conta/associacoes', async ({ page }) => {
 		test.skip(!process.env.E2E_MEMBER_AUTH, 'requires member auth fixture');
 
-		await page.goto('/account/memberships');
+		await page.goto('/conta/associacoes');
 		await expect(page.getByRole('heading', { name: /my memberships/i })).toBeVisible();
 	});
 });

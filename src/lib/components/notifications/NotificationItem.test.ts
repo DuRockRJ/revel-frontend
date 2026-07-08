@@ -180,7 +180,7 @@ describe('NotificationItem', () => {
 		await user.keyboard('{Enter}');
 
 		// Should navigate to event page
-		expect(goto).toHaveBeenCalledWith('/events/event-123');
+		expect(goto).toHaveBeenCalledWith('/eventos/event-123');
 	});
 
 	it('is keyboard accessible and navigates on Space', async () => {
@@ -199,12 +199,12 @@ describe('NotificationItem', () => {
 		await user.keyboard(' ');
 
 		// Should navigate to event page
-		expect(goto).toHaveBeenCalledWith('/events/event-123');
+		expect(goto).toHaveBeenCalledWith('/eventos/event-123');
 	});
 
 	it('extracts URL from different context patterns', () => {
 		const contexts = [
-			{ event_id: 'event-123', expectedUrl: '/events/event-123' },
+			{ event_id: 'event-123', expectedUrl: '/eventos/event-123' },
 			{ org_slug: 'my-org', expectedUrl: '/org/my-org' },
 			{ invitation_id: 'inv-123', expectedUrl: '/invitations/inv-123' },
 			{ url: '/custom/path', expectedUrl: '/custom/path' }

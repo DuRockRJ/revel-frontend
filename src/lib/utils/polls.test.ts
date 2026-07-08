@@ -12,13 +12,13 @@ import {
 describe('buildPollVoterUrl', () => {
 	it('joins origin, slug, and id into the voter URL', () => {
 		expect(buildPollVoterUrl('https://letsrevel.io', 'acme', '8f2a-uuid')).toBe(
-			'https://letsrevel.io/org/acme/polls/8f2a-uuid'
+			'https://letsrevel.io/org/acme/enquetes/8f2a-uuid'
 		);
 	});
 
 	it('strips trailing slash on origin', () => {
 		expect(buildPollVoterUrl('https://letsrevel.io/', 'acme', 'x')).toBe(
-			'https://letsrevel.io/org/acme/polls/x'
+			'https://letsrevel.io/org/acme/enquetes/x'
 		);
 	});
 });

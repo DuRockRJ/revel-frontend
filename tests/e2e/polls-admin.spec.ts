@@ -96,6 +96,6 @@ test.describe('polls admin', () => {
 
 		await copyButton.click();
 		const clip = await page.evaluate(() => navigator.clipboard.readText());
-		expect(clip).toMatch(new RegExp(`/org/${ORG_SLUG}/polls/[0-9a-f-]+`));
+		expect(clip).toMatch(new RegExp(`/org/${ORG_SLUG}/enquetes/[0-9a-f-]+`));
 	});
 });
