@@ -8,7 +8,7 @@
 	import { hasTierId } from '$lib/types/tickets';
 	import { Button } from '$lib/components/ui/button';
 	import { Card } from '$lib/components/ui/card';
-	import { Ticket, Clock, Users, AlertCircle } from 'lucide-svelte';
+	import { Ticket, Clock, Users, AlertCircle, ExternalLink } from 'lucide-svelte';
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
 	import { formatDate } from '$lib/utils/date';
 	import { formatMoney } from '$lib/utils/format';
@@ -80,6 +80,9 @@
 
 	// Check if tier has ID (required for checkout)
 	const hasId = $derived(hasTierId(tier));
+
+	// External tiers are sold on another platform — no local price, quantity, or ticket.
+	const isExternal = $derived(tier.payment_method === 'external');
 
 	// Format price display
 	const priceDisplay = $derived(() => {
@@ -233,7 +236,9 @@
 				<h3 class="text-lg font-semibold">{tier.name}</h3>
 			</div>
 
-			<div class="mt-2 text-2xl font-bold text-primary">{priceDisplay()}</div>
+			{#if !isExternal}
+				<div class="mt-2 text-2xl font-bold text-primary">{priceDisplay()}</div>
+			{/if}
 
 			{#if tier.description}
 				<MarkdownContent content={tier.description} class="mt-2 text-sm text-muted-foreground" />
@@ -266,6 +271,37 @@
 				<div class="rounded-md bg-destructive/10 px-4 py-2 text-sm text-destructive">
 					{m['tierCardAdmin.configError']()}
 				</div>
+			{:else if isExternal}
+				<!-- External tiers redirect out — no account or local ticket needed to buy. -->
+				{#if !salesStatus.active}
+					<Button disabled class="w-full sm:w-auto">{m['tierCardAdmin.notAvailable']()}</Button>
+				{:else if !membershipRestriction.allowed}
+					<Button disabled class="w-full sm:w-auto">
+						<AlertCircle class="mr-2 h-4 w-4" />
+						{m['tierCardAdmin.notEligible']()}
+					</Button>
+					{#if membershipRestriction.reason}
+						<p class="max-w-[250px] text-right text-xs text-muted-foreground">
+							{membershipRestriction.reason}
+						</p>
+					{/if}
+				{:else if !effectiveEligible}
+					<Button disabled class="w-full sm:w-auto">{m['tierCardAdmin.notEligible']()}</Button>
+				{:else if tier.external_ticket_url}
+					<Button
+						href={tier.external_ticket_url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="w-full sm:w-auto"
+					>
+						{m['tierCardAdmin.buyExternalTicket']()}
+						<ExternalLink class="ml-2 h-4 w-4" aria-hidden="true" />
+					</Button>
+				{:else}
+					<div class="rounded-md bg-muted px-4 py-2 text-sm text-muted-foreground">
+						{m['tierCardAdmin.comingSoon']()}
+					</div>
+				{/if}
 			{:else if hasTicket}
 				<div
 					class="rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-green-800 dark:bg-green-950 dark:text-green-100"

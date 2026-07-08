@@ -144,8 +144,8 @@
 	// Form state
 	let name = $state(tier?.name ?? '');
 	let description = $state(tier?.description ?? '');
-	let paymentMethod = $state<'free' | 'offline' | 'at_the_door' | 'online'>(
-		(tier?.payment_method as 'free' | 'offline' | 'at_the_door' | 'online') ?? 'free'
+	let paymentMethod = $state<'free' | 'offline' | 'at_the_door' | 'online' | 'external'>(
+		(tier?.payment_method as 'free' | 'offline' | 'at_the_door' | 'online' | 'external') ?? 'free'
 	);
 	let priceType = $state<'fixed' | 'pwyc'>((tier?.price_type as 'fixed' | 'pwyc') ?? 'fixed');
 	let price = $state(tier?.price ? String(tier.price) : '0');
@@ -154,6 +154,7 @@
 	let currency = $state(tier?.currency ?? 'EUR');
 	let vatRateOverride = $state(tier?.vat_rate != null ? String(tier.vat_rate) : '');
 	let manualPaymentInstructions = $state(tier?.manual_payment_instructions ?? '');
+	let externalTicketUrl = $state(tier?.external_ticket_url ?? '');
 	let totalQuantity = $state<string>(
 		tier?.total_quantity !== null && tier?.total_quantity !== undefined
 			? String(tier.total_quantity)
@@ -191,9 +192,9 @@
 	let refundPolicy = $state<RefundPolicy | null>(tier?.refund_policy ?? null);
 	let refundPolicyValid = $state(true);
 
-	// Switching to a free tier removes the entire refund policy — backend ignores it.
+	// Switching to a free or external tier removes the entire refund policy — backend ignores it.
 	$effect(() => {
-		if (paymentMethod === 'free' && allowUserCancellation) {
+		if ((paymentMethod === 'free' || paymentMethod === 'external') && allowUserCancellation) {
 			allowUserCancellation = false;
 		}
 	});
@@ -248,9 +249,12 @@
 		enabled: !!accessToken && (seatAssignmentMode !== 'none' || !!venueId)
 	}));
 
-	// Sector is required when seat assignment is random or user_choice
+	// Sector is required when seat assignment is random or user_choice — never for
+	// external tiers, since the seating section is hidden and seatAssignmentMode may
+	// still hold a stale value from before the payment method was switched.
 	const sectorRequired = $derived(
-		seatAssignmentMode === 'random' || seatAssignmentMode === 'user_choice'
+		paymentMethod !== 'external' &&
+			(seatAssignmentMode === 'random' || seatAssignmentMode === 'user_choice')
 	);
 	// When sector is required, both venue and sector must be selected
 	const sectorValid = $derived(!sectorRequired || (!!venueId && !!sectorId));
@@ -358,10 +362,12 @@
 	function handleSubmit(e: Event) {
 		e.preventDefault();
 
+		const isExternal = paymentMethod === 'external';
+
 		// Determine the price value based on payment method and price type
 		// Normalize all decimal values to ensure dots (not commas) as decimal separator
 		let finalPrice = '0';
-		if (paymentMethod === 'free') {
+		if (paymentMethod === 'free' || isExternal) {
 			finalPrice = '0';
 		} else if (priceType === 'pwyc') {
 			// For PWYC (especially with Stripe), use minimum price as the price field
@@ -380,7 +386,9 @@
 			price: finalPrice,
 			currency,
 			manual_payment_instructions: manualPaymentInstructions.trim() || null,
-			total_quantity: totalQuantity ? parseInt(totalQuantity) : null,
+			external_ticket_url: isExternal ? externalTicketUrl.trim() : null,
+			// No local ticket is ever created for external tiers, so there's nothing to cap.
+			total_quantity: isExternal ? null : totalQuantity ? parseInt(totalQuantity) : null,
 			sales_start_at: salesStartAt ? toTimezoneAwareISO(salesStartAt) : null,
 			sales_end_at: salesEndAt ? toTimezoneAwareISO(salesEndAt) : null,
 			visibility,
@@ -393,29 +401,34 @@
 				purchasableBy === 'invited' || purchasableBy === 'invited_and_members'
 					? restrictPurchaseToLinkedInvitations
 					: false,
-			// VAT rate override (optional, cleared for free tiers)
+			// VAT rate override (optional, cleared for free/external tiers)
 			vat_rate:
-				paymentMethod === 'free'
+				paymentMethod === 'free' || isExternal
 					? null
 					: vatRateOverride !== ''
 						? parseFloat(normalizeDecimalInput(vatRateOverride))
 						: null,
-			// Venue and seating configuration
-			seat_assignment_mode: seatAssignmentMode,
+			// Venue and seating configuration (meaningless for external — no local ticket to seat)
+			seat_assignment_mode: isExternal ? 'none' : seatAssignmentMode,
 			max_tickets_per_user: maxTicketsPerUser ? parseInt(maxTicketsPerUser) : null,
-			venue_id: seatAssignmentMode !== 'none' ? venueId : null,
-			sector_id: seatAssignmentMode !== 'none' ? sectorId : null,
-			// Cancellation & refund policy (only meaningful for paid tiers)
-			allow_user_cancellation: paymentMethod === 'free' ? false : allowUserCancellation,
+			venue_id: !isExternal && seatAssignmentMode !== 'none' ? venueId : null,
+			sector_id: !isExternal && seatAssignmentMode !== 'none' ? sectorId : null,
+			// Cancellation & refund policy (only meaningful for paid, in-platform tiers)
+			allow_user_cancellation:
+				paymentMethod === 'free' || isExternal ? false : allowUserCancellation,
 			cancellation_deadline_hours:
-				paymentMethod !== 'free' && allowUserCancellation && cancellationDeadlineHours !== null
+				paymentMethod !== 'free' &&
+				!isExternal &&
+				allowUserCancellation &&
+				cancellationDeadlineHours !== null
 					? cancellationDeadlineHours
 					: null,
-			refund_policy: paymentMethod !== 'free' && allowUserCancellation ? refundPolicy : null
+			refund_policy:
+				paymentMethod !== 'free' && !isExternal && allowUserCancellation ? refundPolicy : null
 		};
 
 		// Only include pwyc fields if price_type is 'pwyc' and they have values
-		if (priceType === 'pwyc') {
+		if (priceType === 'pwyc' && !isExternal) {
 			if (pwycMin) {
 				baseData.pwyc_min = normalizeDecimalInput(pwycMin);
 			}
@@ -499,6 +512,7 @@
 						{m['tierForm.onlineStripe']()}
 						{!organizationStripeConnected ? m['tierForm.notConnectedSuffix']() : ''}
 					</option>
+					<option value="external">{m['tierForm.external']()}</option>
 				</select>
 				<p class="mt-1 text-xs text-muted-foreground">
 					{#if paymentMethod === 'free'}
@@ -509,12 +523,34 @@
 						{m['tierForm.paymentHelpAtTheDoor']()}
 					{:else if paymentMethod === 'online'}
 						{m['tierForm.paymentHelpOnline']()}
+					{:else if paymentMethod === 'external'}
+						{m['tierForm.paymentHelpExternal']()}
 					{/if}
 				</p>
 			</div>
 
-			<!-- Price Settings (if not free) -->
-			{#if paymentMethod !== 'free'}
+			<!-- External Ticket URL (only for external payment method) -->
+			{#if paymentMethod === 'external'}
+				<div>
+					<Label for="external-ticket-url">
+						{m['tierForm.externalTicketUrl']()} <span class="text-destructive">*</span>
+					</Label>
+					<Input
+						id="external-ticket-url"
+						type="url"
+						bind:value={externalTicketUrl}
+						required
+						placeholder={m['tierForm.externalTicketUrlPlaceholder']()}
+						disabled={isPending}
+					/>
+					<p class="mt-1 text-xs text-muted-foreground">
+						{m['tierForm.externalTicketUrlHelp']()}
+					</p>
+				</div>
+			{/if}
+
+			<!-- Price Settings (if not free or external) -->
+			{#if paymentMethod !== 'free' && paymentMethod !== 'external'}
 				<div>
 					<Label for="price-type">{m['tierForm.priceType']()}</Label>
 					<select
@@ -613,8 +649,8 @@
 				{/if}
 			{/if}
 
-			<!-- VAT Rate Override (for paid tiers) -->
-			{#if paymentMethod !== 'free'}
+			<!-- VAT Rate Override (for paid, in-platform tiers) -->
+			{#if paymentMethod !== 'free' && paymentMethod !== 'external'}
 				<div>
 					<Label for="vat-rate-override">{m['tierForm.vatRateOverride']()}</Label>
 					<Input
@@ -653,8 +689,8 @@
 				</div>
 			{/if}
 
-			<!-- Cancellation & Refunds (only for paid tiers) -->
-			{#if paymentMethod !== 'free'}
+			<!-- Cancellation & Refunds (only for paid, in-platform tiers) -->
+			{#if paymentMethod !== 'free' && paymentMethod !== 'external'}
 				<div class="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
 					<div class="flex items-center gap-2 text-sm font-medium">
 						<Undo2 class="h-4 w-4 text-primary" aria-hidden="true" />
@@ -702,19 +738,21 @@
 				</div>
 			{/if}
 
-			<!-- Total Quantity -->
-			<div>
-				<Label for="total-quantity">{m['tierForm.totalTickets']()}</Label>
-				<Input
-					id="total-quantity"
-					type="number"
-					min="1"
-					bind:value={totalQuantity}
-					placeholder={m['tierForm.unlimitedPlaceholder']()}
-					disabled={isPending}
-				/>
-				<p class="mt-1 text-xs text-muted-foreground">{m['tierForm.unlimitedTickets']()}</p>
-			</div>
+			<!-- Total Quantity (not tracked for external tiers — no local ticket is created) -->
+			{#if paymentMethod !== 'external'}
+				<div>
+					<Label for="total-quantity">{m['tierForm.totalTickets']()}</Label>
+					<Input
+						id="total-quantity"
+						type="number"
+						min="1"
+						bind:value={totalQuantity}
+						placeholder={m['tierForm.unlimitedPlaceholder']()}
+						disabled={isPending}
+					/>
+					<p class="mt-1 text-xs text-muted-foreground">{m['tierForm.unlimitedTickets']()}</p>
+				</div>
+			{/if}
 
 			<!-- Sales Period -->
 			<div class="grid grid-cols-2 gap-4">
@@ -859,208 +897,210 @@
 				</div>
 			{/if}
 
-			<!-- Seating Configuration Section -->
-			<div class="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
-				<div class="flex items-center gap-2 text-sm font-medium">
-					<Armchair class="h-4 w-4 text-primary" aria-hidden="true" />
-					{m['tierForm.seatingConfig.title']?.() ?? 'Seating Configuration'}
-				</div>
+			<!-- Seating Configuration Section (meaningless for external — no local ticket to seat) -->
+			{#if paymentMethod !== 'external'}
+				<div class="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
+					<div class="flex items-center gap-2 text-sm font-medium">
+						<Armchair class="h-4 w-4 text-primary" aria-hidden="true" />
+						{m['tierForm.seatingConfig.title']?.() ?? 'Seating Configuration'}
+					</div>
 
-				<!-- Seat Assignment Mode -->
-				<div>
-					<Label for="seat-assignment-mode">
-						{m['tierForm.seatingConfig.mode']?.() ?? 'Seat Assignment Mode'}
-					</Label>
-					<select
-						id="seat-assignment-mode"
-						bind:value={seatAssignmentMode}
-						disabled={isPending}
-						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-					>
-						<option value="none">
-							{m['tierForm.seatingConfig.none']?.() ?? 'General Admission (No Assigned Seats)'}
-						</option>
-						<option value="random" disabled={!canUseSeatAssignment}>
-							{m['tierForm.seatingConfig.random']?.() ?? 'Random Assignment'}
-							{!canUseSeatAssignment ? m['tierForm.requiresVenueSuffix']() : ''}
-						</option>
-						<option value="user_choice" disabled={!canUseSeatAssignment}>
-							{m['tierForm.seatingConfig.userChoice']?.() ?? 'User Selects Seat'}
-							{!canUseSeatAssignment ? m['tierForm.requiresVenueSuffix']() : ''}
-						</option>
-					</select>
-					<p class="mt-1 text-xs text-muted-foreground">
-						{#if !canUseSeatAssignment && seatAssignmentMode === 'none'}
-							{m['tierForm.seatingConfig.noVenueConfigured']?.() ??
-								'To enable seat assignment, configure a venue for this event in Basic Info.'}
-						{:else if seatAssignmentMode === 'none'}
-							{m['tierForm.seatingConfig.noneHelp']?.() ??
-								'No seat assignment - attendees can sit anywhere'}
-						{:else if seatAssignmentMode === 'random'}
-							{m['tierForm.seatingConfig.randomHelp']?.() ??
-								'Seats are randomly assigned to attendees'}
-						{:else}
-							{m['tierForm.seatingConfig.userChoiceHelp']?.() ??
-								'Attendees can select their preferred seat'}
-						{/if}
-					</p>
-				</div>
-
-				<!-- Max Tickets Per User -->
-				<div>
-					<Label for="max-tickets-per-user">
-						{m['tierForm.seatingConfig.maxTickets']?.() ?? 'Max Tickets Per User'}
-					</Label>
-					<Input
-						id="max-tickets-per-user"
-						type="number"
-						min="1"
-						bind:value={maxTicketsPerUser}
-						placeholder={m['tierForm.seatingConfig.inheritFromEvent']?.() ?? 'Inherit from event'}
-						disabled={isPending}
-					/>
-					<p class="mt-1 text-xs text-muted-foreground">
-						{m['tierForm.seatingConfig.maxTicketsHelp']?.() ??
-							'Leave empty to inherit from event (event default is 1)'}
-					</p>
-				</div>
-
-				<!-- Venue & Sector Selection (only when seat assignment is not 'none') -->
-				{#if seatAssignmentMode !== 'none'}
-					<div class="space-y-4 border-t border-border pt-4">
-						<div class="flex items-center gap-2 text-sm font-medium">
-							<Building2 class="h-4 w-4 text-primary" aria-hidden="true" />
-							{m['tierForm.seatingConfig.venueSection']?.() ?? 'Venue & Sector'}
-						</div>
-
-						<!-- Venue (read-only - comes from event) -->
-						<div>
-							<Label>
-								{m['tierForm.seatingConfig.venue']?.() ?? 'Venue'}
-							</Label>
-							{#if venuesQuery.isLoading}
-								<div
-									class="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-muted-foreground"
-								>
-									{m['tierForm.seatingConfig.loadingVenues']?.() ?? 'Loading venue...'}
-								</div>
+					<!-- Seat Assignment Mode -->
+					<div>
+						<Label for="seat-assignment-mode">
+							{m['tierForm.seatingConfig.mode']?.() ?? 'Seat Assignment Mode'}
+						</Label>
+						<select
+							id="seat-assignment-mode"
+							bind:value={seatAssignmentMode}
+							disabled={isPending}
+							class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+						>
+							<option value="none">
+								{m['tierForm.seatingConfig.none']?.() ?? 'General Admission (No Assigned Seats)'}
+							</option>
+							<option value="random" disabled={!canUseSeatAssignment}>
+								{m['tierForm.seatingConfig.random']?.() ?? 'Random Assignment'}
+								{!canUseSeatAssignment ? m['tierForm.requiresVenueSuffix']() : ''}
+							</option>
+							<option value="user_choice" disabled={!canUseSeatAssignment}>
+								{m['tierForm.seatingConfig.userChoice']?.() ?? 'User Selects Seat'}
+								{!canUseSeatAssignment ? m['tierForm.requiresVenueSuffix']() : ''}
+							</option>
+						</select>
+						<p class="mt-1 text-xs text-muted-foreground">
+							{#if !canUseSeatAssignment && seatAssignmentMode === 'none'}
+								{m['tierForm.seatingConfig.noVenueConfigured']?.() ??
+									'To enable seat assignment, configure a venue for this event in Basic Info.'}
+							{:else if seatAssignmentMode === 'none'}
+								{m['tierForm.seatingConfig.noneHelp']?.() ??
+									'No seat assignment - attendees can sit anywhere'}
+							{:else if seatAssignmentMode === 'random'}
+								{m['tierForm.seatingConfig.randomHelp']?.() ??
+									'Seats are randomly assigned to attendees'}
 							{:else}
-								{@const selectedVenue = venuesQuery.data?.find((v) => v.id === venueId)}
-								<div
-									class="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 py-2 text-sm"
-								>
-									{#if selectedVenue}
-										<span class="font-medium">{selectedVenue.name}</span>
-										{#if selectedVenue.capacity}
-											<span class="ml-2 text-muted-foreground"
-												>{m['tierForm.venueCapacity']({ capacity: selectedVenue.capacity })}</span
-											>
+								{m['tierForm.seatingConfig.userChoiceHelp']?.() ??
+									'Attendees can select their preferred seat'}
+							{/if}
+						</p>
+					</div>
+
+					<!-- Max Tickets Per User -->
+					<div>
+						<Label for="max-tickets-per-user">
+							{m['tierForm.seatingConfig.maxTickets']?.() ?? 'Max Tickets Per User'}
+						</Label>
+						<Input
+							id="max-tickets-per-user"
+							type="number"
+							min="1"
+							bind:value={maxTicketsPerUser}
+							placeholder={m['tierForm.seatingConfig.inheritFromEvent']?.() ?? 'Inherit from event'}
+							disabled={isPending}
+						/>
+						<p class="mt-1 text-xs text-muted-foreground">
+							{m['tierForm.seatingConfig.maxTicketsHelp']?.() ??
+								'Leave empty to inherit from event (event default is 1)'}
+						</p>
+					</div>
+
+					<!-- Venue & Sector Selection (only when seat assignment is not 'none') -->
+					{#if seatAssignmentMode !== 'none'}
+						<div class="space-y-4 border-t border-border pt-4">
+							<div class="flex items-center gap-2 text-sm font-medium">
+								<Building2 class="h-4 w-4 text-primary" aria-hidden="true" />
+								{m['tierForm.seatingConfig.venueSection']?.() ?? 'Venue & Sector'}
+							</div>
+
+							<!-- Venue (read-only - comes from event) -->
+							<div>
+								<Label>
+									{m['tierForm.seatingConfig.venue']?.() ?? 'Venue'}
+								</Label>
+								{#if venuesQuery.isLoading}
+									<div
+										class="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 py-2 text-sm text-muted-foreground"
+									>
+										{m['tierForm.seatingConfig.loadingVenues']?.() ?? 'Loading venue...'}
+									</div>
+								{:else}
+									{@const selectedVenue = venuesQuery.data?.find((v) => v.id === venueId)}
+									<div
+										class="flex h-10 w-full items-center rounded-md border border-input bg-muted/50 px-3 py-2 text-sm"
+									>
+										{#if selectedVenue}
+											<span class="font-medium">{selectedVenue.name}</span>
+											{#if selectedVenue.capacity}
+												<span class="ml-2 text-muted-foreground"
+													>{m['tierForm.venueCapacity']({ capacity: selectedVenue.capacity })}</span
+												>
+											{/if}
+										{:else}
+											<span class="text-muted-foreground">
+												{m['tierForm.seatingConfig.noVenueSelected']?.() ??
+													'No venue configured for event'}
+											</span>
 										{/if}
-									{:else}
-										<span class="text-muted-foreground">
-											{m['tierForm.seatingConfig.noVenueSelected']?.() ??
-												'No venue configured for event'}
+									</div>
+								{/if}
+								<p class="mt-1 text-xs text-muted-foreground">
+									{m['tierForm.seatingConfig.venueFromEvent']?.() ??
+										'Venue is set at the event level in Basic Info.'}
+								</p>
+							</div>
+
+							<!-- Sector (only when venue is selected) -->
+							{#if venueId && selectedVenueSectors.length > 0}
+								<div>
+									<Label for="tier-sector">
+										<span class="flex items-center gap-1">
+											<LayoutGrid class="h-3.5 w-3.5" aria-hidden="true" />
+											{m['tierForm.seatingConfig.sector']?.() ?? 'Sector'}
+											{#if sectorRequired}
+												<span class="text-destructive">*</span>
+											{/if}
 										</span>
+									</Label>
+									<select
+										id="tier-sector"
+										bind:value={sectorId}
+										disabled={isPending}
+										required={sectorRequired}
+										class="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 {sectorRequired &&
+										!sectorId
+											? 'border-destructive'
+											: 'border-input'}"
+									>
+										<option value={null}>
+											{sectorRequired
+												? (m['tierForm.seatingConfig.selectSectorRequired']?.() ??
+													'Select a sector (required)')
+												: (m['tierForm.seatingConfig.selectSector']?.() ??
+													'Select a sector (optional)')}
+										</option>
+										{#each selectedVenueSectors as sector (sector.id)}
+											<option value={sector.id}>
+												{sector.name}
+												{#if sector.code}({sector.code}){/if}
+												{#if sector.capacity}{m['tierForm.sectorSeats']({
+														capacity: sector.capacity
+													})}{/if}
+											</option>
+										{/each}
+									</select>
+									<p
+										class="mt-1 text-xs {sectorRequired && !sectorId
+											? 'text-destructive'
+											: 'text-muted-foreground'}"
+									>
+										{#if sectorRequired}
+											{m['tierForm.seatingConfig.sectorRequiredHelp']?.() ??
+												'A sector is required for seat assignment modes other than General Admission'}
+										{:else}
+											{m['tierForm.seatingConfig.sectorHelp']?.() ??
+												'Optionally restrict this tier to a specific sector'}
+										{/if}
+									</p>
+
+									<!-- Sector Hard Limit Warning -->
+									{#if sectorId}
+										{@const selectedSector = selectedVenueSectors.find((s) => s.id === sectorId)}
+										{#if selectedSector?.capacity}
+											<div
+												class="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950"
+											>
+												<p class="font-medium text-amber-800 dark:text-amber-200">
+													{m['tierForm.sectorHardLimit.title']()}
+												</p>
+												<p class="mt-1 text-amber-700 dark:text-amber-300">
+													{m['tierForm.sectorHardLimit.description']({
+														capacity: selectedSector.capacity.toString()
+													})}
+												</p>
+											</div>
+										{/if}
 									{/if}
 								</div>
-							{/if}
-							<p class="mt-1 text-xs text-muted-foreground">
-								{m['tierForm.seatingConfig.venueFromEvent']?.() ??
-									'Venue is set at the event level in Basic Info.'}
-							</p>
-						</div>
-
-						<!-- Sector (only when venue is selected) -->
-						{#if venueId && selectedVenueSectors.length > 0}
-							<div>
-								<Label for="tier-sector">
-									<span class="flex items-center gap-1">
-										<LayoutGrid class="h-3.5 w-3.5" aria-hidden="true" />
-										{m['tierForm.seatingConfig.sector']?.() ?? 'Sector'}
-										{#if sectorRequired}
-											<span class="text-destructive">*</span>
-										{/if}
-									</span>
-								</Label>
-								<select
-									id="tier-sector"
-									bind:value={sectorId}
-									disabled={isPending}
-									required={sectorRequired}
-									class="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 {sectorRequired &&
-									!sectorId
-										? 'border-destructive'
-										: 'border-input'}"
-								>
-									<option value={null}>
-										{sectorRequired
-											? (m['tierForm.seatingConfig.selectSectorRequired']?.() ??
-												'Select a sector (required)')
-											: (m['tierForm.seatingConfig.selectSector']?.() ??
-												'Select a sector (optional)')}
-									</option>
-									{#each selectedVenueSectors as sector (sector.id)}
-										<option value={sector.id}>
-											{sector.name}
-											{#if sector.code}({sector.code}){/if}
-											{#if sector.capacity}{m['tierForm.sectorSeats']({
-													capacity: sector.capacity
-												})}{/if}
-										</option>
-									{/each}
-								</select>
-								<p
-									class="mt-1 text-xs {sectorRequired && !sectorId
-										? 'text-destructive'
-										: 'text-muted-foreground'}"
-								>
+							{:else if venueId}
+								<p class="text-xs {sectorRequired ? 'text-destructive' : 'text-muted-foreground'}">
 									{#if sectorRequired}
-										{m['tierForm.seatingConfig.sectorRequiredHelp']?.() ??
-											'A sector is required for seat assignment modes other than General Admission'}
+										{m['tierForm.seatingConfig.noSectorsRequired']?.() ??
+											'This venue has no sectors configured. Sectors are required for this seat assignment mode.'}
 									{:else}
-										{m['tierForm.seatingConfig.sectorHelp']?.() ??
-											'Optionally restrict this tier to a specific sector'}
+										{m['tierForm.seatingConfig.noSectors']?.() ??
+											'This venue has no sectors configured.'}
 									{/if}
 								</p>
-
-								<!-- Sector Hard Limit Warning -->
-								{#if sectorId}
-									{@const selectedSector = selectedVenueSectors.find((s) => s.id === sectorId)}
-									{#if selectedSector?.capacity}
-										<div
-											class="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950"
-										>
-											<p class="font-medium text-amber-800 dark:text-amber-200">
-												{m['tierForm.sectorHardLimit.title']()}
-											</p>
-											<p class="mt-1 text-amber-700 dark:text-amber-300">
-												{m['tierForm.sectorHardLimit.description']({
-													capacity: selectedSector.capacity.toString()
-												})}
-											</p>
-										</div>
-									{/if}
-								{/if}
-							</div>
-						{:else if venueId}
-							<p class="text-xs {sectorRequired ? 'text-destructive' : 'text-muted-foreground'}">
-								{#if sectorRequired}
-									{m['tierForm.seatingConfig.noSectorsRequired']?.() ??
-										'This venue has no sectors configured. Sectors are required for this seat assignment mode.'}
-								{:else}
-									{m['tierForm.seatingConfig.noSectors']?.() ??
-										'This venue has no sectors configured.'}
-								{/if}
-							</p>
-						{:else if sectorRequired}
-							<p class="text-xs text-destructive">
-								{m['tierForm.seatingConfig.venueRequiredForSeats']?.() ??
-									'Please select a venue and sector for this seat assignment mode'}
-							</p>
-						{/if}
-					</div>
-				{/if}
-			</div>
+							{:else if sectorRequired}
+								<p class="text-xs text-destructive">
+									{m['tierForm.seatingConfig.venueRequiredForSeats']?.() ??
+										'Please select a venue and sector for this seat assignment mode'}
+								</p>
+							{/if}
+						</div>
+					{/if}
+				</div>
+			{/if}
 
 			<!-- Form Actions -->
 			<div class="flex justify-between gap-2 border-t border-border pt-4">

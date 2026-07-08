@@ -62,6 +62,7 @@
 
 	const priceDisplay = $derived(() => {
 		const currency = tier.currency || 'EUR';
+		if (tier.payment_method === 'external') return 'External';
 		if (tier.payment_method === 'free') return 'Free';
 		if (tier.price_type === 'pwyc') {
 			const min = formatPrice(tier.pwyc_min || 1, currency);
@@ -77,6 +78,7 @@
 	});
 
 	const quantityDisplay = $derived(() => {
+		if (tier.payment_method === 'external') return 'Not tracked';
 		if (tier.total_quantity === null) return 'Unlimited';
 		const available = tier.total_available ?? 0;
 		return `${available} of ${tier.total_quantity} remaining`;
@@ -87,7 +89,8 @@
 			free: 'Free',
 			online: 'Online (Stripe)',
 			offline: 'Offline',
-			at_the_door: 'At the Door'
+			at_the_door: 'At the Door',
+			external: 'External Link'
 		};
 		const pm = tier.payment_method ?? 'online';
 		return methods[pm] || pm.replace(/_/g, ' ');
@@ -251,6 +254,23 @@
 					</div>
 				{/if}
 			</dl>
+
+			<!-- External Ticket URL -->
+			{#if tier.payment_method === 'external' && tier.external_ticket_url}
+				<div class="mt-3 rounded-md border border-border bg-muted/50 p-2">
+					<p class="text-xs font-medium text-muted-foreground">
+						{m['tierCard.externalLink']()}
+					</p>
+					<a
+						href={tier.external_ticket_url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="mt-1 block truncate text-sm text-primary underline"
+					>
+						{tier.external_ticket_url}
+					</a>
+				</div>
+			{/if}
 
 			<!-- Manual Payment Instructions -->
 			{#if tier.manual_payment_instructions}
