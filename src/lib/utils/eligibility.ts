@@ -137,24 +137,25 @@ export function isAttending(status: UserEventStatusResponse): boolean {
  */
 export function getNextStepMessage(nextStep: NextStep): string {
 	const messages: Record<NextStep, string> = {
-		rsvp: "You're eligible to RSVP for this event",
-		purchase_ticket: 'Get your ticket to attend this event',
-		complete_questionnaire: 'Complete the required questionnaire to attend',
-		wait_for_questionnaire_evaluation: 'Your questionnaire submission is under review',
-		wait_to_retake_questionnaire: 'You can retake the questionnaire soon',
-		request_invitation: 'Request an invitation to attend this private event',
-		wait_for_invitation_approval: 'Your invitation request is pending approval',
-		become_member: 'Join the organization to attend this members-only event',
-		join_waitlist: 'This event is full, but you can join the waitlist',
-		wait_for_open_spot: "You're on the waitlist for this event",
-		wait_for_event_to_open: 'Check back when registration opens',
-		upgrade_membership: 'Upgrade your membership tier to attend this event',
-		request_whitelist: 'Additional verification is required to access this organization',
-		wait_for_whitelist_approval: 'Your verification request is pending approval',
-		complete_profile: 'Complete your profile to attend this event'
+		rsvp: 'Você está apto a confirmar presença neste evento',
+		purchase_ticket: 'Adquira seu ingresso para participar deste evento',
+		complete_questionnaire: 'Preencha o questionário obrigatório para participar',
+		wait_for_questionnaire_evaluation: 'Sua resposta ao questionário está em análise',
+		wait_to_retake_questionnaire: 'Você poderá refazer o questionário em breve',
+		request_invitation: 'Solicite um convite para participar deste evento privado',
+		wait_for_invitation_approval: 'Sua solicitação de convite está pendente de aprovação',
+		become_member:
+			'Torne-se membro da organização para participar deste evento exclusivo para membros',
+		join_waitlist: 'Este evento está lotado, mas você pode entrar na lista de espera',
+		wait_for_open_spot: 'Você está na lista de espera deste evento',
+		wait_for_event_to_open: 'Volte quando as inscrições abrirem',
+		upgrade_membership: 'Faça upgrade do seu nível de associação para participar deste evento',
+		request_whitelist: 'Verificação adicional é necessária para acessar esta organização',
+		wait_for_whitelist_approval: 'Sua solicitação de verificação está pendente de aprovação',
+		complete_profile: 'Complete seu perfil para participar deste evento'
 	};
 
-	return messages[nextStep] || 'Check your eligibility status';
+	return messages[nextStep] || 'Verifique sua elegibilidade';
 }
 
 /**
@@ -162,24 +163,24 @@ export function getNextStepMessage(nextStep: NextStep): string {
  */
 export function getActionButtonText(nextStep: NextStep): string {
 	const buttonTexts: Record<NextStep, string> = {
-		rsvp: 'RSVP',
-		purchase_ticket: 'Buy Tickets',
-		complete_questionnaire: 'Complete Questionnaire',
-		wait_for_questionnaire_evaluation: 'Pending Review',
-		wait_to_retake_questionnaire: 'Retry Available Soon',
-		request_invitation: 'Request Invitation',
-		wait_for_invitation_approval: 'Pending Approval',
-		become_member: 'Join Organization',
-		join_waitlist: 'Join Waitlist',
-		wait_for_open_spot: "You're on the Waitlist",
-		wait_for_event_to_open: 'Notify Me',
-		upgrade_membership: 'Upgrade Membership',
-		request_whitelist: 'Request Verification',
-		wait_for_whitelist_approval: 'Verification Pending',
-		complete_profile: 'Complete Profile'
+		rsvp: 'Confirmar presença',
+		purchase_ticket: 'Comprar ingressos',
+		complete_questionnaire: 'Preencher questionário',
+		wait_for_questionnaire_evaluation: 'Em análise',
+		wait_to_retake_questionnaire: 'Tentar novamente em breve',
+		request_invitation: 'Solicitar convite',
+		wait_for_invitation_approval: 'Pendente de aprovação',
+		become_member: 'Entrar na organização',
+		join_waitlist: 'Entrar na lista de espera',
+		wait_for_open_spot: 'Você está na lista de espera',
+		wait_for_event_to_open: 'Avise-me',
+		upgrade_membership: 'Fazer upgrade da associação',
+		request_whitelist: 'Solicitar verificação',
+		wait_for_whitelist_approval: 'Verificação pendente',
+		complete_profile: 'Completar perfil'
 	};
 
-	return buttonTexts[nextStep] || 'View Details';
+	return buttonTexts[nextStep] || 'Ver detalhes';
 }
 
 /**
@@ -240,7 +241,7 @@ export function getEligibilityExplanation(eligibility: EventUserEligibility): st
 	if (eligibility.allowed) {
 		return eligibility.next_step
 			? getNextStepMessage(eligibility.next_step)
-			: "You're eligible to attend this event";
+			: 'Você está apto a participar deste evento';
 	}
 
 	// For complete_profile, always show our message since the backend reason
@@ -259,7 +260,7 @@ export function getEligibilityExplanation(eligibility: EventUserEligibility): st
 		return getNextStepMessage(eligibility.next_step);
 	}
 
-	return 'You are not currently eligible to attend this event';
+	return 'Você não está apto a participar deste evento no momento';
 }
 
 /**
@@ -267,24 +268,24 @@ export function getEligibilityExplanation(eligibility: EventUserEligibility): st
  */
 export function getRSVPStatusText(status: RsvpStatus): string {
 	// Backend returns the user's actual answer: 'yes' | 'no' | 'maybe'
-	if (status === 'yes') return "You're attending";
-	if (status === 'maybe') return 'You might attend';
-	if (status === 'no') return "You're not attending";
-	return 'RSVP status unknown';
+	if (status === 'yes') return 'Você vai participar';
+	if (status === 'maybe') return 'Você talvez participe';
+	if (status === 'no') return 'Você não vai participar';
+	return 'Status do RSVP desconhecido';
 }
 
 /**
  * Get ticket status display text
  */
 export function getTicketStatusText(status?: TicketStatus): string {
-	if (!status) return 'You have a ticket';
+	if (!status) return 'Você tem um ingresso';
 
-	if (status === 'active') return 'You have a ticket';
-	if (status === 'cancelled') return 'Ticket canceled'; // Note: backend uses 'cancelled' not 'canceled'
-	if (status === 'checked_in') return 'Checked in';
+	if (status === 'active') return 'Você tem um ingresso';
+	if (status === 'cancelled') return 'Ingresso cancelado';
+	if (status === 'checked_in') return 'Check-in feito';
 	if (status === 'pending') return 'Ingresso pendente';
 
-	return 'You have a ticket';
+	return 'Você tem um ingresso';
 }
 
 /**
@@ -294,17 +295,17 @@ export function getMultipleTicketsStatusText(tickets: EventTicketSchemaActual[])
 	const activeTickets = tickets.filter((t) => t.status !== 'cancelled');
 	const count = activeTickets.length;
 
-	if (count === 0) return 'No tickets';
+	if (count === 0) return 'Sem ingressos';
 	if (count === 1) return getTicketStatusText(activeTickets[0].status);
 
 	const checkedIn = activeTickets.filter((t) => t.status === 'checked_in').length;
 	const pending = activeTickets.filter((t) => t.status === 'pending').length;
 
-	if (checkedIn === count) return `${count} tickets checked in`;
-	if (pending === count) return `${count} tickets pending`;
-	if (pending > 0) return `${count} tickets (${pending} pending)`;
+	if (checkedIn === count) return `${count} ingressos com check-in feito`;
+	if (pending === count) return `${count} ingressos pendentes`;
+	if (pending > 0) return `${count} ingressos (${pending} pendente(s))`;
 
-	return `${count} tickets`;
+	return `${count} ingressos`;
 }
 
 /**
@@ -328,9 +329,9 @@ export function hasActiveWaitlistOffer(eligibility: EventUserEligibility): boole
  */
 export function getMissingProfileFieldLabel(field: string): string {
 	const labels: Record<string, string> = {
-		profile_picture: 'Profile picture',
-		pronouns: 'Pronouns',
-		name: 'Display name'
+		profile_picture: 'Foto de perfil',
+		pronouns: 'Pronomes',
+		name: 'Nome de exibição'
 	};
 
 	return labels[field] || field;
