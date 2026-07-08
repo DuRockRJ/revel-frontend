@@ -16,7 +16,9 @@ import {
 	formatDate,
 	formatDateLongMonth,
 	formatDateTimeVerbose,
-	formatMonthYearLabel
+	formatMonthYearLabel,
+	formatRelativeTime,
+	getRSVPDeadlineRelative
 } from './date';
 
 // A fixed winter instant (no DST ambiguity):
@@ -197,5 +199,26 @@ describe('formatMonthYearLabel (#510)', () => {
 	it('does not contain a time component', () => {
 		const out = formatMonthYearLabel('2026-06-07T12:00:00Z');
 		expect(out).not.toMatch(/\d+:\d+/);
+	});
+});
+
+describe('getRSVPDeadlineRelative uses locale-aware phrasing, not hardcoded English', () => {
+	it('delegates future deadlines to formatRelativeTime (locale-derived, not string-built)', () => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+
+		const future = '2026-01-13T00:00:00Z'; // 12 days out
+		expect(getRSVPDeadlineRelative(future)).toBe(formatRelativeTime(future));
+
+		vi.useRealTimers();
+	});
+
+	it("returns the 'closed' sentinel for a passed deadline", () => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date('2026-01-13T00:00:00Z'));
+
+		expect(getRSVPDeadlineRelative('2026-01-01T00:00:00Z')).toBe('closed');
+
+		vi.useRealTimers();
 	});
 });

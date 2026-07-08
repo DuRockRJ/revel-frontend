@@ -197,33 +197,20 @@ export function formatEventDateRange(
 }
 
 /**
- * Get a relative time description for an RSVP deadline
+ * Get a locale-aware relative time description for an RSVP deadline.
  * @param deadlineString ISO 8601 date-time string
- * @returns Relative time description (e.g., "in 2 days", "in 3 hours", "closed")
+ * @returns Relative time description (e.g., "in 2 days", "daqui a 2 dias"), or the
+ *   sentinel `'closed'` if the deadline has passed (callers translate this themselves).
  */
 export function getRSVPDeadlineRelative(deadlineString: string): string {
-	const deadline = new Date(deadlineString);
-	const now = new Date();
-	const diffMs = deadline.getTime() - now.getTime();
+	const diffMs = new Date(deadlineString).getTime() - Date.now();
 
 	// Already passed
 	if (diffMs < 0) {
 		return 'closed';
 	}
 
-	const diffMinutes = Math.floor(diffMs / (1000 * 60));
-	const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-	const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-	if (diffMinutes < 60) {
-		return `in ${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''}`;
-	}
-
-	if (diffHours < 24) {
-		return `in ${diffHours} hour${diffHours !== 1 ? 's' : ''}`;
-	}
-
-	return `in ${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+	return formatRelativeTime(deadlineString);
 }
 
 /**
