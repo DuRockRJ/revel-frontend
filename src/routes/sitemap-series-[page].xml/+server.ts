@@ -36,7 +36,7 @@ export const GET: RequestHandler = async ({ params, fetch, url }) => {
 	if (series.length === 0 && page > 1) throw error(404, 'No series on this page');
 
 	const urls = series.map((s) => {
-		const loc = `${baseUrl}/events/${s.organization.slug}/series/${s.slug}`;
+		const loc = `${baseUrl}/eventos/${s.organization.slug}/serie/${s.slug}`;
 		const lastmod = (s.updated_at ? new Date(s.updated_at) : new Date())
 			.toISOString()
 			.split('T')[0];

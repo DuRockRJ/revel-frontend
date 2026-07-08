@@ -15,9 +15,9 @@ export const GET: RequestHandler = async ({ url }) => {
 # Default rules for all bots
 User-agent: *
 Allow: /
-Allow: /events
-Allow: /events/
-Allow: /organizations
+Allow: /eventos
+Allow: /eventos/
+Allow: /org
 Allow: /org/
 Allow: /legal/
 
@@ -25,15 +25,15 @@ Allow: /legal/
 Disallow: /api/
 Disallow: /dashboard
 Disallow: /dashboard/
-Disallow: /account
-Disallow: /account/
-Disallow: /create-org
+Disallow: /conta
+Disallow: /conta/
+Disallow: /criar-org
 Disallow: /org/*/admin
 Disallow: /org/*/admin/
-Disallow: /join/
-Disallow: /verify
-Disallow: /reset-password
-Disallow: /confirm-action
+Disallow: /participar/
+Disallow: /verificar
+Disallow: /redefinir-senha
+Disallow: /confirmar-acao
 
 # Disallow URL parameters that create duplicate content
 Disallow: /*?viewMode=
@@ -52,11 +52,11 @@ Crawl-delay: 1
 
 # GPTBot (OpenAI) - Allow for AI training on public event data
 User-agent: GPTBot
-Allow: /events
+Allow: /eventos
 Allow: /org/
 Disallow: /api/
 Disallow: /dashboard
-Disallow: /account
+Disallow: /conta
 
 # CCBot (Common Crawl) - Allow for research purposes
 User-agent: CCBot

@@ -266,7 +266,7 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 					generateEventJsonLd(event, canonical),
 					generateBreadcrumbJsonLd([
 						{ name: 'Início', url: origin },
-						{ name: 'Eventos', url: `${origin}/events` },
+						{ name: 'Eventos', url: `${origin}/eventos` },
 						{ name: event.organization.name, url: `${origin}/org/${event.organization.slug}` },
 						{ name: event.name, url: canonical }
 					])
@@ -308,7 +308,7 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 					generateOrganizationJsonLd(org, canonical),
 					generateBreadcrumbJsonLd([
 						{ name: 'Início', url: origin },
-						{ name: 'Organizações', url: `${origin}/organizations` },
+						{ name: 'Organizações', url: `${origin}/org` },
 						{ name: org.name, url: canonical }
 					])
 				]

@@ -15,7 +15,7 @@ export const GET: RequestHandler = async ({ url }) => {
   <Description>Search for events and organizations on Revel</Description>
   <Tags>events community organizations tickets rsvp</Tags>
   <Contact>contact@letsrevel.io</Contact>
-  <Url type="text/html" method="get" template="${baseUrl}/events?search={searchTerms}"/>
+  <Url type="text/html" method="get" template="${baseUrl}/eventos?search={searchTerms}"/>
   <Url type="application/rss+xml" method="get" template="${baseUrl}/feed.xml"/>
   <LongName>Revel - Community Event Platform</LongName>
   <Image width="16" height="16" type="image/x-icon">${baseUrl}/favicon.ico</Image>

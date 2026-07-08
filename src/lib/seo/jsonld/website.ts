@@ -25,7 +25,7 @@ export function generateWebSiteJsonLd(origin: string): WebSiteJsonLd {
 			'@type': 'SearchAction',
 			target: {
 				'@type': 'EntryPoint',
-				urlTemplate: `${origin}/events?search={search_term_string}`
+				urlTemplate: `${origin}/eventos?search={search_term_string}`
 			},
 			'query-input': 'required name=search_term_string'
 		}

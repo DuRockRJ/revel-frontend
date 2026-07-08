@@ -90,7 +90,7 @@ export const GET: RequestHandler = async ({ fetch, url }) => {
     <category>Community</category>
 ${events
 	.map((event) => {
-		const eventUrl = `${baseUrl}/events/${event.organization.slug}/${event.slug}`;
+		const eventUrl = `${baseUrl}/eventos/${event.organization.slug}/${event.slug}`;
 		const description =
 			stripHtml(event.description) || `Join ${event.name} organized by ${event.organization.name}`;
 		const truncatedDescription =

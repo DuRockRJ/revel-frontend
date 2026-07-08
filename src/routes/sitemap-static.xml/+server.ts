@@ -2,11 +2,11 @@ import type { RequestHandler } from './$types';
 
 const STATIC = [
 	{ path: '/', changefreq: 'hourly', priority: '1.0' },
-	{ path: '/organizations', changefreq: 'daily', priority: '0.8' },
+	{ path: '/org', changefreq: 'daily', priority: '0.8' },
 	{ path: '/login', changefreq: 'monthly', priority: '0.4' },
-	{ path: '/register', changefreq: 'monthly', priority: '0.4' },
-	{ path: '/legal/privacy', changefreq: 'monthly', priority: '0.3' },
-	{ path: '/legal/terms', changefreq: 'monthly', priority: '0.3' }
+	{ path: '/cadastro', changefreq: 'monthly', priority: '0.4' },
+	{ path: '/legal/privacidade', changefreq: 'monthly', priority: '0.3' },
+	{ path: '/legal/termos', changefreq: 'monthly', priority: '0.3' }
 ];
 
 // Hand-rolled marketing pages that only exist in English (no translated

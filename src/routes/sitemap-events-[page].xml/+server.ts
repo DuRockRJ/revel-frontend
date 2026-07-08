@@ -51,7 +51,7 @@ export const GET: RequestHandler = async ({ params, fetch, url }) => {
 	if (events.length === 0 && page > 1) throw error(404, 'No events on this page');
 
 	const urls = events.map((event) => {
-		const loc = `${baseUrl}/events/${event.organization.slug}/${event.slug}`;
+		const loc = `${baseUrl}/eventos/${event.organization.slug}/${event.slug}`;
 		const lastmod = (event.updated_at ? new Date(event.updated_at) : new Date())
 			.toISOString()
 			.split('T')[0];
