@@ -13,6 +13,7 @@ import {
 } from '$lib/utils/cookies';
 import { log } from '$lib/server/logger';
 import { startMetricsServer } from '$lib/server/metrics';
+import { handleLegacyRedirects } from '$lib/server/legacy-redirects';
 import { handleRequestLogging, handleSsrError } from '$lib/server/request-logging';
 
 // Start the internal Prometheus metrics listener (production-only, guarded so
@@ -345,12 +346,13 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 };
 
 /**
- * Combine request logging, token capture, authentication, i18n, and preload
- * optimization hooks. handleRequestLogging is FIRST so it wraps and times the
- * whole chain.
+ * Combine request logging, legacy-URL redirects, token capture, authentication,
+ * i18n, and preload optimization hooks. handleRequestLogging is FIRST so it
+ * wraps and times the whole chain.
  */
 export const handle = sequence(
 	handleRequestLogging,
+	handleLegacyRedirects,
 	handleTokenCapture,
 	i18nHandle(),
 	handleAuth,
