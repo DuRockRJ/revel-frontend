@@ -5,6 +5,7 @@
 	import { Tag, X, ChevronDown, Loader2 } from 'lucide-svelte';
 	import type { DiscountCodeValidationResponse } from '$lib/api/generated/types.gen';
 	import { eventpublicticketsValidateDiscount } from '$lib/api/generated/sdk.gen';
+	import { formatMoney } from '$lib/utils/format';
 
 	interface Props {
 		eventId: string;
@@ -56,7 +57,7 @@
 		if (discountResult.discount_type === 'percentage') {
 			return `-${discountResult.discount_value}%`;
 		}
-		return `-${currency} ${discountResult.discount_value}`;
+		return `-${formatMoney(discountResult.discount_value, currency)}`;
 	});
 
 	async function validateDiscountCode() {
@@ -164,20 +165,17 @@
 					{#if discountedPrice !== null}
 						<div class="mt-2 text-sm">
 							<span class="text-muted-foreground line-through">
-								{currency}
-								{originalPrice.toFixed(2)}
+								{formatMoney(originalPrice, currency)}
 							</span>
 							<span class="ml-2 font-semibold text-emerald-800 dark:text-emerald-300">
-								{currency}
-								{discountedPrice.toFixed(2)}
+								{formatMoney(discountedPrice, currency)}
 							</span>
 							<span class="text-muted-foreground"> {m['discountCodeInput.perTicket']()}</span>
 
 							{#if quantity > 1}
 								<p class="mt-1 font-medium text-emerald-800 dark:text-emerald-300">
 									{m['discountCodeInput.total']()}
-									{currency}
-									{(discountedPrice * quantity).toFixed(2)}
+									{formatMoney(discountedPrice * quantity, currency)}
 								</p>
 							{/if}
 						</div>

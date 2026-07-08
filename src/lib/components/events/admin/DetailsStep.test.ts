@@ -109,7 +109,8 @@ describe('DetailsStep', () => {
 		await fireEvent.click(advancedButton);
 
 		const tagInput = screen.getByPlaceholderText('Adicionar tags...');
-		const addButton = screen.getByRole('button', { name: 'Adicionar' });
+		// Tags and Bands both render an "Adicionar" button; Tags is first in DOM order.
+		const addButton = screen.getAllByRole('button', { name: 'Adicionar' })[0];
 
 		await fireEvent.input(tagInput, { target: { value: 'social' } });
 		await fireEvent.click(addButton);

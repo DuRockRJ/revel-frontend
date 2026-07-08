@@ -3,6 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { formatMoney } from '$lib/utils/format';
 
 	interface Props {
 		currency: string;
@@ -36,10 +37,9 @@
 	<div class="space-y-2">
 		<Label for="pwyc-amount">{m['ticketConfirmationDialog.paymentAmount']()}</Label>
 		<div class="text-xs text-muted-foreground">
-			Range: {currency}
-			{minAmount.toFixed(2)} - {maxAmount !== null
-				? `${currency} ${maxAmount.toFixed(2)}`
-				: 'any amount'}
+			{m['pwycModal.rangeLabel']()}: {formatMoney(minAmount, currency)} - {maxAmount !== null
+				? formatMoney(maxAmount, currency)
+				: m['ticketConfirmationDialog.anyAmount']()}
 		</div>
 		<div class="relative">
 			<span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -84,7 +84,7 @@
 					}}
 					disabled={isProcessing}
 				>
-					{currency}{suggested.toFixed(2)}
+					{formatMoney(suggested, currency)}
 				</Button>
 			{/each}
 		</div>

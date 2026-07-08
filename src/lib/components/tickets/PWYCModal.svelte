@@ -13,6 +13,7 @@
 	import { DollarSign, AlertCircle } from 'lucide-svelte';
 	import type { TierSchemaWithId } from '$lib/types/tickets';
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
+	import { formatMoney } from '$lib/utils/format';
 
 	interface Props {
 		open: boolean;
@@ -97,12 +98,12 @@
 		}
 
 		if (value < minAmount) {
-			error = m['pwycModal.errorMinAmount']({ amount: `${tier.currency}${minAmount.toFixed(2)}` });
+			error = m['pwycModal.errorMinAmount']({ amount: formatMoney(minAmount, tier.currency) });
 			return false;
 		}
 
 		if (maxAmount !== null && value > maxAmount) {
-			error = m['pwycModal.errorMaxAmount']({ amount: `${tier.currency}${maxAmount.toFixed(2)}` });
+			error = m['pwycModal.errorMaxAmount']({ amount: formatMoney(maxAmount, tier.currency) });
 			return false;
 		}
 
@@ -142,8 +143,9 @@
 					<MarkdownContent content={tier.description} class="mt-1 text-xs text-muted-foreground" />
 				{/if}
 				<div class="mt-2 text-xs text-muted-foreground">
-					{m['pwycModal.rangeLabel']()}: {tier.currency}{minAmount.toFixed(2)} - {maxAmount !== null
-						? `${tier.currency}${maxAmount.toFixed(2)}`
+					{m['pwycModal.rangeLabel']()}: {formatMoney(minAmount, tier.currency)} - {maxAmount !==
+					null
+						? formatMoney(maxAmount, tier.currency)
 						: m['pwycModal.anyAmount']()}
 				</div>
 			</div>
@@ -195,7 +197,7 @@
 							}}
 							disabled={isProcessing}
 						>
-							{tier.currency}{suggested.toFixed(2)}
+							{formatMoney(suggested, tier.currency)}
 						</Button>
 					{/each}
 				</div>
@@ -211,9 +213,9 @@
 				{:else if amountValidation.error === 'invalid'}
 					{m['pwycModal.errorValidNumber']()}
 				{:else if amountValidation.error === 'below_min'}
-					{m['pwycModal.hintMinAmount']({ amount: `${tier.currency}${minAmount.toFixed(2)}` })}
+					{m['pwycModal.hintMinAmount']({ amount: formatMoney(minAmount, tier.currency) })}
 				{:else if amountValidation.error === 'above_max'}
-					{m['pwycModal.hintMaxAmount']({ amount: `${tier.currency}${maxAmount?.toFixed(2)}` })}
+					{m['pwycModal.hintMaxAmount']({ amount: formatMoney(maxAmount, tier.currency) })}
 				{/if}
 			</p>
 		{/if}

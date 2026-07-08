@@ -11,6 +11,7 @@
 	import { Ticket, Clock, Users, AlertCircle } from 'lucide-svelte';
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
 	import { formatDate } from '$lib/utils/date';
+	import { formatMoney } from '$lib/utils/format';
 
 	interface Props {
 		tier: TierSchemaWithId;
@@ -97,14 +98,14 @@
 					: tier.pwyc_max
 				: null;
 
-			const maxDisplay = max ? `${tier.currency} ${max.toFixed(2)}` : m['tierCardAdmin.pwycAny']();
+			const maxDisplay = max ? formatMoney(max, tier.currency) : m['tierCardAdmin.pwycAny']();
 			return m['tierCardAdmin.pwyc']({
-				range: `${tier.currency} ${min.toFixed(2)} - ${maxDisplay}`
+				range: `${formatMoney(min, tier.currency)} - ${maxDisplay}`
 			});
 		}
 
 		const price = typeof tier.price === 'string' ? parseFloat(tier.price) : tier.price;
-		return `${tier.currency} ${price.toFixed(2)}`;
+		return formatMoney(price, tier.currency);
 	});
 
 	// Check if sales are active

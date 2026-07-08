@@ -38,6 +38,7 @@
 	import GuestNameInputs from './GuestNameInputs.svelte';
 	import PwycInput from './PwycInput.svelte';
 	import SeatAssignmentSection from './SeatAssignmentSection.svelte';
+	import { formatMoney } from '$lib/utils/format';
 
 	interface ConfirmPayload {
 		amount?: number;
@@ -189,12 +190,12 @@
 		if (isFree) return m['ticketConfirmationDialog.free']();
 		if (isPwyc) {
 			const maxDisplay = maxAmount
-				? `${tier.currency} ${maxAmount.toFixed(2)}`
+				? formatMoney(maxAmount, tier.currency)
 				: m['ticketConfirmationDialog.anyAmount']();
-			return `${tier.currency} ${minAmount.toFixed(2)} - ${maxDisplay}`;
+			return `${formatMoney(minAmount, tier.currency)} - ${maxDisplay}`;
 		}
 		const price = typeof tier.price === 'string' ? parseFloat(tier.price) : tier.price;
-		return `${tier.currency} ${price.toFixed(2)}`;
+		return formatMoney(price, tier.currency);
 	});
 
 	// Dialog title
@@ -331,10 +332,10 @@
 			empty: m['ticketConfirmationDialog.errorEnterAmount'](),
 			invalid: m['ticketConfirmationDialog.errorValidNumber'](),
 			below_min: m['ticketConfirmationDialog.errorMinAmount']({
-				amount: `${tier.currency} ${minAmount.toFixed(2)}`
+				amount: formatMoney(minAmount, tier.currency)
 			}),
 			above_max: m['ticketConfirmationDialog.errorMaxAmount']({
-				amount: `${tier.currency} ${maxAmount?.toFixed(2)}`
+				amount: formatMoney(maxAmount, tier.currency)
 			})
 		};
 		pwycError =
@@ -693,11 +694,11 @@
 							{m['ticketConfirmationDialog.errorValidNumber']()}
 						{:else if pwycValidation.error === 'below_min'}
 							{m['ticketConfirmationDialog.hintMinAmount']({
-								amount: `${tier.currency} ${minAmount.toFixed(2)}`
+								amount: formatMoney(minAmount, tier.currency)
 							})}
 						{:else if pwycValidation.error === 'above_max'}
 							{m['ticketConfirmationDialog.hintMaxAmount']({
-								amount: `${tier.currency} ${maxAmount?.toFixed(2)}`
+								amount: formatMoney(maxAmount, tier.currency)
 							})}
 						{/if}
 					{:else if isUserChoiceSeat && selectedSeatIds.length !== quantity}
