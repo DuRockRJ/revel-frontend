@@ -13,6 +13,14 @@ export interface DemoAccount {
 }
 
 export const DEMO_ACCOUNTS: DemoAccount[] = [
+	// Platform Administrator
+	{
+		email: 'admin@letsrevel.io',
+		name: 'Admin',
+		role: 'Superuser',
+		description: 'Full platform access, including the Django admin panel'
+	},
+
 	// Organization Alpha (Revel Events Collective)
 	{
 		email: 'alice.owner@example.com',
