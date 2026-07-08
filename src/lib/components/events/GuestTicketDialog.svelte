@@ -42,6 +42,7 @@
 	import SeatSelector from '$lib/components/tickets/SeatSelector.svelte';
 	import CheckoutBillingSection from '$lib/components/tickets/CheckoutBillingSection.svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
+	import { calculateBuyerFee, formatMoney } from '$lib/utils/format';
 
 	interface Props {
 		open: boolean;
@@ -191,6 +192,32 @@
 	const maxAmount = $derived(() => {
 		if (!isPwyc || !tier.pwyc_max) return null;
 		return typeof tier.pwyc_max === 'string' ? parseFloat(tier.pwyc_max) : tier.pwyc_max;
+	});
+
+	// Buyer-facing service fee — only online tiers carry rate data (issue: fee passed on to
+	// the buyer, not the organizer). The percent-fee scales with the batch total (price ×
+	// quantity) but the fixed fee is only ever charged once per checkout session.
+	const buyerFeeRate = $derived(
+		isOnlinePayment
+			? {
+					percent: tier.buyer_fee_percent,
+					fixedAmount: tier.buyer_fee_fixed_amount,
+					vatRate: tier.buyer_fee_vat_rate
+				}
+			: undefined
+	);
+
+	const fixedPriceFeeAmount = $derived.by(() => {
+		if (!buyerFeeRate || isPwyc) return null;
+		const price = typeof tier.price === 'string' ? parseFloat(tier.price) : (tier.price ?? 0);
+		return calculateBuyerFee(price * quantity, buyerFeeRate);
+	});
+
+	const pwycFeeAmount = $derived.by(() => {
+		if (!buyerFeeRate || !isPwyc) return null;
+		const value = parseFloat(formData.pwyc || '');
+		if (!Number.isFinite(value)) return null;
+		return calculateBuyerFee(value * quantity, buyerFeeRate);
 	});
 
 	// Fetch seat availability when dialog opens with user_choice mode
@@ -600,6 +627,13 @@
 										{tier.currency}
 										{parseFloat(tier.price).toFixed(2)}
 									</p>
+									{#if !showQuantitySelector && fixedPriceFeeAmount !== null && fixedPriceFeeAmount > 0}
+										<p class="text-sm text-muted-foreground">
+											{m['tierCard.plusFee']({
+												amount: formatMoney(fixedPriceFeeAmount, tier.currency)
+											})}
+										</p>
+									{/if}
 								{/if}
 							</div>
 							<Ticket class="h-8 w-8 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -651,6 +685,13 @@
 										(typeof tier.price === 'string' ? parseFloat(tier.price) : tier.price || 0)
 									).toFixed(2)}
 								</p>
+								{#if fixedPriceFeeAmount !== null && fixedPriceFeeAmount > 0}
+									<p class="text-sm text-muted-foreground">
+										{m['tierCard.plusFee']({
+											amount: formatMoney(fixedPriceFeeAmount, tier.currency)
+										})}
+									</p>
+								{/if}
 							{/if}
 						</div>
 					{/if}
@@ -891,6 +932,20 @@
 								{#if fieldErrors.pwyc}
 									<p id="pwyc-error" class="text-sm text-destructive" role="alert">
 										{fieldErrors.pwyc}
+									</p>
+								{/if}
+								{#if pwycFeeAmount !== null && pwycFeeAmount > 0}
+									<p class="text-sm text-muted-foreground">
+										{m['ticketConfirmationDialog.serviceFee']()}: {formatMoney(
+											pwycFeeAmount,
+											tier.currency
+										)} ·
+										{m['ticketConfirmationDialog.totalWithFee']({
+											amount: formatMoney(
+												parseFloat(formData.pwyc || '0') * quantity + pwycFeeAmount,
+												tier.currency
+											)
+										})}
 									</p>
 								{/if}
 							</div>

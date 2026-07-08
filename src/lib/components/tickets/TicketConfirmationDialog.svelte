@@ -38,7 +38,7 @@
 	import GuestNameInputs from './GuestNameInputs.svelte';
 	import PwycInput from './PwycInput.svelte';
 	import SeatAssignmentSection from './SeatAssignmentSection.svelte';
-	import { formatMoney } from '$lib/utils/format';
+	import { calculateBuyerFee, formatMoney } from '$lib/utils/format';
 
 	interface ConfirmPayload {
 		amount?: number;
@@ -464,6 +464,28 @@
 		if (!discountResult?.discounted_price) return null;
 		return parseFloat(discountResult.discounted_price);
 	});
+
+	// Buyer-facing service fee rate ingredients — only online tiers carry them (issue: fee
+	// passed on to the buyer, not the organizer). Used both for the fixed-price preview below
+	// and, for PWYC tiers, handed to PwycInput for a live recalculation as the buyer types.
+	const buyerFeeRate = $derived(
+		isOnlinePayment
+			? {
+					percent: tier.buyer_fee_percent,
+					fixedAmount: tier.buyer_fee_fixed_amount,
+					vatRate: tier.buyer_fee_vat_rate
+				}
+			: undefined
+	);
+
+	// Fee for fixed-price online tiers, computed on the effective (possibly discounted) price
+	// times quantity — mirrors the backend, which applies the percent fee to the batch total
+	// but only adds the fixed fee once per checkout session (not once per ticket).
+	const buyerFeeAmount = $derived.by(() => {
+		if (!buyerFeeRate || isPwyc) return null;
+		const price = discountedPrice ?? originalPrice;
+		return calculateBuyerFee(price * quantity, buyerFeeRate);
+	});
 </script>
 
 <Dialog bind:open>
@@ -511,6 +533,11 @@
 									<span class="text-sm font-normal text-muted-foreground"> × {quantity}</span>
 								{/if}
 							</p>
+							{#if buyerFeeAmount !== null && buyerFeeAmount > 0}
+								<p class="text-sm text-muted-foreground">
+									{m['tierCard.plusFee']({ amount: formatMoney(buyerFeeAmount, tier.currency) })}
+								</p>
+							{/if}
 						{/if}
 					</div>
 					<Ticket class="h-8 w-8 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -610,6 +637,8 @@
 					{pwycError}
 					{isProcessing}
 					suggestions={pwycSuggestions}
+					{buyerFeeRate}
+					{quantity}
 					onAmountChange={(value) => {
 						pwycAmount = value;
 						pwycError = '';

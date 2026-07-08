@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import { formatMoney } from '$lib/utils/format';
+	import { calculateBuyerFee, formatMoney, type BuyerFeeRate } from '$lib/utils/format';
 
 	interface Props {
 		currency: string;
@@ -13,6 +13,11 @@
 		pwycError: string;
 		isProcessing: boolean;
 		suggestions: number[];
+		/** Buyer-fee rate ingredients, for a live fee preview as the amount is typed. */
+		buyerFeeRate?: BuyerFeeRate;
+		/** Number of tickets being purchased at this PWYC amount (the percent-fee scales with
+		 * the batch total, but the fixed fee is only ever charged once per checkout). */
+		quantity?: number;
 		onAmountChange: (value: string) => void;
 		onKeydown: (e: KeyboardEvent) => void;
 	}
@@ -25,12 +30,22 @@
 		pwycError,
 		isProcessing,
 		suggestions,
+		buyerFeeRate,
+		quantity = 1,
 		onAmountChange,
 		onKeydown
 	}: Props = $props();
 
 	// Derive aria-invalid from error and validation state
 	const hasError = $derived(!!pwycError);
+
+	// Live fee preview, recomputed client-side as the buyer types their amount.
+	const buyerFeeAmount = $derived.by(() => {
+		if (!buyerFeeRate) return null;
+		const value = parseFloat(pwycAmount);
+		if (!Number.isFinite(value)) return null;
+		return calculateBuyerFee(value * quantity, buyerFeeRate);
+	});
 </script>
 
 <div class="space-y-3">
@@ -67,6 +82,14 @@
 		{#if pwycError}
 			<p id="amount-error" class="text-sm text-destructive" role="alert">
 				{pwycError}
+			</p>
+		{/if}
+		{#if buyerFeeAmount !== null && buyerFeeAmount > 0}
+			<p class="text-sm text-muted-foreground">
+				{m['ticketConfirmationDialog.serviceFee']()}: {formatMoney(buyerFeeAmount, currency)} ·
+				{m['ticketConfirmationDialog.totalWithFee']({
+					amount: formatMoney(parseFloat(pwycAmount) * quantity + buyerFeeAmount, currency)
+				})}
 			</p>
 		{/if}
 	</div>

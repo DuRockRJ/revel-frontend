@@ -11,7 +11,7 @@
 	import { Ticket, Clock, Users, AlertCircle, ExternalLink } from 'lucide-svelte';
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
 	import { formatDate } from '$lib/utils/date';
-	import { formatMoney } from '$lib/utils/format';
+	import { calculateBuyerFee, formatMoney } from '$lib/utils/format';
 
 	interface Props {
 		tier: TierSchemaWithId;
@@ -109,6 +109,19 @@
 
 		const price = typeof tier.price === 'string' ? parseFloat(tier.price) : tier.price;
 		return formatMoney(price, tier.currency);
+	});
+
+	// Buyer-facing service fee, shown next to the price for fixed-price online tiers
+	// (Meaple/Eventbrite pattern — the fee is passed on to the buyer, not the organizer).
+	// PWYC tiers show their live fee in the amount-entry step instead of here.
+	const buyerFeeAmount = $derived(() => {
+		if (tier.payment_method !== 'online' || tier.price_type === 'pwyc') return null;
+		const price = typeof tier.price === 'string' ? parseFloat(tier.price) : tier.price;
+		return calculateBuyerFee(price, {
+			percent: tier.buyer_fee_percent,
+			fixedAmount: tier.buyer_fee_fixed_amount,
+			vatRate: tier.buyer_fee_vat_rate
+		});
 	});
 
 	// Check if sales are active
@@ -238,6 +251,12 @@
 
 			{#if !isExternal}
 				<div class="mt-2 text-2xl font-bold text-primary">{priceDisplay()}</div>
+				{@const fee = buyerFeeAmount()}
+				{#if fee !== null && fee > 0}
+					<div class="text-sm text-muted-foreground">
+						{m['tierCard.plusFee']({ amount: formatMoney(fee, tier.currency) })}
+					</div>
+				{/if}
 			{/if}
 
 			{#if tier.description}
