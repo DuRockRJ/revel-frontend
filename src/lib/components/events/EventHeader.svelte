@@ -156,21 +156,21 @@
 
 	<!-- Organization Badge (Overlaps cover image) -->
 	<!-- Note: Always shows organization logo/initial for clarity, not the event logo fallback -->
-	<div class="relative mx-auto max-w-[1920px] px-6 md:px-8">
+	<div class="relative mx-auto max-w-[1920px] px-6 pb-1 md:px-8">
 		<a
 			href="/org/{event.organization.slug}"
-			class="group -mt-8 inline-flex items-center gap-3 rounded-lg bg-background p-3 shadow-lg ring-1 ring-border transition-all hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+			class="group -mt-4 inline-flex items-center gap-3 rounded-lg bg-background p-3 shadow-lg ring-1 ring-border transition-all hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 		>
 			{#if event.organization.logo}
 				{@const org = event.organization as any}
 				<img
 					src={getImageUrl(org.logo_thumbnail_url || event.organization.logo) || ''}
 					alt={m['eventHeader.organizationLogoAlt']({ name: event.organization.name })}
-					class="h-12 w-12 rounded-md object-cover"
+					class="h-16 w-16 rounded-md object-contain"
 				/>
 			{:else}
 				<div
-					class="flex h-12 w-12 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary/70 text-lg font-bold text-primary-foreground"
+					class="flex h-16 w-16 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary/70 text-lg font-bold text-primary-foreground"
 				>
 					{event.organization.name.charAt(0).toUpperCase()}
 				</div>
