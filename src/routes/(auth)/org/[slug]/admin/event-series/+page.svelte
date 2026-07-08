@@ -34,7 +34,7 @@
 	 * Navigate to public event series page
 	 */
 	function viewSeries(seriesSlug: string): void {
-		goto(`/events/${organization.slug}/series/${seriesSlug}`);
+		goto(`/eventos/${organization.slug}/serie/${seriesSlug}`);
 	}
 
 	/**

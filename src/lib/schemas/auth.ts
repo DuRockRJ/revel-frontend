@@ -105,7 +105,7 @@ export const accountDeletionConfirmSchema = z.object({
 export type AccountDeletionConfirmFormData = z.infer<typeof accountDeletionConfirmSchema>;
 
 /**
- * Email change request schema (initiation form on /account/security).
+ * Email change request schema (initiation form on /conta/seguranca).
  * Mirrors the backend's `EmailChangeRequestSchema`: lowercased EmailStr + current password.
  */
 export const emailChangeRequestSchema = z.object({

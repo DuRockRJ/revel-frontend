@@ -118,7 +118,7 @@
 	// Breadcrumb structure
 	const breadcrumbs = $derived([
 		{ href: '/', label: m['orgAdmin.breadcrumbs.home']() },
-		{ href: '/organizations', label: m['orgAdmin.breadcrumbs.organizations']() },
+		{ href: '/org', label: m['orgAdmin.breadcrumbs.organizations']() },
 		{ href: `/org/${data.organization.slug}`, label: data.organization.name },
 		{ href: `/org/${data.organization.slug}/admin`, label: m['orgAdmin.breadcrumbs.admin']() }
 	]);

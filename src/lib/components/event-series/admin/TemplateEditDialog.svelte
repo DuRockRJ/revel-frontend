@@ -91,7 +91,7 @@
 	// template_event. MinimalEventSchema on the admin detail only carries
 	// id/name/start/end; the TemplateEditSchema surface needs visibility,
 	// capacity, toggles, etc., which only EventDetailSchema provides.
-	// Templates are filtered out by the public `/events/{event_id}` endpoint's
+	// Templates are filtered out by the public `/eventos/{event_id}` endpoint's
 	// visibility queryset (is_template=False), so we use the dedicated
 	// org-admin path that returns the full schema gated on edit_event_series.
 	const templateQuery = createQuery<EventDetailSchema>(() => ({

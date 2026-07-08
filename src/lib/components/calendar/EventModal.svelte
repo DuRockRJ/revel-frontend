@@ -28,7 +28,7 @@
 	function handleViewDetails() {
 		if (event) {
 			const slug = event.organization?.slug || '';
-			goto(`/events/${slug}/${event.slug}`);
+			goto(`/eventos/${slug}/${event.slug}`);
 		}
 	}
 

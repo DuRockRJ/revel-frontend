@@ -366,7 +366,7 @@
 						</p>
 					</div>
 					<a
-						href="/org/{organization.slug}/resources"
+						href="/org/{organization.slug}/recursos"
 						class="text-sm font-medium text-primary hover:underline"
 					>
 						{m['organizationProfile.resources_viewAll']()}
@@ -503,7 +503,7 @@
 
 					<!-- Calendar View Shortcut -->
 					<a
-						href="/events?organization={organization.id}&organization_name={encodeURIComponent(
+						href="/eventos?organization={organization.id}&organization_name={encodeURIComponent(
 							organization.name
 						)}&organization_slug={organization.slug}&viewMode=calendar"
 						class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
@@ -514,7 +514,7 @@
 
 					<!-- Browse All Button -->
 					<a
-						href="/events?organization={organization.id}&organization_name={encodeURIComponent(
+						href="/eventos?organization={organization.id}&organization_name={encodeURIComponent(
 							organization.name
 						)}&organization_slug={organization.slug}"
 						class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"

@@ -6,11 +6,11 @@
 	<div class="container mx-auto max-w-5xl px-4 py-8 md:py-12">
 		<!-- Bottom links -->
 		<div class="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-			<a href="/legal/privacy" class="transition-colors hover:text-foreground">
+			<a href="/legal/privacidade" class="transition-colors hover:text-foreground">
 				{m['footer.privacyPolicy']()}
 			</a>
 			<span class="text-muted-foreground/50">|</span>
-			<a href="/legal/terms" class="transition-colors hover:text-foreground">
+			<a href="/legal/termos" class="transition-colors hover:text-foreground">
 				{m['footer.termsOfService']()}
 			</a>
 		</div>

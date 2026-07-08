@@ -125,7 +125,7 @@ export function getOrganizationTokenUrl(tokenId: string, orgSlug?: string): stri
 	}
 
 	// Claiming URL
-	return `${baseUrl}/join/org/${tokenId}`;
+	return `${baseUrl}/participar/org/${tokenId}`;
 }
 
 /**
@@ -136,11 +136,11 @@ export function getEventTokenUrl(tokenId: string, orgSlug?: string, eventSlug?: 
 
 	if (orgSlug && eventSlug) {
 		// Visibility URL with query param
-		return `${baseUrl}/events/${orgSlug}/${eventSlug}?et=${tokenId}`;
+		return `${baseUrl}/eventos/${orgSlug}/${eventSlug}?et=${tokenId}`;
 	}
 
 	// Claiming URL
-	return `${baseUrl}/join/event/${tokenId}`;
+	return `${baseUrl}/participar/evento/${tokenId}`;
 }
 
 /**

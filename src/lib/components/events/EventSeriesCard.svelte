@@ -90,7 +90,7 @@
 <article class={containerClasses}>
 	<!-- Clickable overlay link for accessibility -->
 	<a
-		href="/events/{series.organization.slug}/series/{series.slug}"
+		href="/eventos/{series.organization.slug}/serie/{series.slug}"
 		data-sveltekit-preload-data="hover"
 		class="absolute inset-0 z-10"
 		aria-label={accessibleLabel}

@@ -151,20 +151,20 @@
 		if (nextStep === 'complete_profile') {
 			// Navigate to profile settings page with redirect back to event
 			const eventUrl =
-				organizationSlug && eventSlug ? `/events/${organizationSlug}/${eventSlug}` : '';
+				organizationSlug && eventSlug ? `/eventos/${organizationSlug}/${eventSlug}` : '';
 			const redirectParam = eventUrl ? `?redirect=${encodeURIComponent(eventUrl)}` : '';
-			window.location.href = `/account/profile${redirectParam}`;
+			window.location.href = `/conta/perfil${redirectParam}`;
 			return;
 		}
 
 		if (nextStep === 'complete_questionnaire') {
 			if (questionnaireIds && questionnaireIds.length > 0 && organizationSlug && eventSlug) {
 				// Navigate to first questionnaire submission page
-				window.location.href = `/events/${organizationSlug}/${eventSlug}/questionnaire/${questionnaireIds[0]}`;
+				window.location.href = `/eventos/${organizationSlug}/${eventSlug}/questionario/${questionnaireIds[0]}`;
 			} else {
 				// Fallback: navigate back to event if missing data
 				if (organizationSlug && eventSlug) {
-					window.location.href = `/events/${organizationSlug}/${eventSlug}`;
+					window.location.href = `/eventos/${organizationSlug}/${eventSlug}`;
 				}
 			}
 			return;
@@ -180,7 +180,7 @@
 		// controls live (this button can appear on summary/eligibility surfaces).
 		if (nextStep === 'rsvp') {
 			if (organizationSlug && eventSlug) {
-				window.location.href = `/events/${organizationSlug}/${eventSlug}`;
+				window.location.href = `/eventos/${organizationSlug}/${eventSlug}`;
 			}
 			return;
 		}

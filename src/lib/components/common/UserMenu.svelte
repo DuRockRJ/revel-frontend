@@ -101,12 +101,12 @@
 	// Menu items - using derived for reactivity
 	const menuItems = $derived([
 		{ href: '/dashboard', label: m['userMenu.dashboard'](), icon: LayoutDashboard },
-		{ href: '/account/profile', label: m['userMenu.profile'](), icon: User },
-		{ href: '/account/security', label: m['userMenu.security'](), icon: Shield },
-		{ href: '/account/privacy', label: m['userMenu.privacy'](), icon: Lock },
-		{ href: '/account/settings', label: m['userMenu.settings'](), icon: Settings },
-		{ href: '/account/invoices', label: m['userMenu.invoices'](), icon: Receipt },
-		{ href: '/account/memberships', label: m['userMenu.memberships'](), icon: CreditCard }
+		{ href: '/conta/perfil', label: m['userMenu.profile'](), icon: User },
+		{ href: '/conta/seguranca', label: m['userMenu.security'](), icon: Shield },
+		{ href: '/conta/privacidade', label: m['userMenu.privacy'](), icon: Lock },
+		{ href: '/conta/configuracoes', label: m['userMenu.settings'](), icon: Settings },
+		{ href: '/conta/faturas', label: m['userMenu.invoices'](), icon: Receipt },
+		{ href: '/conta/associacoes', label: m['userMenu.memberships'](), icon: CreditCard }
 	]);
 
 	function handleLogout() {
@@ -177,7 +177,7 @@
 					{m['referral.referralProgram']()}
 				</div>
 				<a
-					href="/account/referral"
+					href="/conta/indicacoes"
 					class="flex items-center gap-3 rounded-md px-4 py-2 text-base transition-colors hover:bg-accent hover:text-accent-foreground"
 					onclick={handleItemClick}
 				>
@@ -185,7 +185,7 @@
 					<span>{m['referral.settings']()}</span>
 				</a>
 				<a
-					href="/account/referral/payouts"
+					href="/conta/indicacoes/pagamentos"
 					class="flex items-center gap-3 rounded-md px-4 py-2 text-base transition-colors hover:bg-accent hover:text-accent-foreground"
 					onclick={handleItemClick}
 				>
@@ -229,7 +229,7 @@
 				<!-- Create Organization Link (if user doesn't own one and creation is enabled) -->
 				{#if !ownsOrganization() && features.organization_creation}
 					<a
-						href="/create-org"
+						href="/criar-org"
 						class="flex items-center gap-3 rounded-md px-4 py-3 text-base transition-colors hover:bg-accent hover:text-accent-foreground"
 						onclick={handleItemClick}
 					>
@@ -307,7 +307,7 @@
 								{m['referral.referralProgram']()}
 							</div>
 							<a
-								href="/account/referral"
+								href="/conta/indicacoes"
 								class="flex items-center gap-2 rounded-sm px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
 								onclick={handleItemClick}
 								role="menuitem"
@@ -316,7 +316,7 @@
 								<span>{m['referral.settings']()}</span>
 							</a>
 							<a
-								href="/account/referral/payouts"
+								href="/conta/indicacoes/pagamentos"
 								class="flex items-center gap-2 rounded-sm px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
 								onclick={handleItemClick}
 								role="menuitem"
@@ -365,7 +365,7 @@
 							<!-- Create Organization Link (if user doesn't own one and creation is enabled) -->
 							{#if !ownsOrganization() && features.organization_creation}
 								<a
-									href="/create-org"
+									href="/criar-org"
 									class="flex items-center gap-2 rounded-sm px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
 									onclick={handleItemClick}
 									role="menuitem"

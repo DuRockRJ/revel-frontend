@@ -290,7 +290,7 @@
 				<label for="selfBillingCheckbox" class="cursor-pointer text-sm leading-relaxed">
 					{m['billing.form.selfBillingCheckbox']()}
 					<a
-						href="/legal/terms"
+						href="/legal/termos"
 						target="_blank"
 						rel="noopener noreferrer"
 						class="text-primary underline-offset-4 hover:underline"

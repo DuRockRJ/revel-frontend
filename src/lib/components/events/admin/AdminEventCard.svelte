@@ -77,7 +77,7 @@
 	const showManagement = $derived(variant !== 'draft');
 
 	function viewEvent(): void {
-		goto(`/events/${organizationSlug}/${event.slug}`);
+		goto(`/eventos/${organizationSlug}/${event.slug}`);
 	}
 
 	function editEvent(): void {

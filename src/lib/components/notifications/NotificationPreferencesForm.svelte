@@ -540,7 +540,7 @@
 									<p class="text-xs text-muted-foreground">
 										{m['notificationPreferences.telegramNotConnected']()}
 										<a
-											href="/account/profile"
+											href="/conta/perfil"
 											class="font-medium text-primary underline-offset-4 hover:underline"
 										>
 											{m['notificationPreferences.connectTelegram']()}

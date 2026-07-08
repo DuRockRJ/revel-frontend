@@ -332,7 +332,7 @@
 										</a>
 										{' '}{m['guestRsvpDialog.or']()}{' '}
 										<a
-											href="/register?redirect={encodeURIComponent(window.location.pathname)}"
+											href="/cadastro?redirect={encodeURIComponent(window.location.pathname)}"
 											class="font-medium underline hover:no-underline"
 										>
 											{m['guestRsvpDialog.createAnAccount']()}

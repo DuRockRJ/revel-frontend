@@ -87,7 +87,7 @@
 				multipartData.append('file', file);
 			}
 
-			const url = getApiUrl(`organization-admin/${organizationSlug}/resources`);
+			const url = getApiUrl(`organization-admin/${organizationSlug}/recursos`);
 
 			// Use fetch directly (SDK might not handle form-data properly)
 			const response = await fetch(url, {

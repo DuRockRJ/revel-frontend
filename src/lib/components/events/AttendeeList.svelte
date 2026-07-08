@@ -31,9 +31,9 @@
 	// Build settings URL with redirect back to current page
 	const settingsUrl = $derived.by(() => {
 		if (browser) {
-			return `/account/settings?redirect=${encodeURIComponent(window.location.pathname)}`;
+			return `/conta/configuracoes?redirect=${encodeURIComponent(window.location.pathname)}`;
 		}
-		return '/account/settings';
+		return '/conta/configuracoes';
 	});
 
 	// Map visibility preference to translation key

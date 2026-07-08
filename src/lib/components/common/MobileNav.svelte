@@ -120,7 +120,7 @@
 						{m['auth.login']()}
 					</a>
 					<a
-						href="/register"
+						href="/cadastro"
 						class="block rounded-md bg-primary px-4 py-3 text-center text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90"
 						onclick={handleLinkClick}
 					>

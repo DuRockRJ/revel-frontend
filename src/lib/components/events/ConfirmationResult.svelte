@@ -95,7 +95,7 @@
 		if (!result.eventId) return;
 
 		// Build URL with query params to trigger success message on event page
-		let url = `/events/${result.eventId}`;
+		let url = `/eventos/${result.eventId}`;
 		const params = new URLSearchParams();
 
 		if (result.type === 'rsvp' && result.rsvpStatus) {

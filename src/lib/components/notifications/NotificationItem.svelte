@@ -134,7 +134,7 @@
 		} else {
 			// Fallback: navigate to notifications page
 			onNavigate?.();
-			goto('/account/notifications');
+			goto('/conta/notificacoes');
 		}
 	}
 
@@ -175,7 +175,7 @@
 
 		// Fallback to context patterns for older notifications
 		if (context.event_id) {
-			return `/events/${context.event_id}`;
+			return `/eventos/${context.event_id}`;
 		}
 		if (context.org_slug) {
 			return `/org/${context.org_slug}`;
@@ -220,7 +220,7 @@
 		const expiresAt = readString(ctx, 'expires_at');
 		const expiresAtFormatted = readString(ctx, 'expires_at_formatted');
 		const eventName = readString(ctx, 'event_name') ?? '';
-		const claimUrl = extractUrlFromContext(ctx) ?? '/account/notifications';
+		const claimUrl = extractUrlFromContext(ctx) ?? '/conta/notificacoes';
 
 		const expiresMs = expiresAt ? Date.parse(expiresAt) : NaN;
 		const hasOffer = Number.isFinite(expiresMs);

@@ -18,14 +18,14 @@
 	const currentPath = $derived($page.url.pathname);
 
 	// Navigation items for public users - using translated strings
-	const publicNavItems = $derived([{ href: '/organizations', label: m['nav.organizations']() }]);
+	const publicNavItems = $derived([{ href: '/org', label: m['nav.organizations']() }]);
 
 	// Navigation items for authenticated users - using translated strings
 	const authNavItems = $derived([
-		{ href: '/organizations', label: m['nav.organizations']() },
-		{ href: '/dashboard/tickets', label: m['nav.myTickets']() },
-		{ href: '/dashboard/rsvps', label: m['nav.rsvps']() },
-		{ href: '/dashboard/invitations', label: m['nav.invitations']() }
+		{ href: '/org', label: m['nav.organizations']() },
+		{ href: '/dashboard/ingressos', label: m['nav.myTickets']() },
+		{ href: '/dashboard/confirmacoes', label: m['nav.rsvps']() },
+		{ href: '/dashboard/convites', label: m['nav.invitations']() }
 	]);
 
 	// Determine which nav items to show
@@ -125,7 +125,7 @@
 						{m['auth.login']()}
 					</a>
 					<a
-						href="/register"
+						href="/cadastro"
 						class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
 					>
 						{m['auth.signUp']()}

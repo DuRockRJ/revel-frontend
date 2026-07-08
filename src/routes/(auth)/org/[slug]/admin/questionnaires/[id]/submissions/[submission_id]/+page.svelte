@@ -367,7 +367,7 @@
 
 						<!-- View Event Link -->
 						<a
-							href="/events/{eventMetadata.event_id}"
+							href="/eventos/{eventMetadata.event_id}"
 							class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
 						>
 							<ExternalLink class="h-4 w-4" aria-hidden="true" />

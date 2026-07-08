@@ -51,7 +51,7 @@
 
 	// Navigate to full notifications page
 	function handleViewAll(): void {
-		goto('/account/notifications');
+		goto('/conta/notificacoes');
 	}
 
 	function handleMarkAllRead(): void {

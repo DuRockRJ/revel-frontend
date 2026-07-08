@@ -55,7 +55,7 @@
 	});
 
 	// Check if we're currently navigating to this card's event
-	const eventUrl = $derived(`/events/${event.organization.slug}/${event.slug}`);
+	const eventUrl = $derived(`/eventos/${event.organization.slug}/${event.slug}`);
 	const isNavigating = $derived($navigating !== null && $navigating.to?.url.pathname === eventUrl);
 
 	// Container classes based on variant
@@ -83,7 +83,7 @@
 <article class={containerClasses}>
 	<!-- Clickable overlay link for accessibility -->
 	<a
-		href="/events/{event.organization.slug}/{event.slug}"
+		href="/eventos/{event.organization.slug}/{event.slug}"
 		data-sveltekit-preload-data="hover"
 		class="absolute inset-0 z-10"
 		aria-label={accessibleLabel}

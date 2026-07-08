@@ -458,7 +458,7 @@
 	<!-- Quick Action Bar -->
 	<div class="mb-8 flex flex-wrap gap-3">
 		<a
-			href="/events"
+			href="/eventos"
 			class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
 		>
 			<Sparkles class="h-4 w-4" aria-hidden="true" />
@@ -501,7 +501,7 @@
 		{/if}
 
 		<a
-			href="/dashboard/following"
+			href="/dashboard/seguindo"
 			class="inline-flex items-center gap-2 rounded-lg border bg-background px-6 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
 		>
 			<Heart class="h-4 w-4" aria-hidden="true" />
@@ -530,7 +530,7 @@
 		{:else if !ownsOrganization() && features.organization_creation}
 			<!-- User doesn't own an organization - show "Create Organization" CTA -->
 			<a
-				href="/create-org"
+				href="/criar-org"
 				class="inline-flex items-center gap-2 rounded-lg border bg-background px-6 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
 			>
 				<PlusCircle class="h-4 w-4" aria-hidden="true" />
@@ -545,7 +545,7 @@
 			<!-- Active Tickets -->
 			{#if activeTicketsCount > 0}
 				<a
-					href="/dashboard/tickets"
+					href="/dashboard/ingressos"
 					class="group rounded-lg border bg-card p-6 transition-all hover:border-primary hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
 				>
 					<div class="flex items-start justify-between">
@@ -580,7 +580,7 @@
 			<!-- Upcoming RSVPs -->
 			{#if upcomingRsvpsCount > 0}
 				<a
-					href="/dashboard/rsvps?status=yes,maybe"
+					href="/dashboard/confirmacoes?status=yes,maybe"
 					class="group rounded-lg border bg-card p-6 transition-all hover:border-primary hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
 				>
 					<div class="flex items-start justify-between">
@@ -618,7 +618,7 @@
 			<!-- Pending Invitations -->
 			{#if pendingInvitationsCount > 0}
 				<a
-					href="/dashboard/invitations"
+					href="/dashboard/convites"
 					class="group rounded-lg border bg-card p-6 transition-all hover:border-primary hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
 				>
 					<div class="flex items-start justify-between">
@@ -785,7 +785,7 @@
 				</h2>
 				{#if upcomingEvents.length > 0}
 					<a
-						href="/events"
+						href="/eventos"
 						class="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
 					>
 						<span>{m['dashboard.activityCards.seeAll']()}</span>
@@ -846,7 +846,7 @@
 					</p>
 					<div class="flex flex-wrap justify-center gap-3">
 						<a
-							href="/events"
+							href="/eventos"
 							class="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
 						>
 							<Sparkles class="h-4 w-4" aria-hidden="true" />
@@ -962,7 +962,7 @@
 
 					{#if organizations.length > 3}
 						<a
-							href="/dashboard/organizations"
+							href="/org"
 							class="flex items-center justify-center gap-1 rounded-lg border bg-background px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
 						>
 							<span>{m['dashboard.seeAllOrganizations']({ count: organizations.length })}</span>

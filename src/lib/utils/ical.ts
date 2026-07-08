@@ -173,10 +173,10 @@ export function generateICalFromRevelEvent(event: {
 	// Format location
 	const location = event.venue_name || event.location || undefined;
 
-	// Create full URL to event using correct format: /events/org-slug/event-slug
+	// Create full URL to event using correct format: /eventos/org-slug/event-slug
 	const eventUrl =
 		typeof window !== 'undefined' && event.organization?.slug
-			? `${window.location.origin}/events/${event.organization.slug}/${event.slug}`
+			? `${window.location.origin}/eventos/${event.organization.slug}/${event.slug}`
 			: undefined;
 
 	return generateICalFile(

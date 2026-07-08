@@ -224,7 +224,7 @@
 								{m['login.password']()}
 							</label>
 							<a
-								href="/password-reset"
+								href="/redefinir-senha"
 								class="text-sm text-primary underline-offset-4 hover:underline"
 							>
 								{m['login.forgotPassword']()}
@@ -343,7 +343,7 @@
 		{#if !requires2FA}
 			<div class="text-center text-sm">
 				<span class="text-muted-foreground">{m['login.dontHaveAccount']()}</span>
-				<a href="/register" class="ml-1 text-primary underline-offset-4 hover:underline">
+				<a href="/cadastro" class="ml-1 text-primary underline-offset-4 hover:underline">
 					{m['login.createAccount']()}
 				</a>
 			</div>

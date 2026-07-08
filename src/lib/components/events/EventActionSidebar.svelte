@@ -615,8 +615,8 @@
 						</p>
 						{#each feedbackQuestionnaires as questionnaireId}
 							<a
-								href="/events/{event.organization
-									.slug}/{event.slug}/questionnaire/{questionnaireId}"
+								href="/eventos/{event.organization
+									.slug}/{event.slug}/questionario/{questionnaireId}"
 								class="flex w-full items-center justify-center gap-2 rounded-md border-2 border-blue-600 bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:border-blue-500 dark:bg-blue-500"
 							>
 								<MessageSquare class="h-4 w-4" aria-hidden="true" />

@@ -432,7 +432,7 @@
 
 								<div class="mt-auto flex flex-wrap gap-2">
 									<a
-										href="/events/{data.organization.slug}/{event.slug}"
+										href="/eventos/{data.organization.slug}/{event.slug}"
 										class="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
 									>
 										<Eye class="h-4 w-4" aria-hidden="true" />
