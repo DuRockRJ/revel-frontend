@@ -165,6 +165,12 @@
 	<!-- Divider -->
 	<div class="border-t" role="separator"></div>
 
+	<!-- Bands Filter (high priority: rock shows are discovered by band) -->
+	<BandsFilter selectedBands={filters.bands ?? []} onToggleBand={handleToggleBand} />
+
+	<!-- Divider -->
+	<div class="border-t" role="separator"></div>
+
 	<!-- Date Filter -->
 	<DateFilter includePast={filters.includePast ?? false} onTogglePast={handleTogglePast} />
 
@@ -189,16 +195,10 @@
 	<!-- Divider -->
 	<div class="border-t" role="separator"></div>
 
-	<!-- Tags Filter -->
+	<!-- Tags Filter (broadest, least specific — last) -->
 	<TagsFilter selectedTags={filters.tags ?? []} onToggleTag={handleToggleTag} />
 
-	<!-- Divider -->
-	<div class="border-t" role="separator"></div>
-
-	<!-- Bands Filter -->
-	<BandsFilter selectedBands={filters.bands ?? []} onToggleBand={handleToggleBand} />
-
-	<!-- Future filters: Organization, Visibility -->
+	<!-- Future filters: Visibility -->
 
 	<!-- Footer hint -->
 	{#if activeFilterCount > 0}

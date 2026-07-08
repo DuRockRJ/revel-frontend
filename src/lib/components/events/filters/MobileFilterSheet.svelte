@@ -251,7 +251,13 @@
 		<!-- Scrollable filter content -->
 		<div class="flex-1 overflow-y-auto overscroll-contain px-6 py-4">
 			<div class="space-y-6">
-				<!-- Order By Filter (Top Priority) -->
+				<!-- City Filter (Location - Top Priority) -->
+				<CityFilter {selectedCity} onChangeCity={handleChangeCity} />
+
+				<!-- Divider -->
+				<div class="border-t" role="separator"></div>
+
+				<!-- Order By Filter -->
 				<OrderByFilter
 					orderBy={filters.orderBy ?? 'distance'}
 					onChangeOrderBy={handleChangeOrderBy}
@@ -275,6 +281,12 @@
 				<!-- Divider -->
 				<div class="border-t" role="separator"></div>
 
+				<!-- Bands Filter (high priority: rock shows are discovered by band) -->
+				<BandsFilter selectedBands={filters.bands ?? []} onToggleBand={handleToggleBand} />
+
+				<!-- Divider -->
+				<div class="border-t" role="separator"></div>
+
 				<!-- Date Filter -->
 				<DateFilter includePast={filters.includePast ?? false} onTogglePast={handleTogglePast} />
 
@@ -286,12 +298,6 @@
 					ticketType={filters.ticketType}
 					onChangeTicketType={handleChangeTicketType}
 				/>
-
-				<!-- Divider -->
-				<div class="border-t" role="separator"></div>
-
-				<!-- City Filter -->
-				<CityFilter {selectedCity} onChangeCity={handleChangeCity} />
 
 				<!-- Divider -->
 				<div class="border-t" role="separator"></div>
@@ -311,16 +317,10 @@
 				<!-- Divider -->
 				<div class="border-t" role="separator"></div>
 
-				<!-- Tags Filter -->
+				<!-- Tags Filter (broadest, least specific — last) -->
 				<TagsFilter selectedTags={filters.tags ?? []} onToggleTag={handleToggleTag} />
 
-				<!-- Divider -->
-				<div class="border-t" role="separator"></div>
-
-				<!-- Bands Filter -->
-				<BandsFilter selectedBands={filters.bands ?? []} onToggleBand={handleToggleBand} />
-
-				<!-- Future filters: Organization, Visibility -->
+				<!-- Future filters: Visibility -->
 			</div>
 		</div>
 
