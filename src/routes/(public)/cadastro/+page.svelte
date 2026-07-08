@@ -1,0 +1,337 @@
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import type { ActionData, PageData } from './$types';
+	import PasswordStrengthIndicator from '$lib/components/forms/PasswordStrengthIndicator.svelte';
+	import ReferralCodeInput from '$lib/components/referral/ReferralCodeInput.svelte';
+	import { Eye, EyeOff, Loader2 } from 'lucide-svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { SeoHead } from '$lib/seo';
+
+	interface Props {
+		data: PageData;
+		form: ActionData;
+	}
+
+	const { data, form }: Props = $props();
+
+	// Form state
+	let email = $state(form?.email || '');
+	let password = $state('');
+	let confirmPassword = $state('');
+	let acceptTerms = $state(false);
+	let showPassword = $state(false);
+	let showConfirmPassword = $state(false);
+	let isSubmitting = $state(false);
+
+	// Referral code: URL param takes priority, then cookie fallback
+	const initialReferralCode = $derived(
+		$page.url.searchParams.get('ref') || data.referralCodeFromCookie || ''
+	);
+	let referralCode = $state('');
+
+	// Password validation - calculated directly to avoid cross-component binding timing issues
+	// that can occur in some browsers (e.g., Brave on mobile) with $bindable + $effect patterns
+	const isPasswordValid = $derived(
+		password.length >= 8 &&
+			/[A-Z]/.test(password) &&
+			/[a-z]/.test(password) &&
+			/\d/.test(password) &&
+			/[!@#$%^&*(),.?":{}|<>\-\[\]=]/.test(password)
+	);
+
+	// Error handling - type assertion needed due to ActionData union
+	const errors = $derived((form?.errors || {}) as Record<string, string>);
+	const hasErrors = $derived(errors && Object.keys(errors).length > 0);
+
+	// Check if form is valid for submission
+	const canSubmit = $derived(
+		email.length > 0 &&
+			password.length > 0 &&
+			isPasswordValid &&
+			confirmPassword === password &&
+			acceptTerms &&
+			!isSubmitting
+	);
+
+	// Sync browser autofill/form restoration with reactive state.
+	// Chrome may fill fields before Svelte hydration (SSR) or restore them
+	// from bfcache/session restore without firing input events.
+	function syncFormValues() {
+		const get = (id: string) => document.getElementById(id) as HTMLInputElement | null;
+		const emailEl = get('email');
+		const passwordEl = get('password');
+		const confirmEl = get('confirmPassword');
+		const termsEl = get('acceptTerms');
+
+		if (emailEl?.value && !email) email = emailEl.value;
+		if (passwordEl?.value && !password) password = passwordEl.value;
+		if (confirmEl?.value && !confirmPassword) confirmPassword = confirmEl.value;
+		if (termsEl?.checked && !acceptTerms) acceptTerms = termsEl.checked;
+	}
+
+	onMount(() => {
+		// Check for autofill after hydration at staggered intervals
+		const t1 = setTimeout(syncFormValues, 100);
+		const t2 = setTimeout(syncFormValues, 1000);
+
+		// Handle bfcache restoration (back/forward navigation)
+		const handlePageShow = (e: PageTransitionEvent) => {
+			if (e.persisted) {
+				isSubmitting = false;
+				setTimeout(syncFormValues, 50);
+			}
+		};
+		window.addEventListener('pageshow', handlePageShow);
+
+		return () => {
+			clearTimeout(t1);
+			clearTimeout(t2);
+			window.removeEventListener('pageshow', handlePageShow);
+		};
+	});
+</script>
+
+<SeoHead config={data.seo} />
+
+<div class="container mx-auto flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-8">
+	<div class="w-full max-w-md space-y-8">
+		<!-- Header -->
+		<div class="text-center">
+			<h1 class="text-3xl font-bold tracking-tight">{m['register.createAccount']()}</h1>
+			<p class="mt-2 text-muted-foreground">{m['register.joinRevel']()}</p>
+		</div>
+
+		<!-- Error Summary -->
+		{#if hasErrors && errors.form}
+			<div role="alert" class="rounded-md border border-destructive bg-destructive/10 p-4">
+				<p class="text-sm font-medium text-destructive">{errors.form}</p>
+			</div>
+		{/if}
+
+		<!-- Registration Form -->
+		<form
+			method="POST"
+			use:enhance={() => {
+				// Prevent duplicate submissions
+				if (isSubmitting) return;
+				isSubmitting = true;
+
+				// Safety timeout: reset isSubmitting if the response never arrives
+				// (e.g., network hang, browser extension interference)
+				const safetyTimeout = setTimeout(() => {
+					isSubmitting = false;
+				}, 30_000);
+
+				return async ({ update }) => {
+					clearTimeout(safetyTimeout);
+					isSubmitting = false;
+					await update();
+				};
+			}}
+			class="space-y-6"
+		>
+			<!-- Email Field -->
+			<div class="space-y-2">
+				<label for="email" class="block text-sm font-medium">
+					{m['register.emailAddress']()}
+				</label>
+				<input
+					id="email"
+					name="email"
+					type="email"
+					autocomplete="email"
+					required
+					bind:value={email}
+					aria-invalid={!!errors.email}
+					aria-describedby={errors.email ? 'email-error' : undefined}
+					disabled={isSubmitting}
+					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 {errors.email
+						? 'border-destructive'
+						: ''}"
+					placeholder={m['register.emailPlaceholder']()}
+				/>
+				{#if errors.email}
+					<p id="email-error" class="text-sm text-destructive" role="alert">
+						{errors.email}
+					</p>
+				{/if}
+			</div>
+
+			<!-- Password Field -->
+			<div class="space-y-2">
+				<label for="password" class="block text-sm font-medium"> {m['register.password']()} </label>
+				<div class="relative">
+					<input
+						id="password"
+						name="password"
+						type={showPassword ? 'text' : 'password'}
+						autocomplete="new-password"
+						required
+						bind:value={password}
+						onpaste={() => {
+							// Ensure paste always works on mobile
+							// This explicit handler prevents any interference from browser autofill
+							// that might block paste operations on iOS Safari
+						}}
+						aria-invalid={!!errors.password}
+						aria-describedby={errors.password
+							? 'password-error password-requirements'
+							: 'password-requirements'}
+						disabled={isSubmitting}
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm transition-colors placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 {errors.password
+							? 'border-destructive'
+							: ''}"
+						placeholder={m['register.passwordPlaceholder']()}
+					/>
+					<button
+						type="button"
+						onclick={() => (showPassword = !showPassword)}
+						class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+						aria-label={showPassword ? m['register.hidePassword']() : m['register.showPassword']()}
+					>
+						{#if showPassword}
+							<EyeOff class="h-4 w-4" aria-hidden="true" />
+						{:else}
+							<Eye class="h-4 w-4" aria-hidden="true" />
+						{/if}
+					</button>
+				</div>
+
+				{#if errors.password}
+					<p id="password-error" class="text-sm text-destructive" role="alert">
+						{errors.password}
+					</p>
+				{/if}
+
+				<!-- Password Strength Indicator with Requirements -->
+				{#if password}
+					<PasswordStrengthIndicator {password} showRequirements={true} />
+				{/if}
+			</div>
+
+			<!-- Confirm Password Field -->
+			<div class="space-y-2">
+				<label for="confirmPassword" class="block text-sm font-medium">
+					{m['register.confirmPassword']()}
+				</label>
+				<div class="relative">
+					<input
+						id="confirmPassword"
+						name="confirmPassword"
+						type={showConfirmPassword ? 'text' : 'password'}
+						autocomplete="new-password"
+						required
+						bind:value={confirmPassword}
+						onpaste={() => {
+							// Ensure paste always works on mobile
+							// This explicit handler prevents any interference from browser autofill
+							// that might block paste operations on iOS Safari
+						}}
+						aria-invalid={!!errors.confirmPassword}
+						aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
+						disabled={isSubmitting}
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm transition-colors placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 {errors.confirmPassword
+							? 'border-destructive'
+							: ''}"
+						placeholder={m['register.confirmPasswordPlaceholder']()}
+					/>
+					<button
+						type="button"
+						onclick={() => (showConfirmPassword = !showConfirmPassword)}
+						class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+						aria-label={showConfirmPassword
+							? m['register.hidePassword']()
+							: m['register.showPassword']()}
+					>
+						{#if showConfirmPassword}
+							<EyeOff class="h-4 w-4" aria-hidden="true" />
+						{:else}
+							<Eye class="h-4 w-4" aria-hidden="true" />
+						{/if}
+					</button>
+				</div>
+				{#if errors.confirmPassword}
+					<p id="confirm-password-error" class="text-sm text-destructive" role="alert">
+						{errors.confirmPassword}
+					</p>
+				{/if}
+			</div>
+
+			<!-- Terms and Privacy Checkbox -->
+			<div class="flex items-start gap-3">
+				<input
+					id="acceptTerms"
+					name="acceptTerms"
+					type="checkbox"
+					required
+					bind:checked={acceptTerms}
+					aria-invalid={!!errors.acceptTerms}
+					aria-describedby={errors.acceptTerms ? 'terms-error' : undefined}
+					disabled={isSubmitting}
+					class="mt-1 h-4 w-4 rounded border-input text-primary transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+				/>
+				<label for="acceptTerms" class="text-sm">
+					{m['register.acceptTerms']()}
+					<a
+						href="/legal/termos"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="text-primary underline-offset-4 hover:underline"
+						>{m['footer.termsOfService']()}</a
+					>
+					{m['register.and']()}
+					<a
+						href="/legal/privacidade"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="text-primary underline-offset-4 hover:underline">{m['footer.privacyPolicy']()}</a
+					>
+				</label>
+			</div>
+			{#if errors.acceptTerms}
+				<p id="terms-error" class="text-sm text-destructive" role="alert">
+					{errors.acceptTerms}
+				</p>
+			{/if}
+
+			<!-- Referral Code (collapsible) -->
+			<ReferralCodeInput
+				initialCode={initialReferralCode}
+				isProcessing={isSubmitting}
+				validatedCode={referralCode}
+				onValidated={(code) => (referralCode = code)}
+				onRemove={() => (referralCode = '')}
+			/>
+
+			<!-- Hidden referral code input for form submission -->
+			{#if referralCode}
+				<input type="hidden" name="referralCode" value={referralCode} />
+			{/if}
+
+			<!-- Submit Button -->
+			<button
+				type="submit"
+				disabled={!canSubmit}
+				aria-disabled={!canSubmit}
+				class="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+			>
+				{#if isSubmitting}
+					<Loader2 class="h-4 w-4 animate-spin" aria-hidden="true" />
+					<span>{m['register.creatingAccount']()}</span>
+				{:else}
+					<span>{m['register.createAccount']()}</span>
+				{/if}
+			</button>
+		</form>
+
+		<!-- Login Link -->
+		<div class="text-center text-sm">
+			<span class="text-muted-foreground">{m['register.alreadyHaveAccount']()}</span>
+			<a href="/login" class="ml-1 text-primary underline-offset-4 hover:underline">
+				{m['auth.login']()}
+			</a>
+		</div>
+	</div>
+</div>
