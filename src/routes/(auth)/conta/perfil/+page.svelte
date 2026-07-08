@@ -386,7 +386,7 @@
 
 				<p class="text-xs text-muted-foreground">{m['profile.email_hint']()}</p>
 				<a
-					href="/account/security#email"
+					href="/conta/seguranca#email"
 					class="inline-block text-sm text-primary underline-offset-4 hover:underline"
 				>
 					{m['profile.email_changeLink']()}
@@ -611,7 +611,7 @@
 	<!-- Settings Link -->
 	<div class="mt-8 border-t pt-6">
 		<a
-			href="/account/settings"
+			href="/conta/configuracoes"
 			class="inline-flex items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
 		>
 			<span>{m['profile.settingsLink_text']()}</span>

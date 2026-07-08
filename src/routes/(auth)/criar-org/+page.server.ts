@@ -7,7 +7,7 @@ import { extractErrorMessage } from '$lib/utils/errors';
 export const load: PageServerLoad = async ({ locals, parent }) => {
 	// Require authentication
 	if (!locals.user) {
-		throw redirect(303, '/login?returnUrl=/create-org');
+		throw redirect(303, '/login?returnUrl=/criar-org');
 	}
 
 	// Hide create-org when the capability is disabled on this instance.
@@ -26,7 +26,7 @@ export const actions: Actions = {
 	default: async ({ request, locals, cookies }) => {
 		// Require authentication
 		if (!locals.user) {
-			throw redirect(303, '/login?returnUrl=/create-org');
+			throw redirect(303, '/login?returnUrl=/criar-org');
 		}
 
 		const formData = await request.formData();

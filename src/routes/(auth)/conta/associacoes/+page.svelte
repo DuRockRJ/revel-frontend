@@ -39,7 +39,7 @@
 		<div class="rounded-lg border p-6 text-center">
 			<p class="font-medium">{m['account.memberships.empty.title']()}</p>
 			<p class="mt-1 text-sm text-muted-foreground">{m['account.memberships.empty.body']()}</p>
-			<Button href="/organizations" variant="outline" class="mt-4">
+			<Button href="/org" variant="outline" class="mt-4">
 				{m['account.memberships.empty.cta']()}
 			</Button>
 		</div>

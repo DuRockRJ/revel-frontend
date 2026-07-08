@@ -132,7 +132,7 @@
 	function copyReferralLink() {
 		if (!referralCode) return;
 		const origin = typeof window !== 'undefined' ? window.location.origin : '';
-		const link = `${origin}/register?ref=${referralCode.code}`;
+		const link = `${origin}/cadastro?ref=${referralCode.code}`;
 		navigator.clipboard.writeText(link);
 		linkCopied = true;
 		setTimeout(() => (linkCopied = false), 2000);
@@ -399,7 +399,7 @@
 		<!-- Link to Payouts -->
 		<div class="mt-6">
 			<a
-				href="/account/referral/payouts"
+				href="/conta/indicacoes/pagamentos"
 				class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
 			>
 				{m['referral.payouts']()} &rarr;

@@ -271,7 +271,7 @@
 						<Building2 class="h-8 w-8 text-primary" aria-hidden="true" />
 					</div>
 					<h3 class="mb-2 text-lg font-semibold">{m['dashboard.following.noOrganizations']()}</h3>
-					<Button href="/organizations" variant="default" class="mt-4">
+					<Button href="/org" variant="default" class="mt-4">
 						{m['dashboard.following.discoverOrganizations']()}
 					</Button>
 				</div>
@@ -404,7 +404,7 @@
 						<Calendar class="h-8 w-8 text-primary" aria-hidden="true" />
 					</div>
 					<h3 class="mb-2 text-lg font-semibold">{m['dashboard.following.noEventSeries']()}</h3>
-					<Button href="/events" variant="default" class="mt-4">
+					<Button href="/eventos" variant="default" class="mt-4">
 						{m['dashboard.following.discoverEventSeries']()}
 					</Button>
 				</div>
@@ -429,7 +429,7 @@
 								{/if}
 								<div class="min-w-0 flex-1">
 									<a
-										href="/events/{series.organization.slug}/series/{series.slug}"
+										href="/eventos/{series.organization.slug}/serie/{series.slug}"
 										class="block truncate font-semibold hover:text-primary hover:underline"
 									>
 										{series.name}

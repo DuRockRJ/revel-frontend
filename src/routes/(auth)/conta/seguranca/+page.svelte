@@ -337,7 +337,7 @@
 
 								<form
 									method="POST"
-									action="?/verify"
+									action="?/verificar"
 									use:enhance={() => {
 										isSubmitting = true;
 										return async ({ result }) => {

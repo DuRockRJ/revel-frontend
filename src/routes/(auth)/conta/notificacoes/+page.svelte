@@ -36,7 +36,7 @@
 		</div>
 
 		<!-- Settings Button -->
-		<Button href="/account/settings" variant="outline" size="sm" class="shrink-0">
+		<Button href="/conta/configuracoes" variant="outline" size="sm" class="shrink-0">
 			<Settings class="mr-2 h-4 w-4" aria-hidden="true" />
 			{m['notificationsPage.settingsButton']?.() || 'Settings'}
 		</Button>
