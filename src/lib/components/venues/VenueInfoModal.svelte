@@ -105,6 +105,7 @@
 						loading="lazy"
 						referrerpolicy="no-referrer-when-downgrade"
 						title="Map of {venue.name}"
+						class="dark:brightness-95 dark:contrast-[.9] dark:hue-rotate-180 dark:invert"
 					></iframe>
 				</div>
 			{/if}
