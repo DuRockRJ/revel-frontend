@@ -111,7 +111,7 @@
 	}
 
 	.calendar-event-badge {
-		@apply flex w-full items-center gap-1 overflow-hidden rounded px-1 py-0.5 text-left text-xs transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+		@apply flex w-full items-center gap-1 overflow-hidden rounded px-1 py-0.5 text-left text-xs transition-colors hover:bg-accent/50 hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
 	}
 
 	.calendar-event-dot {

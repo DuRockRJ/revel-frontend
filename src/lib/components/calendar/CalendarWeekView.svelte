@@ -64,7 +64,7 @@
 							{#each dayEvents as event}
 								<button
 									type="button"
-									class="week-event-card"
+									class="week-event-card group"
 									onclick={() => onEventClick?.(event)}
 									aria-label="{event.name} at {formatEventTime(event.start)}"
 								>
@@ -139,14 +139,14 @@
 	}
 
 	.week-event-time {
-		@apply mb-1 flex items-center gap-1 text-xs text-muted-foreground;
+		@apply mb-1 flex items-center gap-1 text-xs text-muted-foreground transition-colors group-hover:text-accent-foreground;
 	}
 
 	.week-event-title {
-		@apply mb-1 text-sm font-medium leading-tight;
+		@apply mb-1 text-sm font-medium leading-tight transition-colors group-hover:text-accent-foreground;
 	}
 
 	.week-event-location {
-		@apply flex items-center gap-1 text-xs text-muted-foreground;
+		@apply flex items-center gap-1 text-xs text-muted-foreground transition-colors group-hover:text-accent-foreground;
 	}
 </style>
