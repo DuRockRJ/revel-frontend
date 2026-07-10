@@ -52,7 +52,8 @@ export const actions: Actions = {
 		// Social media fields
 		const instagramUrl = formData.get('instagram_url') as string;
 		const facebookUrl = formData.get('facebook_url') as string;
-		const blueskyUrl = formData.get('bluesky_url') as string;
+		const youtubeUrl = formData.get('youtube_url') as string;
+		const whatsappUrl = formData.get('whatsapp_url') as string;
 		const telegramUrl = formData.get('telegram_url') as string;
 
 		// Prepare update payload with only editable fields
@@ -93,7 +94,8 @@ export const actions: Actions = {
 		// Social media fields - always include in payload to allow clearing
 		updateData.instagram_url = instagramUrl?.trim() || null;
 		updateData.facebook_url = facebookUrl?.trim() || null;
-		updateData.bluesky_url = blueskyUrl?.trim() || null;
+		updateData.youtube_url = youtubeUrl?.trim() || null;
+		updateData.whatsapp_url = whatsappUrl?.trim() || null;
 		if (formData.has('telegram_url')) {
 			updateData.telegram_url = telegramUrl?.trim() || null;
 		}

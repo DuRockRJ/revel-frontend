@@ -12,7 +12,8 @@
 		Instagram,
 		Facebook,
 		Send,
-		AtSign,
+		Youtube,
+		MessageCircle,
 		Ticket
 	} from 'lucide-svelte';
 	import ResourceCard from '$lib/components/resources/ResourceCard.svelte';
@@ -66,7 +67,8 @@
 	const hasSocialLinks = $derived(
 		organization.instagram_url ||
 			organization.facebook_url ||
-			organization.bluesky_url ||
+			organization.youtube_url ||
+			organization.whatsapp_url ||
 			organization.telegram_url
 	);
 
@@ -251,15 +253,26 @@
 										<Facebook class="h-5 w-5" aria-hidden="true" />
 									</a>
 								{/if}
-								{#if organization.bluesky_url}
+								{#if organization.youtube_url}
 									<a
-										href={organization.bluesky_url}
+										href={organization.youtube_url}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="text-muted-foreground transition-colors hover:text-sky-500"
-										aria-label={m['organizationProfile.social_bluesky']()}
+										class="text-muted-foreground transition-colors hover:text-red-600"
+										aria-label={m['organizationProfile.social_youtube']()}
 									>
-										<AtSign class="h-5 w-5" aria-hidden="true" />
+										<Youtube class="h-5 w-5" aria-hidden="true" />
+									</a>
+								{/if}
+								{#if organization.whatsapp_url}
+									<a
+										href={organization.whatsapp_url}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-muted-foreground transition-colors hover:text-green-600"
+										aria-label={m['organizationProfile.social_whatsapp']()}
+									>
+										<MessageCircle class="h-5 w-5" aria-hidden="true" />
 									</a>
 								{/if}
 								{#if organization.telegram_url}

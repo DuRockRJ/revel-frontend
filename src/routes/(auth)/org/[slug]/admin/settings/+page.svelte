@@ -19,7 +19,8 @@
 		Instagram,
 		Facebook,
 		Send,
-		AtSign
+		Youtube,
+		MessageCircle
 	} from 'lucide-svelte';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { toast } from 'svelte-sonner';
@@ -52,7 +53,8 @@
 	// Social media state
 	let instagramUrl = $state(data.organization.instagram_url || '');
 	let facebookUrl = $state(data.organization.facebook_url || '');
-	let blueskyUrl = $state(data.organization.bluesky_url || '');
+	let youtubeUrl = $state(data.organization.youtube_url || '');
+	let whatsappUrl = $state(data.organization.whatsapp_url || '');
 	let telegramUrl = $state(data.organization.telegram_url || '');
 
 	// Email modal state
@@ -73,7 +75,8 @@
 		reportCadence = data.organization.revenue_report_cadence || 'none';
 		instagramUrl = data.organization.instagram_url || '';
 		facebookUrl = data.organization.facebook_url || '';
-		blueskyUrl = data.organization.bluesky_url || '';
+		youtubeUrl = data.organization.youtube_url || '';
+		whatsappUrl = data.organization.whatsapp_url || '';
 		telegramUrl = data.organization.telegram_url || '';
 	});
 
@@ -385,18 +388,34 @@
 					/>
 				</div>
 
-				<!-- Bluesky -->
+				<!-- YouTube -->
 				<div>
-					<label for="bluesky_url" class="flex items-center gap-2 text-sm font-medium">
-						<AtSign class="h-4 w-4 text-sky-500" aria-hidden="true" />
-						Bluesky
+					<label for="youtube_url" class="flex items-center gap-2 text-sm font-medium">
+						<Youtube class="h-4 w-4 text-red-600" aria-hidden="true" />
+						YouTube
 					</label>
 					<input
 						type="url"
-						id="bluesky_url"
-						name="bluesky_url"
-						bind:value={blueskyUrl}
-						placeholder="https://bsky.app/profile/yourorg.bsky.social"
+						id="youtube_url"
+						name="youtube_url"
+						bind:value={youtubeUrl}
+						placeholder="https://youtube.com/@yourorg"
+						class="mt-1 flex w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+					/>
+				</div>
+
+				<!-- WhatsApp -->
+				<div>
+					<label for="whatsapp_url" class="flex items-center gap-2 text-sm font-medium">
+						<MessageCircle class="h-4 w-4 text-green-600" aria-hidden="true" />
+						WhatsApp
+					</label>
+					<input
+						type="url"
+						id="whatsapp_url"
+						name="whatsapp_url"
+						bind:value={whatsappUrl}
+						placeholder="https://wa.me/5511999999999"
 						class="mt-1 flex w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
 					/>
 				</div>

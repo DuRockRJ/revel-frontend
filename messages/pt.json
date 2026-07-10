@@ -3972,7 +3972,8 @@
 		"viewDetails": "Ver detalhes da organização",
 		"social_instagram": "Seguir no Instagram",
 		"social_facebook": "Seguir no Facebook",
-		"social_bluesky": "Seguir no Bluesky",
+		"social_youtube": "Inscrever-se no YouTube",
+		"social_whatsapp": "Conversar no WhatsApp",
 		"social_telegram": "Entrar no Telegram"
 	},
 	"organizationTokenCard": {
