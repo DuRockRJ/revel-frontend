@@ -125,7 +125,7 @@
 				<a href="/login" class="font-medium text-primary hover:underline"
 					>{m['ticketTierList.signIn']()}</a
 				>
-				to claim your ticket
+				{m['ticketTierList.signInToClaim']()}
 			</p>
 		{/if}
 

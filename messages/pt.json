@@ -5238,7 +5238,8 @@
 	},
 	"ticketTierList": {
 		"ticketOptions": "Opções de ingresso",
-		"signIn": "Entrar"
+		"signIn": "Entrar",
+		"signInToClaim": "para resgatar seu ingresso"
 	},
 	"ticketTierModal": {
 		"noTickets": "Nenhum ingresso disponível no momento.",
