@@ -68,19 +68,6 @@ describe('buildSeo', () => {
 		expect(cfg.robots).toBe('noindex,follow');
 	});
 
-	it('landing: hreflang self-references the single (English) URL, no fake alternates', () => {
-		const cfg = buildSeo({
-			kind: 'landing',
-			url: url('/eventbrite-alternative'),
-			lang: 'en',
-			slug: 'eventbrite-alternative'
-		});
-		expect(cfg.hreflang).toEqual([
-			{ lang: 'en', href: 'https://letsrevel.io/eventbrite-alternative' },
-			{ lang: 'x-default', href: 'https://letsrevel.io/eventbrite-alternative' }
-		]);
-	});
-
 	it('auth pages emit noindex,follow', () => {
 		const cfg = buildSeo({
 			kind: 'auth',

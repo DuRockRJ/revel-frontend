@@ -9,18 +9,6 @@ const STATIC = [
 	{ path: '/legal/termos', changefreq: 'monthly', priority: '0.3' }
 ];
 
-// Hand-rolled marketing pages that only exist in English (no translated
-// counterpart), so they get a self-referencing hreflang, not the site's
-// pt alternates.
-const LANDING_SLUGS = [
-	'eventbrite-alternative',
-	'queer-event-management',
-	'kink-event-ticketing',
-	'self-hosted-event-platform',
-	'privacy-focused-events',
-	'community-first-event-platform'
-];
-
 function escapeXml(s: string): string {
 	return s
 		.replace(/&/g, '&amp;')
@@ -48,16 +36,6 @@ export const GET: RequestHandler = async ({ url }) => {
   ${selfAlternate(loc, 'pt')}
   <changefreq>${s.changefreq}</changefreq>
   <priority>${s.priority}</priority>
-</url>`);
-	}
-
-	for (const slug of LANDING_SLUGS) {
-		const loc = `${baseUrl}/${slug}`;
-		lines.push(`<url>
-  <loc>${escapeXml(loc)}</loc>
-  ${selfAlternate(loc, 'en')}
-  <changefreq>weekly</changefreq>
-  <priority>0.7</priority>
 </url>`);
 	}
 

@@ -7,7 +7,7 @@ import type {
 import { getBackendUrl } from '$lib/config/api';
 import { OG_LOCALE, SITE_NAME, TWITTER_SITE, type Lang } from './constants';
 import type { SeoConfig } from './types';
-import { sameUrlHreflang, selfHreflang } from './hreflang';
+import { sameUrlHreflang } from './hreflang';
 import {
 	generateEventJsonLd,
 	generateOrganizationJsonLd,
@@ -17,14 +17,6 @@ import {
 	generateItemListJsonLd,
 	type ListItem
 } from './jsonld';
-
-export type SeoPageSlug =
-	| 'eventbrite-alternative'
-	| 'queer-event-management'
-	| 'kink-event-ticketing'
-	| 'self-hosted-event-platform'
-	| 'privacy-focused-events'
-	| 'community-first-event-platform';
 
 export type BuildSeoInput =
 	| { kind: 'home'; url: URL; lang: Lang }
@@ -39,15 +31,6 @@ export type BuildSeoInput =
 	  }
 	| { kind: 'org'; url: URL; lang: Lang; org: OrganizationRetrieveSchema }
 	| { kind: 'series'; url: URL; lang: Lang; series: EventSeriesRetrieveSchema }
-	| {
-			kind: 'landing';
-			url: URL;
-			lang: Lang;
-			slug: SeoPageSlug;
-			title?: string;
-			description?: string;
-			extraJsonLd?: object[];
-	  }
 	| { kind: 'legal'; url: URL; lang: Lang; doc: 'privacy' | 'terms' }
 	| {
 			kind: 'auth';
@@ -352,41 +335,6 @@ export function buildSeo(input: BuildSeoInput): SeoConfig {
 						{ name: series.organization.name, url: `${origin}/org/${series.organization.slug}` },
 						{ name: series.name, url: canonical }
 					])
-				]
-			};
-		}
-
-		case 'landing': {
-			const title = input.title ?? input.slug;
-			const description = input.description ?? '';
-			return {
-				title,
-				description,
-				canonical,
-				og: {
-					type: 'website',
-					title,
-					description,
-					url: canonical,
-					image: defaultOgImage(origin),
-					siteName: SITE_NAME,
-					locale: ogLocale,
-					localeAlternate: alts
-				},
-				twitter: {
-					card: 'summary_large_image',
-					title,
-					description,
-					image: defaultOgImage(origin),
-					site: TWITTER_SITE
-				},
-				hreflang: selfHreflang(input.lang, canonical),
-				jsonLd: [
-					generateBreadcrumbJsonLd([
-						{ name: 'Home', url: origin },
-						{ name: title, url: canonical }
-					]),
-					...(input.extraJsonLd ?? [])
 				]
 			};
 		}
