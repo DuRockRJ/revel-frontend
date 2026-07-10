@@ -389,7 +389,7 @@
 	<!-- Card Header -->
 	{#if eventLogoUrl}
 		<div class="relative border-b p-4">
-			<img src={eventLogoUrl} alt="" class="h-40 w-full rounded-md bg-muted/40 object-contain" />
+			<img src={eventLogoUrl} alt="" class="h-auto w-full rounded-md" />
 			<BookmarkButton
 				eventId={event.id}
 				isBookmarked={event.is_bookmarked ?? false}
