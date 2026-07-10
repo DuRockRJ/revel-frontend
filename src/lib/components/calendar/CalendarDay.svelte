@@ -111,18 +111,18 @@
 	}
 
 	.calendar-event-badge {
-		@apply flex w-full items-center gap-1 overflow-hidden rounded px-1 py-0.5 text-left text-xs transition-colors hover:bg-accent/50 hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+		@apply flex w-full items-center gap-1 overflow-hidden rounded px-1 py-0.5 text-left text-xs transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
 	}
 
 	.calendar-event-dot {
-		@apply h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary;
+		@apply h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary transition-colors group-hover:bg-accent-foreground;
 	}
 
 	.calendar-event-name {
-		@apply truncate;
+		@apply truncate transition-colors group-hover:text-accent-foreground;
 	}
 
 	.calendar-more-events {
-		@apply px-1 text-xs text-muted-foreground;
+		@apply px-1 text-xs text-muted-foreground transition-colors group-hover:text-accent-foreground;
 	}
 </style>
