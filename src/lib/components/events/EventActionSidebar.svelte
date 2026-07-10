@@ -24,6 +24,8 @@
 		getMultipleTicketsStatusText
 	} from '$lib/utils/eligibility';
 	import { cn } from '$lib/utils/cn';
+	import { getEventLogo, getEventLogoThumbnail } from '$lib/utils/event';
+	import { getImageUrl } from '$lib/utils/url';
 	import EventStatusBadge from './EventStatusBadge.svelte';
 	import BookmarkButton from './BookmarkButton.svelte';
 	import EventQuickInfo from './EventQuickInfo.svelte';
@@ -250,6 +252,10 @@
 		return new Date(event.end) < new Date();
 	});
 
+	// Event logo (falls back to series/organization logo) — shown at the top of the sidebar
+	// in place of the status badge when available.
+	const eventLogoUrl = $derived(getImageUrl(getEventLogoThumbnail(event) || getEventLogo(event)));
+
 	/**
 	 * Container classes based on variant
 	 */
@@ -382,7 +388,11 @@
 <aside class={containerClasses} aria-label={m['eventActionSidebar.eventActionsAriaLabel']()}>
 	<!-- Card Header -->
 	<div class="flex items-start justify-between gap-2 border-b p-4">
-		<EventStatusBadge {event} />
+		{#if eventLogoUrl}
+			<img src={eventLogoUrl} alt="" class="h-10 w-10 rounded-md object-contain" />
+		{:else}
+			<EventStatusBadge {event} />
+		{/if}
 		<BookmarkButton
 			eventId={event.id}
 			isBookmarked={event.is_bookmarked ?? false}
