@@ -387,19 +387,27 @@
 -->
 <aside class={containerClasses} aria-label={m['eventActionSidebar.eventActionsAriaLabel']()}>
 	<!-- Card Header -->
-	<div class="flex items-start justify-between gap-2 border-b p-4">
-		{#if eventLogoUrl}
-			<img src={eventLogoUrl} alt="" class="h-10 w-10 rounded-md object-contain" />
-		{:else}
+	{#if eventLogoUrl}
+		<div class="relative border-b p-4">
+			<img src={eventLogoUrl} alt="" class="h-16 w-full rounded-md bg-muted/40 object-contain" />
+			<BookmarkButton
+				eventId={event.id}
+				isBookmarked={event.is_bookmarked ?? false}
+				variant="float"
+				class="absolute right-6 top-6"
+			/>
+		</div>
+	{:else}
+		<div class="flex items-start justify-between gap-2 border-b p-4">
 			<EventStatusBadge {event} />
-		{/if}
-		<BookmarkButton
-			eventId={event.id}
-			isBookmarked={event.is_bookmarked ?? false}
-			variant="inline"
-			class="shrink-0"
-		/>
-	</div>
+			<BookmarkButton
+				eventId={event.id}
+				isBookmarked={event.is_bookmarked ?? false}
+				variant="inline"
+				class="shrink-0"
+			/>
+		</div>
+	{/if}
 
 	<!-- Card Content -->
 	<div class="space-y-4 p-4">
