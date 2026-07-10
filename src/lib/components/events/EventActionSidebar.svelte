@@ -253,8 +253,11 @@
 	});
 
 	// Event logo (falls back to series/organization logo) — shown at the top of the sidebar
-	// in place of the status badge when available.
-	const eventLogoUrl = $derived(getImageUrl(getEventLogoThumbnail(event) || getEventLogo(event)));
+	// in place of the status badge when available. Prefers the full-resolution logo since
+	// it's rendered at full sidebar width here; the 150x150 thumbnail would look blurry
+	// upscaled to that size, so it's only a fallback for the (unlikely) case where a
+	// thumbnail exists but the source logo doesn't.
+	const eventLogoUrl = $derived(getImageUrl(getEventLogo(event) || getEventLogoThumbnail(event)));
 
 	/**
 	 * Container classes based on variant
