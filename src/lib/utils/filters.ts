@@ -77,7 +77,7 @@ export function parseFilters(searchParams: URLSearchParams): EventFilters {
 	if (tags) filters.tags = tags.split(',').filter(Boolean);
 
 	// Bands (comma-separated)
-	const bands = searchParams.get('bands');
+	const bands = searchParams.get('bandas');
 	if (bands) filters.bands = bands.split(',').filter(Boolean);
 
 	// Include past events
@@ -123,7 +123,7 @@ export function filtersToParams(filters: EventFilters): URLSearchParams {
 	if (filters.eventType) params.set('event_type', filters.eventType);
 	if (filters.visibility) params.set('visibility', filters.visibility);
 	if (filters.tags && filters.tags.length > 0) params.set('tags', filters.tags.join(','));
-	if (filters.bands && filters.bands.length > 0) params.set('bands', filters.bands.join(','));
+	if (filters.bands && filters.bands.length > 0) params.set('bandas', filters.bands.join(','));
 	if (filters.includePast) params.set('include_past', 'true');
 	if (filters.ticketType) params.set('ticket_type', filters.ticketType);
 	if (filters.orderBy) params.set('order_by', filters.orderBy);

@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ request, url, fetch, locals }) => {
 	const visibility = url.searchParams.get('visibility') || undefined;
 	const tagsParam = url.searchParams.get('tags');
 	const tags = tagsParam ? tagsParam.split(',').filter(Boolean) : undefined;
-	const bandsParam = url.searchParams.get('bands');
+	const bandsParam = url.searchParams.get('bandas');
 	const bands = bandsParam ? bandsParam.split(',').filter(Boolean) : undefined;
 	const includePast = url.searchParams.get('include_past') === 'true';
 	const ticketType = url.searchParams.get('ticket_type') || undefined;
