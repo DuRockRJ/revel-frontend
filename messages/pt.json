@@ -1990,7 +1990,9 @@
 		"privacyPolicy": "Política de privacidade",
 		"termsOfService": "Termos de serviço",
 		"copyright": "A Revel fork",
-		"learnMore": "Saiba mais"
+		"learnMore": "Saiba mais",
+		"social_instagram": "Seguir no Instagram",
+		"social_youtube": "Inscrever-se no YouTube"
 	},
 	"guest_attendance": {
 		"rsvp_title": "Confirme presença sem uma conta",
