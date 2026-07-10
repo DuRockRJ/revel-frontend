@@ -7,7 +7,7 @@ import { log } from '$lib/server/logger';
 import { buildSeo } from '$lib/seo';
 import { resolveLang } from '$lib/seo/server';
 
-export const load: PageServerLoad = async ({ fetch, cookies, url, request }) => {
+export const load: PageServerLoad = async ({ fetch, url, request }) => {
 	// Check if backend is in demo mode
 	try {
 		const { data } = await apiApiVersion({ fetch });
@@ -28,7 +28,6 @@ export const load: PageServerLoad = async ({ fetch, cookies, url, request }) => 
 	const seo = buildSeo({ kind: 'auth', url, lang, page: 'register' });
 
 	return {
-		referralCodeFromCookie: cookies.get('referral_code') || '',
 		seo
 	};
 };
@@ -40,11 +39,7 @@ export const actions = {
 			email: formData.get('email') as string,
 			password: formData.get('password') as string,
 			confirmPassword: formData.get('confirmPassword') as string,
-			acceptTerms: formData.get('acceptTerms') === 'on',
-			referralCode:
-				((formData.get('referralCode') as string) || '')
-					.replace(/[^\p{L}\p{N}]/gu, '')
-					.toUpperCase() || undefined
+			acceptTerms: formData.get('acceptTerms') === 'on'
 		};
 
 		// Validate with Zod
@@ -66,8 +61,7 @@ export const actions = {
 					email: validation.data.email,
 					password1: validation.data.password,
 					password2: validation.data.confirmPassword,
-					accept_toc_and_privacy: validation.data.acceptTerms,
-					...(data.referralCode ? { referral_code: data.referralCode } : {})
+					accept_toc_and_privacy: validation.data.acceptTerms
 				},
 				fetch
 			});

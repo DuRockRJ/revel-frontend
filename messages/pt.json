@@ -5629,13 +5629,6 @@
 	"tickets.reverseChargeYes": "Sim (B2B UE)",
 	"tickets.vatTooltip": "Líquido: {net} / IVA: {vat} ({rate}%)",
 	"referral": {
-		"haveReferralCode": "Tem um código de indicação?",
-		"enterCode": "Digite o código",
-		"apply": "Aplicar",
-		"validCode": "Código de indicação aplicado",
-		"invalidCode": "Código de indicação inválido",
-		"validationFailed": "Falha ao validar o código de indicação",
-		"removeCode": "Remover código de indicação",
 		"settings": "Configurações de indicação",
 		"payouts": "Repasses",
 		"referralProgram": "Programa de indicação",
