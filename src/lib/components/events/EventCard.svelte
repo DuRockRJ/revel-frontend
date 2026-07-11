@@ -189,7 +189,6 @@
 							{#if event.bands.length > 3}
 								<span class="inline-block px-2 py-0.5 text-xs text-muted-foreground">
 									+{event.bands.length - 3}
-									{m['common.text_more']()}
 								</span>
 							{/if}
 						</div>
@@ -211,7 +210,6 @@
 							{#if event.tags.length > 3}
 								<span class="inline-block px-2 py-0.5 text-xs text-muted-foreground">
 									+{event.tags.length - 3}
-									{m['common.text_more']()}
 								</span>
 							{/if}
 						</div>
