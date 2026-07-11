@@ -256,7 +256,7 @@
 				width="100%"
 				height="200"
 				style="border:0;"
-				sandbox="allow-scripts"
+				sandbox="allow-scripts allow-same-origin"
 				loading="lazy"
 				referrerpolicy="no-referrer-when-downgrade"
 				title="{m['eventQuickInfo.mapOf']()} {locationDisplay.primary}"
