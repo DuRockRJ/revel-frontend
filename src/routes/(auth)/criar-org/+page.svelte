@@ -6,6 +6,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
 	import CityAutocomplete from '$lib/components/forms/CityAutocomplete.svelte';
 	import { AlertCircle, Building2, CheckCircle, Loader2, Mail } from 'lucide-svelte';
 	import * as m from '$lib/paraglide/messages.js';
@@ -341,37 +342,42 @@
 </div>
 
 <!-- Confirmation Dialog -->
-{#if showConfirmDialog}
-	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-		<div class="w-full max-w-md rounded-lg border bg-card p-6 shadow-xl">
-			<div class="mb-4 flex justify-center">
+<Dialog
+	open={showConfirmDialog}
+	onOpenChange={(open) => {
+		if (!open) cancelConfirm();
+	}}
+>
+	<DialogContent class="sm:max-w-md">
+		<DialogHeader>
+			<div class="flex justify-center">
 				<div class="rounded-full bg-yellow-100 p-3 dark:bg-yellow-900">
 					<AlertCircle class="h-6 w-6 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
 				</div>
 			</div>
-			<h3 class="mb-2 text-center text-lg font-semibold">
+			<DialogTitle class="text-center text-lg font-semibold">
 				{m['orgCreate.confirm.title']()}
-			</h3>
-			<p class="mb-1 text-center text-sm text-muted-foreground">
-				{m['orgCreate.confirm.message']()}
-			</p>
-			<p class="mb-6 text-center text-sm font-medium">
-				<strong>"{name}"</strong>
-			</p>
-			<p class="mb-6 text-center text-sm text-destructive">
-				{m['orgCreate.confirm.warning']()}
-			</p>
-			<div class="flex gap-3">
-				<Button type="button" variant="outline" onclick={cancelConfirm} class="flex-1">
-					{m['common.actions_cancel']()}
-				</Button>
-				<Button type="button" onclick={confirmCreate} class="flex-1">
-					{m['orgCreate.confirm.create']()}
-				</Button>
-			</div>
+			</DialogTitle>
+		</DialogHeader>
+		<p class="text-center text-sm text-muted-foreground">
+			{m['orgCreate.confirm.message']()}
+		</p>
+		<p class="text-center text-sm font-medium">
+			<strong>"{name}"</strong>
+		</p>
+		<p class="text-center text-sm text-destructive">
+			{m['orgCreate.confirm.warning']()}
+		</p>
+		<div class="flex gap-3">
+			<Button type="button" variant="outline" onclick={cancelConfirm} class="flex-1">
+				{m['common.actions_cancel']()}
+			</Button>
+			<Button type="button" onclick={confirmCreate} class="flex-1">
+				{m['orgCreate.confirm.create']()}
+			</Button>
 		</div>
-	</div>
-{/if}
+	</DialogContent>
+</Dialog>
 
 <style>
 	:global(.required::after) {
