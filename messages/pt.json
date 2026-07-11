@@ -754,6 +754,7 @@
 		"sunday_short": "Dom",
 		"events": "eventos",
 		"event": "evento",
+		"events_count": "{count} evento(s)",
 		"more": "mais",
 		"more_events": "mais eventos",
 		"no_events": "Nenhum evento",
