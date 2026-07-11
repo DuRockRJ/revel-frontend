@@ -35,15 +35,47 @@
 	let newStart = $state('');
 	let errorMessage = $state<string | null>(null);
 
+	/**
+	 * Suggest the duplicate's start, prefilled from the source event.
+	 *
+	 * The backend shifts `end`, `rsvp_before`, `apply_before`, `check_in_starts_at` and
+	 * `check_in_ends_at` by `newStart - sourceStart` (preserving the original durations),
+	 * so only the start needs to be chosen here. A source start still in the future is
+	 * reused verbatim. A past start keeps its (local) time-of-day and rolls forward to the
+	 * next future occurrence of that time — today if that time is still ahead, otherwise
+	 * tomorrow — so the field always satisfies the "must be in the future" rule while
+	 * staying recognisable. With no source start we fall back to the previous default of
+	 * now + 1 hour.
+	 */
+	function suggestNewStart(source: string | null | undefined): string {
+		const now = new Date();
+
+		if (source) {
+			const sourceDate = new Date(source);
+			if (!Number.isNaN(sourceDate.getTime())) {
+				if (sourceDate.getTime() > now.getTime()) {
+					return sourceDate.toISOString();
+				}
+				const candidate = new Date(now);
+				candidate.setHours(sourceDate.getHours(), sourceDate.getMinutes(), 0, 0);
+				if (candidate.getTime() <= now.getTime()) {
+					candidate.setDate(candidate.getDate() + 1);
+				}
+				return candidate.toISOString();
+			}
+		}
+
+		const fallback = new Date(now);
+		fallback.setMinutes(fallback.getMinutes() + 60);
+		return fallback.toISOString();
+	}
+
 	// Initialize form when modal opens
 	$effect(() => {
 		if (open) {
 			// Suggest name with "Copy of" prefix
 			newName = m['duplicateEventModal.copyOf']({ name: eventName });
-			// Default to current date/time + 1 hour as ISO
-			const now = new Date();
-			now.setMinutes(now.getMinutes() + 60); // Add 1 hour
-			newStart = now.toISOString();
+			newStart = suggestNewStart(eventStart);
 			errorMessage = null;
 		}
 	});
