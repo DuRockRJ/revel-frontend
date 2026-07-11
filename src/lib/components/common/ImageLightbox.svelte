@@ -29,6 +29,9 @@
 	}}
 >
 	<DialogContent
+		onclick={(e: MouseEvent) => {
+			if (e.target === e.currentTarget) open = false;
+		}}
 		class="grid max-h-[95vh] max-w-[95vw] place-items-center border-none bg-transparent p-0 shadow-none [&>button]:rounded-full [&>button]:bg-black/50 [&>button]:p-1.5 [&>button]:text-white [&>button]:opacity-100 [&>button]:hover:bg-black/70"
 	>
 		<DialogTitle class="sr-only">{alt || m['imageLightbox.expandLabel']()}</DialogTitle>
