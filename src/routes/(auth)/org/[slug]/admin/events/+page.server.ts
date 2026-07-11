@@ -33,7 +33,7 @@ export const load: PageServerLoad = async ({ parent, locals, fetch }) => {
 		log.error('admin_events_load_failed', { error: eventsResponse.error, orgId: organization.id });
 		const errorMessage = extractErrorMessage(
 			eventsResponse.error,
-			'Failed to load events. Please try again later.'
+			'Falha ao carregar eventos. Tente novamente mais tarde.'
 		);
 		throw error(500, errorMessage);
 	}

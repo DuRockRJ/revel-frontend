@@ -61,7 +61,7 @@ export const load: PageServerLoad = async ({ request, url, fetch, locals }) => {
 		// Handle API errors
 		if (response.error) {
 			log.error('events_load_failed', { error: response.error });
-			throw svelteKitError(500, 'Failed to load events. Please try again later.');
+			throw svelteKitError(500, 'Falha ao carregar eventos. Tente novamente mais tarde.');
 		}
 
 		// Type guard: ensure response.data exists
@@ -104,7 +104,7 @@ export const load: PageServerLoad = async ({ request, url, fetch, locals }) => {
 			nextUrl: null,
 			previousUrl: null,
 			filters: {},
-			error: 'Failed to load events. Please try again later.'
+			error: 'Falha ao carregar eventos. Tente novamente mais tarde.'
 		};
 	}
 };
