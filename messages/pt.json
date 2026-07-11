@@ -7254,7 +7254,6 @@
 	"checkInDialog.statusCancelled": "Cancelado",
 	"checkInDialog.confirmPaymentCheckInTitle": "Confirmar pagamento e fazer check-in",
 	"checkInDialog.checkInAttendeeTitle": "Fazer check-in do participante",
-	"checkInDialog.closeDialog": "Fechar diálogo",
 	"checkInDialog.confirmPaymentReceived": "Confirme que o pagamento foi recebido antes de fazer o check-in.",
 	"checkInDialog.verifyIdentity": "Verifique a identidade do participante antes de fazer o check-in.",
 	"checkInDialog.guestName": "Nome do convidado",

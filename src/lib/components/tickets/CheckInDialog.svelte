@@ -2,8 +2,8 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { X, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-svelte';
-	import { fade, scale } from 'svelte/transition';
+	import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
+	import { AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-svelte';
 	import { getUserDisplayName } from '$lib/utils/user-display';
 	import { formatPrice } from '$lib/utils/format';
 	import { getGuestNameIfDifferent, getSeatDisplay } from '$lib/utils/ticket-helpers';
@@ -197,20 +197,10 @@
 	}
 
 	/**
-	 * Handle backdrop click
+	 * Close the dialog (Escape, overlay click, or close button), unless a request is in flight
 	 */
-	function handleBackdropClick(event: MouseEvent) {
-		if (event.target === event.currentTarget && !isLoading) {
-			pwycPricePaid = '';
-			onCancel();
-		}
-	}
-
-	/**
-	 * Handle escape key
-	 */
-	function handleKeyDown(event: KeyboardEvent) {
-		if (event.key === 'Escape' && !isLoading) {
+	function handleOpenChange(open: boolean) {
+		if (!open && !isLoading) {
 			pwycPricePaid = '';
 			onCancel();
 		}
@@ -232,41 +222,18 @@
 	{@const statusInfo = getStatusInfo(ticket.status)}
 	{@const guestName = getGuestNameIfDifferent(ticket)}
 	{@const seatInfo = getSeatDisplay(ticket)}
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-		onclick={handleBackdropClick}
-		onkeydown={handleKeyDown}
-		transition:fade={{ duration: 150 }}
-		role="dialog"
-		aria-modal="true"
-		aria-labelledby="checkin-dialog-title"
-		tabindex="-1"
-	>
-		<div
-			class="relative w-full max-w-md rounded-lg border bg-background shadow-lg"
-			transition:scale={{ duration: 150, start: 0.95 }}
-		>
-			<!-- Header -->
-			<div class="flex items-center justify-between border-b px-6 py-4">
-				<h2 id="checkin-dialog-title" class="text-xl font-bold">
+	<Dialog open={isOpen} onOpenChange={handleOpenChange}>
+		<DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-md">
+			<DialogHeader>
+				<DialogTitle class="text-xl font-bold">
 					{needsPaymentConfirmation || needsPwycInput
 						? m['checkInDialog.confirmPaymentCheckInTitle']()
 						: m['checkInDialog.checkInAttendeeTitle']()}
-				</h2>
-				<button
-					type="button"
-					onclick={onCancel}
-					disabled={isLoading}
-					class="rounded-full p-1 hover:bg-accent disabled:opacity-50"
-					aria-label={m['checkInDialog.closeDialog']()}
-				>
-					<X class="h-5 w-5" />
-				</button>
-			</div>
+				</DialogTitle>
+			</DialogHeader>
 
 			<!-- Content -->
-			<div class="space-y-4 px-6 py-4">
+			<div class="space-y-4">
 				<!-- Status Alert -->
 				<div class="flex items-center gap-3 rounded-lg border p-3 {statusInfo.bgColor}">
 					{#if ticket.status === 'pending'}
@@ -409,7 +376,7 @@
 			</div>
 
 			<!-- Actions -->
-			<div class="flex justify-end gap-2 border-t px-6 py-4">
+			<div class="flex justify-end gap-2 border-t pt-4">
 				<Button
 					variant="outline"
 					onclick={() => {
@@ -432,6 +399,6 @@
 					{/if}
 				</Button>
 			</div>
-		</div>
-	</div>
+		</DialogContent>
+	</Dialog>
 {/if}
