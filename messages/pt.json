@@ -872,8 +872,7 @@
 	},
 	"confirmDialog": {
 		"confirm": "Confirmar",
-		"cancel": "Cancelar",
-		"closeDialog": "Fechar diálogo"
+		"cancel": "Cancelar"
 	},
 	"bookmark": {
 		"add": "Salvar este evento",
