@@ -280,6 +280,9 @@
 									<button
 										type="button"
 										onclick={toggleSelectAllRegistered}
+										aria-label={m['eventInvitationsAdmin.selectAllRegistered']()}
+										aria-pressed={selectedRegisteredIds.size === registeredInvitations.length &&
+											registeredInvitations.length > 0}
 										class="flex items-center justify-center text-muted-foreground hover:text-foreground"
 									>
 										{#if selectedRegisteredIds.size === registeredInvitations.length && registeredInvitations.length > 0}
@@ -324,6 +327,13 @@
 										<button
 											type="button"
 											onclick={() => toggleRegisteredSelection(invitation.id)}
+											aria-label={m['eventInvitationsAdmin.selectInvitation']({
+												name: getUserDisplayName(
+													invitation.user,
+													m['eventInvitationsAdmin.unknownUser']()
+												)
+											})}
+											aria-pressed={selectedRegisteredIds.has(invitation.id)}
 											class="flex items-center justify-center text-muted-foreground hover:text-foreground"
 										>
 											{#if selectedRegisteredIds.has(invitation.id)}
@@ -456,6 +466,9 @@
 									<button
 										type="button"
 										onclick={toggleSelectAllPending}
+										aria-label={m['eventInvitationsAdmin.selectAllPending']()}
+										aria-pressed={selectedPendingIds.size === pendingInvitations.length &&
+											pendingInvitations.length > 0}
 										class="flex items-center justify-center text-muted-foreground hover:text-foreground"
 									>
 										{#if selectedPendingIds.size === pendingInvitations.length && pendingInvitations.length > 0}
@@ -495,6 +508,10 @@
 										<button
 											type="button"
 											onclick={() => togglePendingSelection(invitation.id)}
+											aria-label={m['eventInvitationsAdmin.selectInvitation']({
+												name: invitation.email
+											})}
+											aria-pressed={selectedPendingIds.has(invitation.id)}
 											class="flex items-center justify-center text-muted-foreground hover:text-foreground"
 										>
 											{#if selectedPendingIds.has(invitation.id)}
