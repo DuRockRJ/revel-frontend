@@ -8,6 +8,7 @@
 	import { formatCityRegion } from '$lib/utils/city';
 	import { getImageUrl } from '$lib/utils/url';
 	import * as m from '$lib/paraglide/messages.js';
+	import ImageLightbox from '$lib/components/common/ImageLightbox.svelte';
 
 	// Accept both list and detail schemas - location info only shown if available (detail schema)
 	type EventSchema = EventInListSchema | EventDetailSchema;
@@ -41,6 +42,8 @@
 	function formatTime(dateString: string): string {
 		return formatTimeOfDay(dateString);
 	}
+
+	const coverArtUrl = $derived(event ? getImageUrl(event.cover_art) : null);
 </script>
 
 <Dialog {open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -52,10 +55,10 @@
 
 			<div class="space-y-4">
 				<!-- Cover Image -->
-				{#if event.cover_art}
-					<img
-						src={getImageUrl(event.cover_art)}
-						alt=""
+				{#if coverArtUrl}
+					<ImageLightbox
+						src={coverArtUrl}
+						alt={event.name}
 						class="h-48 w-full rounded-lg object-cover"
 					/>
 				{/if}

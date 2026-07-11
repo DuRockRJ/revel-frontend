@@ -32,6 +32,6 @@
 		class="max-h-[95vh] max-w-[95vw] border-none bg-transparent p-0 shadow-none [&>button]:rounded-full [&>button]:bg-black/50 [&>button]:p-1.5 [&>button]:text-white [&>button]:opacity-100 [&>button]:hover:bg-black/70"
 	>
 		<DialogTitle class="sr-only">{alt || m['imageLightbox.expandLabel']()}</DialogTitle>
-		<img {src} {alt} class="max-h-[95vh] w-auto rounded-md object-contain" />
+		<img {src} {alt} class="max-h-[95vh] max-w-full rounded-md object-contain" />
 	</DialogContent>
 </Dialog>
