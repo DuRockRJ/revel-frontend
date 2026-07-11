@@ -5086,7 +5086,6 @@
 		"emailLabel": "E-mail comercial oficial",
 		"emailPlaceholder": "organizacao@exemplo.com",
 		"emailHelp": "Este e-mail será usado para criar sua conta Stripe e receber notificações importantes de pagamento.",
-		"closeButton": "Fechar",
 		"cancelButton": "Cancelar",
 		"confirmButton": "Conectar ao Stripe",
 		"connectingButton": "Conectando...",
