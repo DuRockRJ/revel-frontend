@@ -187,7 +187,7 @@
 								</span>
 							{/each}
 							{#if event.bands.length > 3}
-								<span class="inline-block px-2 py-0.5 text-xs text-muted-foreground">
+								<span class="inline-block px-0.5 py-0.5 text-[10px] text-muted-foreground">
 									+{event.bands.length - 3}
 								</span>
 							{/if}
@@ -208,7 +208,7 @@
 								</span>
 							{/each}
 							{#if event.tags.length > 3}
-								<span class="inline-block px-2 py-0.5 text-xs text-muted-foreground">
+								<span class="inline-block px-0.5 py-0.5 text-[10px] text-muted-foreground">
 									+{event.tags.length - 3}
 								</span>
 							{/if}
