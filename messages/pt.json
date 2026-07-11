@@ -7637,7 +7637,6 @@
 	"eventTicketsAdmin.blacklistSuccess": "{name} foi bloqueado(a)",
 	"eventTicketsAdmin.userIdNotAvailable": "ID do usuário não disponível",
 	"eventTicketsAdmin.paginationShowing": "Mostrando página {page} de {totalPages} ({total} ingressos no total)",
-	"eventTicketsAdmin.closeDialog": "Fechar diálogo",
 	"eventTicketsAdmin.amountPaidLabel": "Valor pago ({currency})",
 	"eventTicketsAdmin.confirmingPayment": "Confirmando...",
 	"eventTicketsAdmin.blacklistDialogTitle": "Bloquear usuário",

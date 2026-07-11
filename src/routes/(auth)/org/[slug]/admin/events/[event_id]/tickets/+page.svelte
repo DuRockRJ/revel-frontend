@@ -4,7 +4,6 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { toast } from 'svelte-sonner';
-	import { fade, scale } from 'svelte/transition';
 	import { getUserDisplayName } from '$lib/utils/user-display';
 	import {
 		needsPaymentConfirmation,
@@ -13,7 +12,14 @@
 	} from '$lib/utils/ticket-helpers';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Ticket, AlertTriangle, QrCode, X } from 'lucide-svelte';
+	import {
+		Dialog,
+		DialogContent,
+		DialogHeader,
+		DialogTitle,
+		DialogDescription
+	} from '$lib/components/ui/dialog';
+	import { Ticket, AlertTriangle, QrCode } from 'lucide-svelte';
 	import {
 		eventadminticketsConfirmTicketPayment,
 		eventadminticketsUnconfirmTicketPayment,
@@ -116,9 +122,7 @@
 			return response.data;
 		},
 		onSuccess: () => {
-			showConfirmPaymentDialog = false;
-			ticketToConfirm = null;
-			pwycPricePaid = '';
+			closeConfirmPaymentDialog();
 			invalidateAll();
 		}
 	}));
@@ -452,6 +456,15 @@
 	}
 
 	/**
+	 * Close the confirm payment dialog and reset its local state
+	 */
+	function closeConfirmPaymentDialog() {
+		showConfirmPaymentDialog = false;
+		ticketToConfirm = null;
+		pwycPricePaid = '';
+	}
+
+	/**
 	 * Submit confirm payment
 	 */
 	function submitConfirmPayment() {
@@ -707,72 +720,39 @@
 	{@const pwyc = isPwycTicket(ticketToConfirm)}
 	{@const pwycWarning = pwyc ? getPwycWarning(ticketToConfirm, pwycPricePaid) : null}
 	{@const pwycValid = !pwyc || (pwycPricePaid !== '' && parseFloat(pwycPricePaid) > 0)}
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		role="presentation"
-		onclick={(e) => {
-			if (e.target === e.currentTarget) {
-				showConfirmPaymentDialog = false;
-				ticketToConfirm = null;
-				pwycPricePaid = '';
-			}
+	<Dialog
+		open={showConfirmPaymentDialog}
+		onOpenChange={(open) => {
+			if (!open) closeConfirmPaymentDialog();
 		}}
-		onkeydown={(e) => {
-			if (e.key === 'Escape') {
-				showConfirmPaymentDialog = false;
-				ticketToConfirm = null;
-				pwycPricePaid = '';
-			}
-		}}
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-		transition:fade={{ duration: 150 }}
 	>
-		<div
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="confirm-payment-dialog-title"
-			class="relative mx-4 w-full max-w-lg rounded-lg border bg-card p-6 shadow-lg"
-			transition:scale={{ duration: 150, start: 0.95 }}
-		>
-			<!-- Close button -->
-			<button
-				type="button"
-				onclick={() => {
-					showConfirmPaymentDialog = false;
-					ticketToConfirm = null;
-					pwycPricePaid = '';
-				}}
-				aria-label={m['eventTicketsAdmin.closeDialog']()}
-				class="absolute right-4 top-4 rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-			>
-				<X class="h-4 w-4" aria-hidden="true" />
-			</button>
-
-			<!-- Icon + Title -->
-			<div class="flex items-start gap-4">
-				<div
-					class="shrink-0 rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-950 dark:text-blue-400"
-					aria-hidden="true"
-				>
-					<AlertTriangle class="h-6 w-6" />
+		<DialogContent class="sm:max-w-lg">
+			<DialogHeader>
+				<div class="flex items-start gap-4">
+					<div
+						class="shrink-0 rounded-full bg-blue-100 p-3 text-blue-600 dark:bg-blue-950 dark:text-blue-400"
+						aria-hidden="true"
+					>
+						<AlertTriangle class="h-6 w-6" />
+					</div>
+					<div class="flex-1 pt-1 text-left">
+						<DialogTitle class="text-lg font-semibold text-foreground">
+							{m['eventTicketsAdmin.confirmPaymentTitle']()}
+						</DialogTitle>
+					</div>
 				</div>
-				<div class="flex-1 pt-1">
-					<h2 id="confirm-payment-dialog-title" class="text-lg font-semibold text-foreground">
-						{m['eventTicketsAdmin.confirmPaymentTitle']()}
-					</h2>
-				</div>
-			</div>
+			</DialogHeader>
 
 			<!-- Message -->
-			<div class="mt-4 text-sm text-muted-foreground">
+			<DialogDescription>
 				{ticketToConfirm.status === 'cancelled'
 					? m['eventTicketsAdmin.confirmPaymentMessageReactivate']()
 					: m['eventTicketsAdmin.confirmPaymentMessageActivate']()}
-			</div>
+			</DialogDescription>
 
 			<!-- PWYC Price Input -->
 			{#if pwyc}
-				<div class="mt-4 space-y-2">
+				<div class="space-y-2">
 					<label for="pwyc-price-input" class="block text-sm font-medium text-foreground">
 						{m['eventTicketsAdmin.amountPaidLabel']({
 							currency: ticketToConfirm.tier?.currency?.toUpperCase() || 'EUR'
@@ -800,14 +780,10 @@
 			{/if}
 
 			<!-- Actions -->
-			<div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+			<div class="mt-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
 				<button
 					type="button"
-					onclick={() => {
-						showConfirmPaymentDialog = false;
-						ticketToConfirm = null;
-						pwycPricePaid = '';
-					}}
+					onclick={closeConfirmPaymentDialog}
 					class="rounded-md border border-input bg-background px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 				>
 					{m['eventTicketsAdmin.confirmPaymentCancel']()}
@@ -825,8 +801,8 @@
 					{/if}
 				</button>
 			</div>
-		</div>
-	</div>
+		</DialogContent>
+	</Dialog>
 {/if}
 
 <!-- Cancel Confirmation Dialog -->
