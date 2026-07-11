@@ -24,6 +24,8 @@
 		Calendar,
 		Building2,
 		ChevronRight,
+		ChevronDown,
+		ChevronUp,
 		Shield,
 		Sparkles,
 		Filter,
@@ -309,6 +311,10 @@
 
 	const yourEvents = $derived(yourEventsQuery.data || []);
 	const organizations = $derived(organizationsQuery.data || []);
+	let showAllOrganizations = $state(false);
+	const visibleOrganizations = $derived(
+		showAllOrganizations ? organizations : organizations.slice(0, 3)
+	);
 	const upcomingEvents = $derived(upcomingEventsQuery.data || []);
 	const hasAnyEvents = $derived(hasAnyEventsQuery.data || false);
 	const activeTicketsCount = $derived(activeTicketsQuery.data || 0);
@@ -856,8 +862,8 @@
 				</div>
 			{:else}
 				<!-- Organization Cards -->
-				<div class="space-y-3">
-					{#each organizations.slice(0, 3) as org}
+				<div class="space-y-3" id="organizations-list">
+					{#each visibleOrganizations as org}
 						{@const descriptionText = org.description ? stripMarkdown(org.description) : ''}
 						<div
 							class="flex items-center gap-4 rounded-lg border bg-card p-4 transition-shadow hover:shadow-md"
@@ -961,13 +967,21 @@
 					{/each}
 
 					{#if organizations.length > 3}
-						<a
-							href="/org"
-							class="flex items-center justify-center gap-1 rounded-lg border bg-background px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+						<button
+							type="button"
+							aria-expanded={showAllOrganizations}
+							aria-controls="organizations-list"
+							onclick={() => (showAllOrganizations = !showAllOrganizations)}
+							class="flex w-full items-center justify-center gap-1 rounded-lg border bg-background px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
 						>
-							<span>{m['dashboard.seeAllOrganizations']({ count: organizations.length })}</span>
-							<ChevronRight class="h-4 w-4" aria-hidden="true" />
-						</a>
+							{#if showAllOrganizations}
+								<span>{m['dashboard.showFewerOrganizations']()}</span>
+								<ChevronUp class="h-4 w-4" aria-hidden="true" />
+							{:else}
+								<span>{m['dashboard.seeAllOrganizations']({ count: organizations.length })}</span>
+								<ChevronDown class="h-4 w-4" aria-hidden="true" />
+							{/if}
+						</button>
 					{/if}
 				</div>
 			{/if}

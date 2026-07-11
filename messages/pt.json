@@ -995,6 +995,7 @@
 			"nextPage": "Próxima página"
 		},
 		"seeAllOrganizations": "Ver todas as {count} organizações",
+		"showFewerOrganizations": "Mostrar menos",
 		"followingButton": "Seguindo",
 		"following": {
 			"title": "Seguindo",
