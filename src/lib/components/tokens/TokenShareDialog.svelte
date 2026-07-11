@@ -18,7 +18,7 @@
 		onClose: () => void;
 	}
 
-	let { open, shareUrl, tokenName, onClose }: Props = $props();
+	const { open, shareUrl, tokenName, onClose }: Props = $props();
 
 	let copied = $state(false);
 
@@ -30,7 +30,7 @@
 			setTimeout(() => {
 				copied = false;
 			}, 2000);
-		} catch (err) {
+		} catch {
 			toast.error(m['tokenShareDialog.copyFailed']());
 		}
 	}
@@ -52,7 +52,12 @@
 	const supportsNativeShare = $derived(typeof navigator !== 'undefined' && !!navigator.share);
 </script>
 
-<Dialog bind:open>
+<Dialog
+	{open}
+	onOpenChange={(isOpen) => {
+		if (!isOpen) onClose();
+	}}
+>
 	<DialogContent class="sm:max-w-md">
 		<DialogHeader>
 			<DialogTitle>{m['tokenShareDialog.shareLink']()}</DialogTitle>

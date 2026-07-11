@@ -2,7 +2,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import type { EventTokenSchema } from '$lib/api/generated/types.gen';
 	import { Button } from '$lib/components/ui/button';
-	import { Copy, Edit, Trash2, Ticket } from 'lucide-svelte';
+	import { Copy, Edit, Trash2, Ticket, Share2 } from 'lucide-svelte';
 	import TokenStatusBadge from './TokenStatusBadge.svelte';
 	import {
 		getEventTokenStatus,
@@ -101,6 +101,15 @@
 				title={m['eventTokenCard.copyLink']()}
 			>
 				<Copy class="h-4 w-4" aria-hidden="true" />
+			</Button>
+			<Button
+				variant="ghost"
+				size="sm"
+				onclick={() => onShare(token)}
+				aria-label={m['eventTokenCard.shareToken']()}
+				title={m['eventTokenCard.share']()}
+			>
+				<Share2 class="h-4 w-4" aria-hidden="true" />
 			</Button>
 			<Button
 				variant="ghost"
