@@ -40,7 +40,8 @@
 			}
 
 			return response.data!;
-		}
+		},
+		enabled: !!accessToken && !!organization?.slug
 	}));
 
 	// Sectors query
@@ -59,7 +60,8 @@
 			}
 
 			return (response.data as VenueSectorWithSeatsSchema[]) || [];
-		}
+		},
+		enabled: !!accessToken && !!organization?.slug
 	}));
 
 	// Delete mutation

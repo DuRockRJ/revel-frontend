@@ -44,7 +44,8 @@
 			}
 
 			return response.data?.results || [];
-		}
+		},
+		enabled: !!accessToken && !!organization?.slug
 	}));
 
 	// Delete mutation

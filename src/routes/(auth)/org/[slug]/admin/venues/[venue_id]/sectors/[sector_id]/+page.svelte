@@ -42,7 +42,8 @@
 			}
 
 			return response.data!;
-		}
+		},
+		enabled: !!accessToken && !!organization?.slug
 	}));
 
 	// Bulk create mutation
