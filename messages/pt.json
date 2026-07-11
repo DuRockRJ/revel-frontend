@@ -4836,7 +4836,6 @@
 		"addResource": "Adicionar recurso",
 		"updateDetails": "Atualize os detalhes do recurso abaixo",
 		"createNew": "Crie um novo recurso para sua organização",
-		"closeDialog": "Fechar diálogo",
 		"error": "Erro"
 	},
 	"resourcesAdminPage": {
@@ -7008,7 +7007,6 @@
 	"orgContactEmailModal.failedToUpdate": "Falha ao atualizar o e-mail",
 	"orgContactEmailModal.unexpectedError": "Ocorreu um erro inesperado",
 	"orgContactEmailModal.title": "Alterar e-mail de contato",
-	"orgContactEmailModal.close": "Fechar",
 	"orgContactEmailModal.verificationSentTitle": "E-mail de verificação enviado",
 	"orgContactEmailModal.verificationSentPrefix": "Enviamos um link de verificação para",
 	"orgContactEmailModal.verificationSentSuffix": "Verifique sua caixa de entrada e clique no link para verificar seu novo e-mail de contato.",

@@ -5,7 +5,13 @@
 	import type { AdditionalResourceSchema } from '$lib/api/generated/types.gen';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { getApiUrl } from '$lib/config/api';
-	import { X } from 'lucide-svelte';
+	import {
+		Dialog,
+		DialogContent,
+		DialogHeader,
+		DialogTitle,
+		DialogDescription
+	} from '$lib/components/ui/dialog';
 	import ResourceForm from './ResourceForm.svelte';
 
 	interface Props {
@@ -213,90 +219,47 @@
 		}
 	}
 
-	function handleBackdropClick(event: MouseEvent) {
-		if (event.target === event.currentTarget) {
-			onClose();
-		}
-	}
-
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape') {
-			onClose();
-		}
-	}
-
 	const isSubmitting = $derived(
 		createResourceMutation.isPending || updateResourceMutation.isPending
 	);
-
-	let backdropElement: HTMLDivElement;
-	let modalElement: HTMLDivElement;
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
-
-<!-- Modal Backdrop -->
-<div
-	bind:this={backdropElement}
-	class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm"
-	onclick={handleBackdropClick}
-	onkeydown={(e) => e.key === 'Enter' && handleBackdropClick(e as any)}
-	role="dialog"
-	aria-modal="true"
-	aria-labelledby="modal-title"
-	tabindex="-1"
+<Dialog
+	open={true}
+	onOpenChange={(open) => {
+		if (!open) onClose();
+	}}
 >
-	<!-- Modal Container with Padding -->
-	<div class="flex min-h-full items-center justify-center p-4 sm:p-6 lg:p-8">
-		<!-- Modal Content -->
-		<div
-			bind:this={modalElement}
-			class="relative my-8 w-full max-w-2xl rounded-lg bg-background p-6 shadow-xl md:p-8"
-			role="document"
-		>
-			<!-- Header -->
-			<div class="mb-6 flex items-start justify-between">
-				<div>
-					<h2 id="modal-title" class="text-2xl font-bold">
-						{resource ? m['resourceModal.editResource']() : m['resourceModal.addResource']()}
-					</h2>
-					<p class="mt-1 text-sm text-muted-foreground">
-						{resource ? m['resourceModal.updateDetails']() : m['resourceModal.createNew']()}
-					</p>
-				</div>
+	<DialogContent class="sm:max-w-2xl">
+		<DialogHeader>
+			<DialogTitle class="text-2xl font-bold">
+				{resource ? m['resourceModal.editResource']() : m['resourceModal.addResource']()}
+			</DialogTitle>
+		</DialogHeader>
+		<DialogDescription>
+			{resource ? m['resourceModal.updateDetails']() : m['resourceModal.createNew']()}
+		</DialogDescription>
 
-				<button
-					type="button"
-					onclick={onClose}
-					disabled={isSubmitting}
-					class="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-					aria-label={m['resourceModal.closeDialog']()}
-				>
-					<X class="h-5 w-5" aria-hidden="true" />
-				</button>
+		<!-- Error Message -->
+		{#if errorMessage}
+			<div
+				class="rounded-md bg-destructive/10 p-4 text-destructive"
+				role="alert"
+				aria-live="assertive"
+			>
+				<p class="font-semibold">{m['resourceModal.error']()}</p>
+				<p class="mt-1 text-sm">{errorMessage}</p>
 			</div>
+		{/if}
 
-			<!-- Error Message -->
-			{#if errorMessage}
-				<div
-					class="mb-6 rounded-md bg-destructive/10 p-4 text-destructive"
-					role="alert"
-					aria-live="assertive"
-				>
-					<p class="font-semibold">{m['resourceModal.error']()}</p>
-					<p class="mt-1 text-sm">{errorMessage}</p>
-				</div>
-			{/if}
-
-			<!-- Form -->
-			<ResourceForm
-				{resource}
-				{organizationSlug}
-				{organizationId}
-				onSubmit={handleSubmit}
-				{isSubmitting}
-				errors={fieldErrors}
-			/>
-		</div>
-	</div>
-</div>
+		<!-- Form -->
+		<ResourceForm
+			{resource}
+			{organizationSlug}
+			{organizationId}
+			onSubmit={handleSubmit}
+			{isSubmitting}
+			errors={fieldErrors}
+		/>
+	</DialogContent>
+</Dialog>

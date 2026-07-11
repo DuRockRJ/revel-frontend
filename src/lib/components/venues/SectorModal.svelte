@@ -10,7 +10,7 @@
 		organizationadminvenuesUpdateSector
 	} from '$lib/api/generated/sdk.gen';
 	import { authStore } from '$lib/stores/auth.svelte';
-	import { X } from 'lucide-svelte';
+	import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
 	import { toast } from 'svelte-sonner';
 
 	interface Props {
@@ -111,43 +111,23 @@
 		}
 	}
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
-			onClose();
-		}
+	function handleOpenChange(open: boolean) {
+		if (!open) onClose();
 	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
-
-<!-- Modal backdrop -->
-<div
-	class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-	role="dialog"
-	aria-modal="true"
-	aria-labelledby="sector-modal-title"
->
-	<!-- Modal content -->
-	<div class="w-full max-w-lg rounded-lg bg-background shadow-xl">
-		<!-- Header -->
-		<div class="flex items-center justify-between border-b px-6 py-4">
-			<h2 id="sector-modal-title" class="text-xl font-semibold">
+<Dialog open={true} onOpenChange={handleOpenChange}>
+	<DialogContent class="sm:max-w-lg">
+		<DialogHeader>
+			<DialogTitle class="text-xl font-semibold">
 				{isEditing
 					? m['orgAdmin.sectors.form.editTitle']()
 					: m['orgAdmin.sectors.form.createTitle']()}
-			</h2>
-			<button
-				type="button"
-				onclick={onClose}
-				class="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-				aria-label={m['orgAdmin.sectors.form.cancel']()}
-			>
-				<X class="h-5 w-5" />
-			</button>
-		</div>
+			</DialogTitle>
+		</DialogHeader>
 
 		<!-- Form -->
-		<form onsubmit={handleSubmit} class="p-6">
+		<form onsubmit={handleSubmit}>
 			<div class="space-y-4">
 				<!-- Name -->
 				<div>
@@ -243,5 +223,5 @@
 				</button>
 			</div>
 		</form>
-	</div>
-</div>
+	</DialogContent>
+</Dialog>

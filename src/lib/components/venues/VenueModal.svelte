@@ -11,7 +11,8 @@
 		organizationadminvenuesUpdateVenue
 	} from '$lib/api/generated/sdk.gen';
 	import { authStore } from '$lib/stores/auth.svelte';
-	import { X, ChevronDown, ChevronRight, Map, HelpCircle } from 'lucide-svelte';
+	import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
+	import { ChevronDown, ChevronRight, Map, HelpCircle } from 'lucide-svelte';
 	import CityAutocomplete from '$lib/components/forms/CityAutocomplete.svelte';
 	import MarkdownEditor from '$lib/components/forms/MarkdownEditor.svelte';
 	import { toast } from 'svelte-sonner';
@@ -153,43 +154,23 @@
 		selectedCity = city;
 	}
 
-	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
-			onClose();
-		}
+	function handleOpenChange(open: boolean) {
+		if (!open) onClose();
 	}
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
-
-<!-- Modal backdrop -->
-<div
-	class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-	role="dialog"
-	aria-modal="true"
-	aria-labelledby="venue-modal-title"
->
-	<!-- Modal content -->
-	<div class="flex max-h-[90vh] w-full max-w-lg flex-col rounded-lg bg-background shadow-xl">
-		<!-- Header -->
-		<div class="flex shrink-0 items-center justify-between border-b px-6 py-4">
-			<h2 id="venue-modal-title" class="text-xl font-semibold">
+<Dialog open={true} onOpenChange={handleOpenChange}>
+	<DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+		<DialogHeader>
+			<DialogTitle class="text-xl font-semibold">
 				{isEditing
 					? m['orgAdmin.venues.form.editTitle']()
 					: m['orgAdmin.venues.form.createTitle']()}
-			</h2>
-			<button
-				type="button"
-				onclick={onClose}
-				class="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-				aria-label={m['orgAdmin.venues.form.cancel']()}
-			>
-				<X class="h-5 w-5" />
-			</button>
-		</div>
+			</DialogTitle>
+		</DialogHeader>
 
 		<!-- Form -->
-		<form onsubmit={handleSubmit} class="flex-1 overflow-y-auto p-6">
+		<form onsubmit={handleSubmit}>
 			<div class="space-y-4">
 				<!-- Name -->
 				<div>
@@ -366,5 +347,5 @@
 				</button>
 			</div>
 		</form>
-	</div>
-</div>
+	</DialogContent>
+</Dialog>
