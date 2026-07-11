@@ -152,7 +152,7 @@ export function filtersToApiParams(filters: EventFilters) {
 		include_past: filters.includePast ?? false,
 		requires_ticket:
 			filters.ticketType === 'ticketed' ? true : filters.ticketType === 'free' ? false : undefined,
-		order_by: filters.orderBy ?? 'distance', // Default to 'distance' (nearest first)
+		order_by: filters.orderBy ?? 'start', // Default to 'start' (soonest first)
 		page: filters.page ?? 1,
 		page_size: filters.pageSize ?? 20
 	};
@@ -174,7 +174,7 @@ export function hasActiveFilters(filters: EventFilters): boolean {
 		(filters.bands && filters.bands.length > 0) ||
 		filters.includePast ||
 		filters.ticketType ||
-		(filters.orderBy && filters.orderBy !== 'distance') // 'distance' is now the default
+		(filters.orderBy && filters.orderBy !== 'start') // 'start' is now the default
 	);
 }
 
@@ -195,7 +195,7 @@ export function countActiveFilters(filters: EventFilters): number {
 	if (filters.bands && filters.bands.length > 0) count += filters.bands.length;
 	if (filters.includePast) count++;
 	if (filters.ticketType) count++;
-	if (filters.orderBy && filters.orderBy !== 'distance') count++; // 'distance' is now the default
+	if (filters.orderBy && filters.orderBy !== 'start') count++; // 'start' is now the default
 
 	return count;
 }

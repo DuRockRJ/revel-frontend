@@ -147,7 +147,7 @@
 	<div class="border-t" role="separator"></div>
 
 	<!-- Order By Filter -->
-	<OrderByFilter orderBy={filters.orderBy ?? 'distance'} onChangeOrderBy={handleChangeOrderBy} />
+	<OrderByFilter orderBy={filters.orderBy ?? 'start'} onChangeOrderBy={handleChangeOrderBy} />
 
 	<!-- Divider -->
 	<div class="border-t" role="separator"></div>
