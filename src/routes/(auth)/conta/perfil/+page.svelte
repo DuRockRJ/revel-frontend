@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages.js';
-	import { setLocale, locales } from '$lib/paraglide/runtime.js';
 	import { enhance, applyAction } from '$app/forms';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -43,7 +42,6 @@
 	let lastName = $state(data.user?.last_name || '');
 	let preferredName = $state(data.user?.preferred_name || '');
 	let pronouns = $state(data.user?.pronouns || '');
-	let language = $state<'en' | 'de' | 'it'>((data.user?.language as 'en' | 'de' | 'it') || 'en');
 	let bio = $state(data.user?.bio || '');
 	let profilePictureUrl = $state<string | null>(data.user?.profile_picture_url ?? null);
 
@@ -258,17 +256,11 @@
 					lastName = user?.last_name || '';
 					preferredName = user?.preferred_name || '';
 					pronouns = user?.pronouns || '';
-					language = (user?.language || 'en') as 'en' | 'de' | 'it';
 					bio = user?.bio || '';
 					profilePictureUrl = user?.profile_picture_url ?? null;
 					// Propagate updated user to global auth store so navbar updates immediately
 					if (user) {
 						authStore.setUser(user);
-					}
-					// Update locale immediately on successful save, if it's one the UI
-					// actually ships (pt) — the form can still store other legacy values.
-					if (user?.language && (locales as readonly string[]).includes(user.language)) {
-						setLocale(user.language as (typeof locales)[number]);
 					}
 					// Show success message by triggering a manual update with the result
 					// This will set the form prop without reloading
@@ -534,26 +526,6 @@
 			{/if}
 			{#if errors.pronouns}
 				<p id="pronouns-error" class="text-sm text-destructive" role="alert">{errors.pronouns}</p>
-			{/if}
-		</div>
-
-		<div class="space-y-2">
-			<label for="language" class="block text-sm font-medium">{m['profile.language_label']()}</label
-			>
-			<select
-				id="language"
-				name="language"
-				bind:value={language}
-				disabled={isSubmitting}
-				class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-			>
-				<option value="en">{m['profile.language_en']()}</option>
-				<option value="de">{m['profile.language_de']()}</option>
-				<option value="it">{m['profile.language_it']()}</option>
-			</select>
-			<p class="text-xs text-muted-foreground">{m['profile.language_hint']()}</p>
-			{#if errors.language}
-				<p id="language-error" class="text-sm text-destructive" role="alert">{errors.language}</p>
 			{/if}
 		</div>
 

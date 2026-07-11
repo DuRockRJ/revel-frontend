@@ -69,7 +69,6 @@ export const actions: Actions = {
 			last_name: formData.get('last_name') as string,
 			preferred_name: formData.get('preferred_name') as string,
 			pronouns: formData.get('pronouns') as string,
-			language: formData.get('language') as string,
 			bio: (formData.get('bio') as string) || ''
 		};
 
@@ -89,10 +88,8 @@ export const actions: Actions = {
 
 		try {
 			const response = await accountUpdateProfile({
-				// profileUpdateSchema accepts 'pt' for the language field, but the
-				// generated ProfileUpdateSchema type (from the backend's OpenAPI spec)
-				// doesn't list it — pre-existing backend/frontend mismatch, not
-				// something to paper over by dropping the value.
+				// language is no longer collected here — DuRock RJ ships one language
+				// (pt), which is the backend's default when the field is omitted.
 				body: result.data as Parameters<typeof accountUpdateProfile>[0]['body'],
 				headers: {
 					Authorization: `Bearer ${accessToken}`
