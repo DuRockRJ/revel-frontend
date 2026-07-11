@@ -2103,6 +2103,9 @@
 		"heicConverting": "Convertendo formato de imagem...",
 		"zoom": "Zoom"
 	},
+	"imageLightbox": {
+		"expandLabel": "Ampliar imagem"
+	},
 	"imageUploader": {
 		"error_invalidFileType": "Selecione um arquivo de imagem válido ({accept})",
 		"error_fileTooLarge": "O tamanho do arquivo deve ser menor que {maxSize}",

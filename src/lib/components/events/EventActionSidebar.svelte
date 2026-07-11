@@ -28,6 +28,7 @@
 	import { getImageUrl } from '$lib/utils/url';
 	import EventStatusBadge from './EventStatusBadge.svelte';
 	import BookmarkButton from './BookmarkButton.svelte';
+	import ImageLightbox from '$lib/components/common/ImageLightbox.svelte';
 	import EventQuickInfo from './EventQuickInfo.svelte';
 	import ActionButton from './ActionButton.svelte';
 	import EventRSVP from './EventRSVP.svelte';
@@ -399,7 +400,7 @@
 					variant="inline"
 				/>
 			</div>
-			<img src={eventLogoUrl} alt="" class="h-auto w-full rounded-md" />
+			<ImageLightbox src={eventLogoUrl} alt={event.name} class="h-auto w-full rounded-md" />
 		</div>
 	{:else}
 		<div class="flex items-start justify-between gap-2 border-b p-4">
