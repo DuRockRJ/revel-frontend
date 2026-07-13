@@ -5256,7 +5256,7 @@
 		"membersNoPay": "Membros da organização não precisam pagar pelos ingressos",
 		"createDifferentTiers": "Crie diferentes tipos de ingresso com preços, quantidades e níveis de acesso variados",
 		"genericError": "Ocorreu um erro. Tente novamente.",
-		"defaultTierHint": "O nível padrão \"Admissão geral\" deveria ter sido criado automaticamente",
+		"defaultTierHint": "Adicione um nível para começar a vender ingressos",
 		"addAnotherTier": "+ Adicionar outro nível",
 		"tierExamples": "Crie tipos de ingresso VIP, Estudante, Compra antecipada ou outros",
 		"back": "← Voltar",
