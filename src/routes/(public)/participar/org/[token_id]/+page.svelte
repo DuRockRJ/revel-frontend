@@ -1,5 +1,4 @@
 <script lang="ts">
-	// @ts-nocheck - TODO: Fix types after API schema refactor
 	import * as m from '$lib/paraglide/messages.js';
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
@@ -22,6 +21,9 @@
 	const { data }: { data: PageData } = $props();
 
 	const token = $derived(data.token);
+	// The schema marks id as nullable, but the preview endpoint always returns
+	// it; the URL param is the authoritative fallback.
+	const tokenId = $derived(token.id ?? data.tokenId);
 	const isAuthenticated = $derived(authStore.isAuthenticated);
 	const accessToken = $derived(authStore.accessToken);
 
@@ -29,7 +31,7 @@
 	const claimMutation = createMutation(() => ({
 		mutationFn: async () => {
 			const response = await organizationClaimInvitation({
-				path: { token: token.id },
+				path: { token: tokenId },
 				headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
 			});
 
@@ -55,7 +57,7 @@
 	function handleClaim() {
 		if (!isAuthenticated) {
 			// Redirect to login with return URL
-			goto(`/login?redirect=/participar/org/${token.id}`);
+			goto(`/login?redirect=/participar/org/${tokenId}`);
 			return;
 		}
 
@@ -75,27 +77,27 @@
 </script>
 
 <svelte:head>
-	<title>{m['joinOrgPage.pageTitle']({ organizationName: token.organization.name })} - Revel</title>
+	<title>{m['joinOrgPage.pageTitle']({ organizationName: token.organization_name })} - Revel</title>
 	<meta
 		name="description"
-		content={m['joinOrgPage.pageDescription']({ organizationName: token.organization.name })}
+		content={m['joinOrgPage.pageDescription']({ organizationName: token.organization_name })}
 	/>
 </svelte:head>
 
 <div class="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-12">
 	<Card class="w-full max-w-md">
 		<CardHeader class="text-center">
-			{#if token.organization.logo}
+			{#if token.organization_logo_url}
 				<img
-					src={token.organization.logo}
-					alt={token.organization.name}
+					src={token.organization_logo_url}
+					alt={token.organization_name}
 					class="mx-auto mb-4 h-20 w-20 rounded-full object-cover"
 				/>
 			{/if}
 			<CardTitle class="text-2xl">{m['joinOrgPage.invitedTitle']()}</CardTitle>
 			<CardDescription class="text-lg">
 				{@html m['joinOrgPage.joinSubtitle']({
-					organizationName: escapeHtml(token.organization.name)
+					organizationName: escapeHtml(token.organization_name)
 				})}
 			</CardDescription>
 		</CardHeader>
@@ -166,7 +168,7 @@
 			</Button>
 
 			<p class="text-center text-xs text-muted-foreground">
-				{m['joinOrgPage.agreementText']({ organizationName: token.organization.name })}
+				{m['joinOrgPage.agreementText']({ organizationName: token.organization_name })}
 			</p>
 		</CardContent>
 	</Card>
