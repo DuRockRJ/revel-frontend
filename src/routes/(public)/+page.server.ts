@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ request, url, fetch, locals }) => {
 	const ticketType = url.searchParams.get('ticket_type') || undefined;
 	const requiresTicket =
 		ticketType === 'ticketed' ? true : ticketType === 'free' ? false : undefined;
-	const orderBy = url.searchParams.get('order_by') || 'distance';
+	const orderBy = url.searchParams.get('order_by') || 'start';
 
 	try {
 		// Prepare query parameters
