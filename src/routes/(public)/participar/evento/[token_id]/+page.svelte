@@ -1,5 +1,4 @@
 <script lang="ts">
-	// @ts-nocheck - TODO: Fix types after API schema refactor
 	import * as m from '$lib/paraglide/messages.js';
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
@@ -11,19 +10,20 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { Calendar, MapPin, CheckCircle, Clock, Loader2, Ticket } from 'lucide-svelte';
+	import { Calendar, CheckCircle, Loader2, Ticket } from 'lucide-svelte';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { eventpublicdiscoveryClaimInvitation } from '$lib/api/generated/sdk.gen';
 	import { authStore } from '$lib/stores/auth.svelte';
 	import { toast } from 'svelte-sonner';
 	import { getExpirationDisplay, formatTokenUsage } from '$lib/utils/tokens';
 	import { formatEventDate } from '$lib/utils/date';
-	import { formatCityRegion } from '$lib/utils/city';
 
 	const { data }: { data: PageData } = $props();
 
 	const token = $derived(data.token);
-	const event = $derived(token.event);
+	// The schema marks id as nullable, but the preview endpoint always returns
+	// it; the URL param is the authoritative fallback.
+	const tokenId = $derived(token.id ?? data.tokenId);
 	const isAuthenticated = $derived(authStore.isAuthenticated);
 	const accessToken = $derived(authStore.accessToken);
 
@@ -31,7 +31,7 @@
 	const claimMutation = createMutation(() => ({
 		mutationFn: async () => {
 			const response = await eventpublicdiscoveryClaimInvitation({
-				path: { token: token.id },
+				path: { token: tokenId },
 				headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
 			});
 
@@ -43,8 +43,8 @@
 		},
 		onSuccess: (evt) => {
 			toast.success(m['joinEventPage.toast_invited']({ eventName: evt.name }));
-			// Redirect to event page - adjust path based on your routing
-			goto(`/eventos/${evt.organization.slug}/${evt.slug}`);
+			// The claim response carries no organization — the token does.
+			goto(`/eventos/${token.organization_slug}/${evt.slug ?? token.event_slug}`);
 		},
 		onError: () => {
 			toast.error(m['joinEventPage.toast_claimError']());
@@ -53,7 +53,7 @@
 
 	function handleClaim() {
 		if (!isAuthenticated) {
-			goto(`/login?redirect=/participar/evento/${token.id}`);
+			goto(`/login?redirect=/participar/evento/${tokenId}`);
 			return;
 		}
 
@@ -62,35 +62,35 @@
 
 	const expirationDisplay = $derived(getExpirationDisplay(token.expires_at));
 	const usageDisplay = $derived(formatTokenUsage(token.uses, token.max_uses));
-	const formattedDate = $derived(formatEventDate(event.start));
+	const formattedDate = $derived(formatEventDate(token.event_start));
 </script>
 
 <svelte:head>
-	<title>{m['joinEventPage.pageTitle']({ eventName: event.name })} - Revel</title>
+	<title>{m['joinEventPage.pageTitle']({ eventName: token.event_name })} - Revel</title>
 	<meta
 		name="description"
-		content={m['joinEventPage.pageDescription']({ eventName: event.name })}
+		content={m['joinEventPage.pageDescription']({ eventName: token.event_name })}
 	/>
 </svelte:head>
 
 <div class="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-12">
 	<Card class="w-full max-w-md">
 		<CardHeader class="text-center">
-			{#if event.cover_art || event.logo}
+			{#if token.event_cover_url}
 				<img
-					src={event.cover_art || event.logo || ''}
-					alt={event.name}
+					src={token.event_cover_url}
+					alt={token.event_name}
 					class="mx-auto mb-4 h-32 w-full rounded-lg object-cover"
 				/>
 			{/if}
 			<CardTitle class="text-2xl">{m['joinEventPage.invitedTitle']()}</CardTitle>
 			<CardDescription class="text-lg">
-				<strong>{event.name}</strong>
+				<strong>{token.event_name}</strong>
 			</CardDescription>
 		</CardHeader>
 
 		<CardContent class="space-y-6">
-			<!-- Event Info -->
+			<!-- Event Info (the token preview exposes name/start/cover only) -->
 			<div class="space-y-3 rounded-lg bg-muted p-4">
 				<div class="flex items-start gap-2 text-sm">
 					<Calendar class="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
@@ -99,18 +99,6 @@
 						<div class="text-muted-foreground">{formattedDate}</div>
 					</div>
 				</div>
-
-				{#if event.city}
-					<div class="flex items-start gap-2 text-sm">
-						<MapPin class="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
-						<div>
-							<div class="font-medium">{m['joinEventPage.whereLabel']()}</div>
-							<div class="text-muted-foreground">
-								{formatCityRegion(event.city)}
-							</div>
-						</div>
-					</div>
-				{/if}
 
 				{#if token.ticket_tiers?.length}
 					<div class="flex items-start gap-2 text-sm">
