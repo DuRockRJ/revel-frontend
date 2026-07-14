@@ -106,7 +106,6 @@
 						aria-label="{hiddenCount} {m['calendar.more_events']()}"
 					>
 						+{hiddenCount}
-						{m['calendar.more']()}
 					</span>
 				{/if}
 			{/if}
