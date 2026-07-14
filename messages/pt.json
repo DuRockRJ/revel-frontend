@@ -1340,7 +1340,7 @@
 		"location_tbd": "A definir",
 		"loading": "Carregando...",
 		"accessTicketed": "Com ingresso",
-		"accessFreeRsvp": "RSVP gratuito"
+		"accessFreeRsvp": "Gratuito"
 	},
 	"eventCardSkeleton": {
 		"loading": "Carregando cartão do evento..."
@@ -1358,7 +1358,7 @@
 		"rsvpDeadline_label": "Prazo do RSVP",
 		"eventType_label": "Tipo de evento",
 		"eventType_ticketed": "Evento com ingresso",
-		"eventType_freeRsvp": "RSVP gratuito",
+		"eventType_freeRsvp": "Gratuito",
 		"visibilityNote": "Visibilidade: {visibility}",
 		"tags_heading": "Tags",
 		"series_heading": "Parte de uma série",
@@ -1970,9 +1970,9 @@
 		"ticketType": {
 			"heading": "Tipo de ingresso",
 			"ticketed": "Com ingresso",
-			"free": "RSVP gratuito",
+			"free": "Gratuito",
 			"showingTicketed": "Mostrando apenas eventos com ingresso",
-			"showingFree": "Mostrando apenas eventos com RSVP gratuito"
+			"showingFree": "Mostrando apenas eventos gratuitos"
 		}
 	},
 	"follow": {
