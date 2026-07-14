@@ -208,7 +208,7 @@
 								</span>
 							{/each}
 							{#if event.tags.length > 3}
-								<span class="inline-block px-0.5 py-0.5 text-[10px] text-muted-foreground">
+								<span class="-ml-0.5 inline-block px-0.5 py-0.5 text-[10px] text-muted-foreground">
 									+{event.tags.length - 3}
 								</span>
 							{/if}
