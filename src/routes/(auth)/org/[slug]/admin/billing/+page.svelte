@@ -5,7 +5,6 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import * as Select from '$lib/components/ui/select';
 	import {
 		AlertCircle,
 		Check,
@@ -51,37 +50,6 @@
 	const accessToken = $derived(authStore.accessToken);
 	const queryClient = useQueryClient();
 
-	// EU member states for the country dropdown
-	const EU_COUNTRIES: Array<{ code: string; name: string }> = [
-		{ code: 'AT', name: 'Austria' },
-		{ code: 'BE', name: 'Belgium' },
-		{ code: 'BG', name: 'Bulgaria' },
-		{ code: 'CY', name: 'Cyprus' },
-		{ code: 'CZ', name: 'Czech Republic' },
-		{ code: 'DE', name: 'Germany' },
-		{ code: 'DK', name: 'Denmark' },
-		{ code: 'EE', name: 'Estonia' },
-		{ code: 'ES', name: 'Spain' },
-		{ code: 'FI', name: 'Finland' },
-		{ code: 'FR', name: 'France' },
-		{ code: 'GR', name: 'Greece' },
-		{ code: 'HR', name: 'Croatia' },
-		{ code: 'HU', name: 'Hungary' },
-		{ code: 'IE', name: 'Ireland' },
-		{ code: 'IT', name: 'Italy' },
-		{ code: 'LT', name: 'Lithuania' },
-		{ code: 'LU', name: 'Luxembourg' },
-		{ code: 'LV', name: 'Latvia' },
-		{ code: 'MT', name: 'Malta' },
-		{ code: 'NL', name: 'Netherlands' },
-		{ code: 'PL', name: 'Poland' },
-		{ code: 'PT', name: 'Portugal' },
-		{ code: 'RO', name: 'Romania' },
-		{ code: 'SE', name: 'Sweden' },
-		{ code: 'SI', name: 'Slovenia' },
-		{ code: 'SK', name: 'Slovakia' }
-	];
-
 	// ─── Billing Info Query ─────────────────────────────────────────
 	const billingQuery = browser
 		? createQuery(() => ({
@@ -99,8 +67,6 @@
 		: null;
 
 	// ─── Billing Info Form State ────────────────────────────────────
-	let countryCode = $state('');
-	let vatRate = $state('');
 	let billingName = $state('');
 	let billingAddress = $state('');
 	let billingEmail = $state('');
@@ -109,8 +75,6 @@
 	// Sync form with query data
 	$effect(() => {
 		if (billingQuery?.data && !billingFormDirty) {
-			countryCode = billingQuery.data.vat_country_code || '';
-			vatRate = billingQuery.data.vat_rate || '';
 			billingName = billingQuery.data.billing_name || '';
 			billingAddress = billingQuery.data.billing_address || '';
 			billingEmail = billingQuery.data.billing_email || '';
@@ -121,7 +85,7 @@
 		billingFormDirty = true;
 	}
 
-	// Whether a VAT ID is currently set (locks the country dropdown)
+	// Whether a VAT ID is currently set (controls the "Remove" button below)
 	const hasVatId = $derived(!!billingQuery?.data?.vat_id);
 
 	// ─── Update Billing Info Mutation ───────────────────────────────
@@ -129,10 +93,6 @@
 		? createMutation(() => ({
 				mutationFn: async () => {
 					const body: Record<string, string | number | null> = {};
-					if (countryCode) body.vat_country_code = countryCode;
-					else body.vat_country_code = null;
-					if (vatRate) body.vat_rate = parseFloat(vatRate);
-					else body.vat_rate = null;
 					body.billing_name = billingName || null;
 					body.billing_address = billingAddress || null;
 					body.billing_email = billingEmail || null;
@@ -444,65 +404,6 @@
 			</div>
 
 			<form onsubmit={handleSaveBillingInfo} class="space-y-4">
-				<!-- Country -->
-				<div class="space-y-2">
-					<Label for="billing-country">{m['orgAdmin.billing.billingInfo.country']()}</Label>
-					{#if hasVatId}
-						<div>
-							<Input
-								id="billing-country"
-								value={EU_COUNTRIES.find((c) => c.code === countryCode)?.name || countryCode}
-								disabled
-							/>
-							<p class="mt-1 text-xs text-muted-foreground">
-								{m['orgAdmin.billing.billingInfo.countryDisabledHint']()}
-							</p>
-						</div>
-					{:else}
-						<Select.Root
-							type="single"
-							value={countryCode}
-							onValueChange={(v) => {
-								countryCode = v;
-								markBillingDirty();
-							}}
-						>
-							<Select.Trigger id="billing-country" class="w-full">
-								{#snippet children()}
-									{EU_COUNTRIES.find((c) => c.code === countryCode)?.name ||
-										m['orgAdmin.billing.billingInfo.countryPlaceholder']()}
-								{/snippet}
-							</Select.Trigger>
-							<Select.Content>
-								{#each EU_COUNTRIES as country (country.code)}
-									<Select.Item value={country.code}>{country.code} - {country.name}</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
-						<p class="text-xs text-muted-foreground">
-							{m['orgAdmin.billing.billingInfo.countryHelp']()}
-						</p>
-					{/if}
-				</div>
-
-				<!-- VAT Rate -->
-				<div class="space-y-2">
-					<Label for="billing-vat-rate">{m['orgAdmin.billing.billingInfo.vatRate']()}</Label>
-					<Input
-						id="billing-vat-rate"
-						type="number"
-						step="0.01"
-						min="0"
-						max="100"
-						placeholder={m['orgAdmin.billing.billingInfo.vatRatePlaceholder']()}
-						bind:value={vatRate}
-						oninput={markBillingDirty}
-					/>
-					<p class="text-xs text-muted-foreground">
-						{m['orgAdmin.billing.billingInfo.vatRateHelp']()}
-					</p>
-				</div>
-
 				<!-- Billing Name -->
 				<div class="space-y-2">
 					<Label for="billing-name">{m['orgAdmin.billing.billingInfo.billingName']()}</Label>
