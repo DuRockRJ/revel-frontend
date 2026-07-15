@@ -3508,7 +3508,7 @@
 	"orgAdmin.tickets.empty.cta": "Ir para eventos",
 	"orgAdmin.billing": {
 		"pageTitle": "Faturamento e IVA",
-		"pageDescription": "Gerencie suas informações de faturamento, configurações de IVA e visualize faturas",
+		"pageDescription": "Gerencie suas informações de faturamento e visualize faturas",
 		"billingInfo": {
 			"title": "Informações de faturamento",
 			"description": "Defina seus dados de faturamento para faturas e conformidade fiscal",
@@ -3525,27 +3525,6 @@
 			"saving": "Salvando...",
 			"saved": "Informações de faturamento atualizadas",
 			"error": "Falha ao atualizar as informações de faturamento"
-		},
-		"vatId": {
-			"title": "Número de IVA",
-			"description": "Valide seu número de IVA para elegibilidade de autoliquidação",
-			"inputPlaceholder": "ex.: IT12345678901",
-			"inputHelp": "Prefixo de 2 letras do país seguido de 2 a 13 caracteres alfanuméricos",
-			"validateButton": "Validar e salvar",
-			"validating": "Validando...",
-			"removeButton": "Remover número de IVA",
-			"removeConfirmTitle": "Remover número de IVA?",
-			"removeConfirmDescription": "Isso removerá seu número de IVA e desativará a autoliquidação em faturas futuras.",
-			"removeConfirmButton": "Sim, remover",
-			"statusValidated": "Validado",
-			"statusPending": "Validação pendente",
-			"statusNotSet": "Não definido",
-			"validatedAt": "Validado em {date}",
-			"saved": "Número de IVA validado e salvo",
-			"savedPending": "Número de IVA salvo. A validação está temporariamente indisponível e acontecerá automaticamente.",
-			"removed": "Número de IVA removido",
-			"invalid": "O número de IVA não é válido de acordo com o VIES",
-			"error": "Falha ao atualizar o número de IVA"
 		},
 		"nudge": {
 			"title": "Complete suas informações de faturamento",

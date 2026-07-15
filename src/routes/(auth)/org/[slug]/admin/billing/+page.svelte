@@ -5,17 +5,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
-	import {
-		AlertCircle,
-		Check,
-		CircleDot,
-		FileText,
-		Loader2,
-		Receipt,
-		Shield,
-		Trash2,
-		Users
-	} from 'lucide-svelte';
+	import { AlertCircle, FileText, Loader2, Receipt, Users } from 'lucide-svelte';
 	import * as RadioGroup from '$lib/components/ui/radio-group';
 	import { browser } from '$app/environment';
 	import { invalidateAll } from '$app/navigation';
@@ -25,20 +15,9 @@
 	import {
 		organizationadminvatGetBillingInfo,
 		organizationadminvatUpdateBillingInfo,
-		organizationadminvatSetVatId,
-		organizationadminvatDeleteVatId,
 		organizationadminvatSetInvoicingMode
 	} from '$lib/api/generated/sdk.gen';
 	import type { LayoutData } from '../$types';
-	import { formatDate } from '$lib/utils/date';
-	import {
-		Dialog,
-		DialogContent,
-		DialogHeader,
-		DialogTitle,
-		DialogDescription,
-		DialogFooter
-	} from '$lib/components/ui/dialog';
 
 	interface Props {
 		data: LayoutData;
@@ -85,9 +64,6 @@
 		billingFormDirty = true;
 	}
 
-	// Whether a VAT ID is currently set (controls the "Remove" button below)
-	const hasVatId = $derived(!!billingQuery?.data?.vat_id);
-
 	// ─── Update Billing Info Mutation ───────────────────────────────
 	const updateBillingMutation = browser
 		? createMutation(() => ({
@@ -128,81 +104,6 @@
 		updateBillingMutation?.mutate();
 	}
 
-	// ─── VAT ID State ───────────────────────────────────────────────
-	let vatIdInput = $state('');
-	let showRemoveDialog = $state(false);
-
-	// Sync VAT ID input with query data
-	$effect(() => {
-		if (billingQuery?.data) {
-			vatIdInput = billingQuery.data.vat_id || '';
-		}
-	});
-
-	// ─── Set VAT ID Mutation ────────────────────────────────────────
-	const setVatIdMutation = browser
-		? createMutation(() => ({
-				mutationFn: async () => {
-					const response = await organizationadminvatSetVatId({
-						path: { slug },
-						headers: { Authorization: `Bearer ${accessToken}` },
-						body: { vat_id: vatIdInput.trim().toUpperCase() }
-					});
-					// Handle 503 (VIES unavailable) — saved but pending
-					if (response.response?.status === 503) {
-						queryClient.invalidateQueries({ queryKey: ['billing-info', slug] });
-						return { pending: true } as const;
-					}
-					if (response.error) {
-						const msg = extractErrorMessage(response.error, m['orgAdmin.billing.vatId.error']());
-						throw new Error(msg);
-					}
-					return { pending: false, data: response.data! } as const;
-				},
-				onSuccess: (result) => {
-					if (result.pending) {
-						toast.info(m['orgAdmin.billing.vatId.savedPending']());
-					} else {
-						queryClient.invalidateQueries({ queryKey: ['billing-info', slug] });
-						toast.success(m['orgAdmin.billing.vatId.saved']());
-					}
-				},
-				onError: (error: Error) => {
-					toast.error(error.message);
-				}
-			}))
-		: null;
-
-	// ─── Delete VAT ID Mutation ─────────────────────────────────────
-	const deleteVatIdMutation = browser
-		? createMutation(() => ({
-				mutationFn: async () => {
-					const response = await organizationadminvatDeleteVatId({
-						path: { slug },
-						headers: { Authorization: `Bearer ${accessToken}` }
-					});
-					if (response.error) {
-						throw new Error(m['orgAdmin.billing.vatId.error']());
-					}
-				},
-				onSuccess: () => {
-					vatIdInput = '';
-					showRemoveDialog = false;
-					queryClient.invalidateQueries({ queryKey: ['billing-info', slug] });
-					toast.success(m['orgAdmin.billing.vatId.removed']());
-				},
-				onError: (error: Error) => {
-					toast.error(error.message);
-				}
-			}))
-		: null;
-
-	function handleValidateVatId(e: Event) {
-		e.preventDefault();
-		if (!vatIdInput.trim()) return;
-		setVatIdMutation?.mutate();
-	}
-
 	// ─── Invoicing Mode ────────────────────────────────────────────
 	let invoicingMode = $state('none');
 
@@ -238,20 +139,6 @@
 				}
 			}))
 		: null;
-
-	// ─── VAT Validation Status ──────────────────────────────────────
-	const vatStatus = $derived.by(() => {
-		if (!billingQuery?.data?.vat_id) {
-			return { type: 'not-set' as const, label: m['orgAdmin.billing.vatId.statusNotSet']() };
-		}
-		if (billingQuery.data.vat_id_validated) {
-			return {
-				type: 'validated' as const,
-				label: m['orgAdmin.billing.vatId.statusValidated']()
-			};
-		}
-		return { type: 'pending' as const, label: m['orgAdmin.billing.vatId.statusPending']() };
-	});
 </script>
 
 <svelte:head>
@@ -459,116 +346,5 @@
 				</div>
 			</form>
 		</section>
-
-		<!-- ────────────────────────────────────────────────────────────
-		     Section 2: VAT ID Management
-		     ──────────────────────────────────────────────────────────── -->
-		<section class="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
-			<div class="flex items-center gap-2">
-				<Shield class="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-				<div>
-					<h2 class="text-lg font-semibold">{m['orgAdmin.billing.vatId.title']()}</h2>
-					<p class="text-sm text-muted-foreground">
-						{m['orgAdmin.billing.vatId.description']()}
-					</p>
-				</div>
-			</div>
-
-			<!-- VAT Status Badge -->
-			<div class="flex items-center gap-2">
-				{#if vatStatus.type === 'validated'}
-					<span
-						class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300"
-					>
-						<Check class="h-3.5 w-3.5" aria-hidden="true" />
-						{vatStatus.label}
-					</span>
-					{#if billingQuery?.data?.vat_id_validated_at}
-						<span class="text-xs text-muted-foreground">
-							{m['orgAdmin.billing.vatId.validatedAt']({
-								date: formatDate(billingQuery.data.vat_id_validated_at)
-							})}
-						</span>
-					{/if}
-				{:else if vatStatus.type === 'pending'}
-					<span
-						class="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-					>
-						<CircleDot class="h-3.5 w-3.5" aria-hidden="true" />
-						{vatStatus.label}
-					</span>
-				{:else}
-					<span
-						class="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
-					>
-						{vatStatus.label}
-					</span>
-				{/if}
-			</div>
-
-			<!-- VAT ID Input + Actions -->
-			<form onsubmit={handleValidateVatId} class="flex flex-col gap-3 sm:flex-row sm:items-end">
-				<div class="flex-1 space-y-2">
-					<Label for="vat-id-input">{m['orgAdmin.billing.vatId.title']()}</Label>
-					<Input
-						id="vat-id-input"
-						placeholder={m['orgAdmin.billing.vatId.inputPlaceholder']()}
-						bind:value={vatIdInput}
-						class="uppercase"
-					/>
-					<p class="text-xs text-muted-foreground">
-						{m['orgAdmin.billing.vatId.inputHelp']()}
-					</p>
-				</div>
-				<div class="flex gap-2">
-					<Button type="submit" disabled={setVatIdMutation?.isPending || !vatIdInput.trim()}>
-						{#if setVatIdMutation?.isPending}
-							<Loader2 class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-							{m['orgAdmin.billing.vatId.validating']()}
-						{:else}
-							{m['orgAdmin.billing.vatId.validateButton']()}
-						{/if}
-					</Button>
-					{#if hasVatId}
-						<Button
-							type="button"
-							variant="destructive"
-							onclick={() => (showRemoveDialog = true)}
-							disabled={deleteVatIdMutation?.isPending}
-						>
-							<Trash2 class="mr-2 h-4 w-4" aria-hidden="true" />
-							{m['orgAdmin.billing.vatId.removeButton']()}
-						</Button>
-					{/if}
-				</div>
-			</form>
-		</section>
 	{/if}
 </div>
-
-<!-- Remove VAT ID Confirmation Dialog -->
-<Dialog open={showRemoveDialog} onOpenChange={(open) => (showRemoveDialog = open)}>
-	<DialogContent>
-		<DialogHeader>
-			<DialogTitle>{m['orgAdmin.billing.vatId.removeConfirmTitle']()}</DialogTitle>
-			<DialogDescription>
-				{m['orgAdmin.billing.vatId.removeConfirmDescription']()}
-			</DialogDescription>
-		</DialogHeader>
-		<DialogFooter>
-			<Button variant="outline" onclick={() => (showRemoveDialog = false)}
-				>{m['common.cancel']()}</Button
-			>
-			<Button
-				variant="destructive"
-				onclick={() => deleteVatIdMutation?.mutate()}
-				disabled={deleteVatIdMutation?.isPending}
-			>
-				{#if deleteVatIdMutation?.isPending}
-					<Loader2 class="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-				{/if}
-				{m['orgAdmin.billing.vatId.removeConfirmButton']()}
-			</Button>
-		</DialogFooter>
-	</DialogContent>
-</Dialog>
