@@ -4220,8 +4220,7 @@
 		"settingsLink_text": "Configurar notificações e localização",
 		"settingsLink_ariaHidden": "→",
 		"completeToReturn": "Complete seu perfil para continuar. Você será redirecionado(a) de volta após salvar.",
-		"savedRedirecting": "Perfil atualizado! Redirecionando...",
-		"telegramUnavailable": "O Telegram não está disponível nesta instância."
+		"savedRedirecting": "Perfil atualizado! Redirecionando..."
 	},
 	"profilePage": {
 		"title": "Perfil - DuRock RJ",

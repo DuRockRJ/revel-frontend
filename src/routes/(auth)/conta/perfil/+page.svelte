@@ -492,20 +492,11 @@
 		</div>
 	</form>
 
-	{#if authStore.accessToken}
+	{#if authStore.accessToken && features.telegram}
 		<!-- Telegram Connection Section -->
 		<div class="mt-12" id="telegram-section">
 			<div class="border-t pt-8">
-				{#if features.telegram}
-					<TelegramConnectionManager authToken={authStore.accessToken} />
-				{:else}
-					<div
-						class="flex items-center gap-3 rounded-lg border border-dashed bg-muted/40 p-4 text-sm text-muted-foreground"
-					>
-						<Info class="h-4 w-4 shrink-0" aria-hidden="true" />
-						<span>{m['profile.telegramUnavailable']()}</span>
-					</div>
-				{/if}
+				<TelegramConnectionManager authToken={authStore.accessToken} />
 			</div>
 		</div>
 	{/if}
