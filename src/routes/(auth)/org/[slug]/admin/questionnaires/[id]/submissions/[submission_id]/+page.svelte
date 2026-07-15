@@ -272,11 +272,6 @@
 							</p>
 							<p class="text-base font-medium">
 								{data.submission.user.display_name}
-								{#if data.submission.user.pronouns}
-									<span class="font-normal text-muted-foreground"
-										>({data.submission.user.pronouns})</span
-									>
-								{/if}
 							</p>
 						</div>
 					</div>

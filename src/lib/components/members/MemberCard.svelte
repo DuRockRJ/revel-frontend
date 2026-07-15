@@ -101,9 +101,6 @@
 				{#if member.user.phone_number}
 					<span class="truncate">📞 {member.user.phone_number}</span>
 				{/if}
-				{#if member.user.pronouns}
-					<span>({member.user.pronouns})</span>
-				{/if}
 			</div>
 
 			<!-- Member Since -->

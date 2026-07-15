@@ -4,7 +4,6 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import type { PageData, ActionData } from './$types';
-	import { COMMON_PRONOUNS } from '$lib/schemas/profile';
 	import type { VisibilityValue } from '$lib/schemas/preferences';
 	import { Loader2, Check, Info, ShieldCheck, ShieldAlert, Mail, Eye } from 'lucide-svelte';
 	import TelegramConnectionManager from '$lib/components/profile/TelegramConnectionManager.svelte';
@@ -26,7 +25,6 @@
 	const { data, form }: Props = $props();
 
 	let isSubmitting = $state(false);
-	let manuallyShowingCustom = $state(false);
 	let isResendingVerification = $state(false);
 	let isSavingVisibility = $state(false);
 	let attendeeListVisibility = $state<VisibilityValue>(
@@ -41,16 +39,8 @@
 	let firstName = $state(data.user?.first_name || '');
 	let lastName = $state(data.user?.last_name || '');
 	let preferredName = $state(data.user?.preferred_name || '');
-	let pronouns = $state(data.user?.pronouns || '');
 	let bio = $state(data.user?.bio || '');
 	let profilePictureUrl = $state<string | null>(data.user?.profile_picture_url ?? null);
-
-	// Check if current pronouns is custom (not in common list)
-	const showCustomPronouns = $derived(
-		manuallyShowingCustom ||
-			(pronouns !== '' &&
-				!COMMON_PRONOUNS.slice(0, -1).includes(pronouns as (typeof COMMON_PRONOUNS)[number]))
-	);
 
 	const success = $derived(form?.success || false);
 	const errors = $derived((form?.errors || {}) as Record<string, string>);
@@ -255,7 +245,6 @@
 					firstName = user?.first_name || '';
 					lastName = user?.last_name || '';
 					preferredName = user?.preferred_name || '';
-					pronouns = user?.pronouns || '';
 					bio = user?.bio || '';
 					profilePictureUrl = user?.profile_picture_url ?? null;
 					// Propagate updated user to global auth store so navbar updates immediately
@@ -467,65 +456,6 @@
 				<p id="preferred-name-error" class="text-sm text-destructive" role="alert">
 					{errors.preferred_name}
 				</p>
-			{/if}
-		</div>
-
-		<div class="space-y-2">
-			<label for="pronouns-select" class="block text-sm font-medium"
-				>{m['profilePage.pronounsLabel']()}</label
-			>
-			{#if showCustomPronouns}
-				<div class="space-y-2">
-					<input
-						id="pronouns"
-						name="pronouns"
-						type="text"
-						required
-						bind:value={pronouns}
-						aria-invalid={!!errors.pronouns}
-						aria-describedby={errors.pronouns ? 'pronouns-error' : undefined}
-						disabled={isSubmitting}
-						maxlength="10"
-						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 {errors.pronouns
-							? 'border-destructive'
-							: ''}"
-						placeholder={m['profilePage.pronounsPlaceholder']()}
-					/>
-					<button
-						type="button"
-						onclick={() => {
-							manuallyShowingCustom = false;
-							pronouns = 'they/them';
-						}}
-						class="text-sm text-primary underline-offset-4 hover:underline"
-					>
-						{m['profilePage.chooseCommonOptions']()}
-					</button>
-				</div>
-			{:else}
-				<select
-					id="pronouns-select"
-					bind:value={pronouns}
-					onchange={(e) => {
-						const val = (e.target as HTMLSelectElement).value;
-						if (val === 'custom') {
-							manuallyShowingCustom = true;
-							pronouns = '';
-						}
-					}}
-					disabled={isSubmitting}
-					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-				>
-					{#each COMMON_PRONOUNS as option (option)}
-						<option value={option === 'custom' ? 'custom' : option}>
-							{option === 'custom' ? m['profilePage.pronounsCustomOption']() : option}
-						</option>
-					{/each}
-				</select>
-				<input type="hidden" name="pronouns" value={pronouns} />
-			{/if}
-			{#if errors.pronouns}
-				<p id="pronouns-error" class="text-sm text-destructive" role="alert">{errors.pronouns}</p>
 			{/if}
 		</div>
 

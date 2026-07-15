@@ -68,7 +68,6 @@ export const actions: Actions = {
 			first_name: formData.get('first_name') as string,
 			last_name: formData.get('last_name') as string,
 			preferred_name: formData.get('preferred_name') as string,
-			pronouns: formData.get('pronouns') as string,
 			bio: (formData.get('bio') as string) || ''
 		};
 

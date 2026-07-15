@@ -2,31 +2,19 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import { browser } from '$app/environment';
 	import { createQuery } from '@tanstack/svelte-query';
-	import {
-		eventpublicdetailsGetEventAttendees,
-		eventpublicdetailsGetPronounDistribution
-	} from '$lib/api';
+	import { eventpublicdetailsGetEventAttendees } from '$lib/api';
 	import type { VisibilityPreference } from '$lib/api/generated/types.gen';
-	import { Users, ChevronDown, ChevronUp, Loader2, Settings, BarChart3 } from 'lucide-svelte';
+	import { Users, ChevronDown, Loader2, Settings } from 'lucide-svelte';
 	import UserAvatar from '$lib/components/common/UserAvatar.svelte';
-	import { slide } from 'svelte/transition';
-	import PronounDistributionChart from '$lib/components/common/PronounDistributionChart.svelte';
 
 	interface Props {
 		eventId: string;
 		totalAttendees: number;
 		isAuthenticated: boolean;
 		userVisibility?: VisibilityPreference | null;
-		showPronounDistribution?: boolean;
 	}
 
-	const {
-		eventId,
-		totalAttendees,
-		isAuthenticated,
-		userVisibility = null,
-		showPronounDistribution: canShowPronounDistribution = false
-	}: Props = $props();
+	const { eventId, totalAttendees, isAuthenticated, userVisibility = null }: Props = $props();
 
 	// Build settings URL with redirect back to current page
 	const settingsUrl = $derived.by(() => {
@@ -58,7 +46,6 @@
 	const PAGE_SIZE = 100;
 	let currentPage = $state(1);
 	let showAll = $state(false);
-	let pronounSectionExpanded = $state(false);
 
 	// Query for attendee list
 	const attendeesQuery = createQuery(() => ({
@@ -78,34 +65,11 @@
 		enabled: isAuthenticated
 	}));
 
-	// Query for pronoun distribution (only fetched when expanded)
-	const pronounQuery = createQuery(() => ({
-		queryKey: ['event-pronoun-distribution', eventId],
-		queryFn: async () => {
-			const response = await eventpublicdetailsGetPronounDistribution({
-				path: { event_id: eventId }
-			});
-
-			if (!response.data) {
-				throw new Error('Failed to load pronoun distribution');
-			}
-
-			return response.data;
-		},
-		enabled: isAuthenticated && canShowPronounDistribution && pronounSectionExpanded
-	}));
-
 	// Derived state for attendees
 	const attendees = $derived(attendeesQuery.data?.results ?? []);
 	const visibleCount = $derived(attendees.length);
 	const hasMore = $derived(!!attendeesQuery.data?.next);
 	const hiddenCount = $derived(totalAttendees - visibleCount);
-
-	// Derived state for pronouns
-	const distribution = $derived(pronounQuery.data?.distribution ?? []);
-	const pronounTotalAttendees = $derived(pronounQuery.data?.total_attendees ?? 0);
-	const totalWithPronouns = $derived(pronounQuery.data?.total_with_pronouns ?? 0);
-	const totalWithoutPronouns = $derived(pronounQuery.data?.total_without_pronouns ?? 0);
 
 	// Load next page
 	function loadMore() {
@@ -156,9 +120,6 @@
 							<!-- Attendee info -->
 							<div class="min-w-0 flex-1">
 								<p class="truncate font-medium">{attendee.display_name}</p>
-								{#if attendee.pronouns}
-									<p class="truncate text-sm text-muted-foreground">({attendee.pronouns})</p>
-								{/if}
 							</div>
 						</div>
 					{/each}
@@ -179,9 +140,6 @@
 							<!-- Attendee info -->
 							<div class="min-w-0 flex-1">
 								<p class="truncate font-medium">{attendee.display_name}</p>
-								{#if attendee.pronouns}
-									<p class="truncate text-sm text-muted-foreground">({attendee.pronouns})</p>
-								{/if}
 							</div>
 						</div>
 					{/each}
@@ -229,52 +187,6 @@
 							? m['attendeeList.notShownSingular']({ count: hiddenCount })
 							: m['attendeeList.notShownPlural']({ count: hiddenCount })}
 					</p>
-				{/if}
-			</div>
-		{/if}
-
-		<!-- Pronoun Distribution Toggle -->
-		{#if canShowPronounDistribution}
-			<div class="mt-4 border-t pt-4">
-				<button
-					type="button"
-					class="flex w-full items-center justify-between gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-					onclick={() => (pronounSectionExpanded = !pronounSectionExpanded)}
-					aria-expanded={pronounSectionExpanded}
-					aria-controls="pronoun-distribution"
-				>
-					<span class="flex items-center gap-2">
-						<BarChart3 class="h-4 w-4" aria-hidden="true" />
-						{m['pronounDistribution.title']()}
-					</span>
-					{#if pronounSectionExpanded}
-						<ChevronUp class="h-4 w-4" aria-hidden="true" />
-					{:else}
-						<ChevronDown class="h-4 w-4" aria-hidden="true" />
-					{/if}
-				</button>
-
-				<!-- Pronoun Distribution Content -->
-				{#if pronounSectionExpanded}
-					<div id="pronoun-distribution" class="mt-3" transition:slide={{ duration: 200 }}>
-						{#if pronounQuery.isLoading}
-							<div class="flex items-center justify-center py-4">
-								<Loader2 class="h-5 w-5 animate-spin text-muted-foreground" aria-hidden="true" />
-								<span class="sr-only">{m['pronounDistribution.loading']()}</span>
-							</div>
-						{:else if pronounQuery.isError}
-							<p class="text-sm text-destructive">{m['pronounDistribution.error']()}</p>
-						{:else if pronounTotalAttendees === 0}
-							<p class="text-sm text-muted-foreground">{m['pronounDistribution.noAttendees']()}</p>
-						{:else}
-							<PronounDistributionChart
-								{distribution}
-								totalAttendees={pronounTotalAttendees}
-								{totalWithPronouns}
-								{totalWithoutPronouns}
-							/>
-						{/if}
-					</div>
 				{/if}
 			</div>
 		{/if}

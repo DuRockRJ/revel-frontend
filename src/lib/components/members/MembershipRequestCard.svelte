@@ -91,9 +91,6 @@
 						<h3 class="truncate font-semibold text-foreground">
 							{displayName}
 						</h3>
-						{#if request.user.pronouns}
-							<p class="text-sm text-muted-foreground">({request.user.pronouns})</p>
-						{/if}
 					</div>
 				</div>
 
@@ -245,14 +242,6 @@
 								{m['membershipRequestCard.preferredName']()}
 							</dt>
 							<dd class="text-foreground">{request.user.preferred_name}</dd>
-						</div>
-					{/if}
-					{#if request.user.pronouns}
-						<div class="flex gap-2">
-							<dt class="font-medium text-muted-foreground">
-								{m['membershipRequestCard.pronouns']()}
-							</dt>
-							<dd class="text-foreground">{request.user.pronouns}</dd>
 						</div>
 					{/if}
 					{#if request.user.email}

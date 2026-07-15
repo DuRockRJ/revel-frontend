@@ -76,7 +76,7 @@
 					</div>
 					<div class="text-sm text-muted-foreground">
 						{m['detailsStep.requireFullProfileHint']?.() ??
-							'Attendees must have a profile picture, name, and pronouns to RSVP or purchase tickets'}
+							'Attendees must have a profile picture and name to RSVP or purchase tickets'}
 					</div>
 				</div>
 			</label>

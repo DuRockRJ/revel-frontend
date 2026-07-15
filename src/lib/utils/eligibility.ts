@@ -330,7 +330,6 @@ export function hasActiveWaitlistOffer(eligibility: EventUserEligibility): boole
 export function getMissingProfileFieldLabel(field: string): string {
 	const labels: Record<string, string> = {
 		profile_picture: 'Foto de perfil',
-		pronouns: 'Pronomes',
 		name: 'Nome de exibição'
 	};
 

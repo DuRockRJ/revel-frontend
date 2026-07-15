@@ -628,9 +628,6 @@
 									<div class="flex flex-col">
 										<div class="flex items-center gap-2">
 											<span>{getUserDisplayName(rsvp.user)}</span>
-											{#if rsvp.user.pronouns}
-												<span class="text-xs text-muted-foreground">({rsvp.user.pronouns})</span>
-											{/if}
 										</div>
 										{#if rsvp.membership}
 											<Badge variant="secondary" class="mt-0.5 w-fit text-xs">
@@ -751,9 +748,6 @@
 								<div>
 									<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
 										<p class="font-medium">{getUserDisplayName(rsvp.user)}</p>
-										{#if rsvp.user.pronouns}
-											<span class="text-xs text-muted-foreground">({rsvp.user.pronouns})</span>
-										{/if}
 										{#if rsvp.membership}
 											<Badge variant="secondary" class="text-xs">
 												{rsvp.membership.tier?.name

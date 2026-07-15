@@ -65,7 +65,6 @@
 		requires_full_profile: boolean;
 		potluck_open: boolean;
 		accept_invitation_requests: boolean;
-		public_pronoun_distribution: boolean;
 		can_attend_without_login: boolean;
 		is_open_ended: boolean;
 	}>({
@@ -74,7 +73,6 @@
 		requires_full_profile: false,
 		potluck_open: false,
 		accept_invitation_requests: false,
-		public_pronoun_distribution: false,
 		can_attend_without_login: false,
 		is_open_ended: false
 	});
@@ -132,7 +130,6 @@
 		flags.requires_full_profile = !!t.requires_full_profile;
 		flags.potluck_open = !!t.potluck_open;
 		flags.accept_invitation_requests = !!t.accept_invitation_requests;
-		flags.public_pronoun_distribution = !!t.public_pronoun_distribution;
 		flags.can_attend_without_login = !!t.can_attend_without_login;
 		flags.is_open_ended = !!t.is_open_ended;
 		original = t;
@@ -184,8 +181,6 @@
 		if (flags.potluck_open !== !!original.potluck_open) d.potluck_open = flags.potluck_open;
 		if (flags.accept_invitation_requests !== !!original.accept_invitation_requests)
 			d.accept_invitation_requests = flags.accept_invitation_requests;
-		if (flags.public_pronoun_distribution !== !!original.public_pronoun_distribution)
-			d.public_pronoun_distribution = flags.public_pronoun_distribution;
 		if (flags.can_attend_without_login !== !!original.can_attend_without_login)
 			d.can_attend_without_login = flags.can_attend_without_login;
 		if (flags.is_open_ended !== !!original.is_open_ended) d.is_open_ended = flags.is_open_ended;
@@ -258,11 +253,6 @@
 			key: 'accept_invitation_requests',
 			label: m['recurringEvents.templateDialog.toggles.acceptInvitationRequests'](),
 			testid: 'template-edit-accept-invitation-requests'
-		},
-		{
-			key: 'public_pronoun_distribution',
-			label: m['recurringEvents.templateDialog.toggles.publicPronounDistribution'](),
-			testid: 'template-edit-public-pronoun-distribution'
 		},
 		{
 			key: 'can_attend_without_login',

@@ -15,7 +15,6 @@
 	import StatusBreakdownBar from '$lib/components/questionnaires/StatusBreakdownBar.svelte';
 	import McQuestionChart from '$lib/components/questionnaires/McQuestionChart.svelte';
 	import ScoreStatsCard from '$lib/components/questionnaires/ScoreStatsCard.svelte';
-	import PronounDistributionChart from '$lib/components/common/PronounDistributionChart.svelte';
 	import ExportButton from '$lib/components/common/ExportButton.svelte';
 	import { questionnaireExportSubmissions } from '$lib/api';
 	import { authStore } from '$lib/stores/auth.svelte';
@@ -284,23 +283,6 @@
 				max={summary.score_stats.max}
 			/>
 		</div>
-
-		<!-- Pronoun Distribution -->
-		{#if summary.pronoun_distribution && summary.pronoun_distribution.total_attendees > 0}
-			<Card class="mb-8">
-				<CardHeader>
-					<CardTitle class="text-base">{m['pronounDistribution.title']()}</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<PronounDistributionChart
-						distribution={summary.pronoun_distribution.distribution ?? []}
-						totalAttendees={summary.pronoun_distribution.total_attendees}
-						totalWithPronouns={summary.pronoun_distribution.total_with_pronouns}
-						totalWithoutPronouns={summary.pronoun_distribution.total_without_pronouns}
-					/>
-				</CardContent>
-			</Card>
-		{/if}
 
 		<!-- MC Question Distributions -->
 		{#if summary.mc_question_stats.length > 0}

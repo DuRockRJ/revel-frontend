@@ -110,9 +110,6 @@
 						{:else}
 							<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
 								<span class="font-semibold">{getUserDisplayName(ticket.user)}</span>
-								{#if ticket.user.pronouns}
-									<span class="text-xs text-muted-foreground">({ticket.user.pronouns})</span>
-								{/if}
 								{#if ticket.membership}
 									<Badge variant="secondary" class="text-xs">
 										{ticket.membership.tier?.name

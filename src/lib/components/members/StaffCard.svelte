@@ -75,9 +75,6 @@
 				{#if staff.user.phone_number}
 					<span class="truncate">📞 {staff.user.phone_number}</span>
 				{/if}
-				{#if staff.user.pronouns}
-					<span>({staff.user.pronouns})</span>
-				{/if}
 			</div>
 
 			<!-- Staff Since & Permissions -->
