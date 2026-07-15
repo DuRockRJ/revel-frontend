@@ -265,7 +265,7 @@
 		"successMessage": "Configurações atualizadas com sucesso",
 		"general": {
 			"title": "Preferências gerais",
-			"description": "Configure suas preferências de localização e privacidade",
+			"description": "Configure sua preferência de localização",
 			"cityLabel": "Cidade preferida",
 			"cityDescription": "Sua cidade preferida para recomendações de eventos e recursos baseados em localização",
 			"updateSuccess": "Preferências gerais atualizadas com sucesso",

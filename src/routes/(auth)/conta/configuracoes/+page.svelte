@@ -7,13 +7,12 @@
 	import { NotificationPreferencesForm } from '$lib/components/notifications';
 	import { BillingProfileForm } from '$lib/components/billing';
 	import CityAutocomplete from '$lib/components/forms/CityAutocomplete.svelte';
-	import AttendeeVisibilitySelect from '$lib/components/profile/AttendeeVisibilitySelect.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { userpreferencesUpdateGeneralPreferences } from '$lib/api/generated';
 	import type { CitySchema } from '$lib/api/generated';
 	import type { VisibilityValue } from '$lib/schemas/preferences';
 	import { toast } from 'svelte-sonner';
-	import { Loader2, Eye, Info, FileText } from 'lucide-svelte';
+	import { Loader2, Info, FileText } from 'lucide-svelte';
 
 	interface Props {
 		data: PageData;
@@ -26,9 +25,10 @@
 
 	// General preferences state
 	let selectedCity = $state<CitySchema | null>(data.generalPreferences?.city || null);
-	let attendeeListVisibility = $state<VisibilityValue>(
-		data.generalPreferences?.show_me_on_attendee_list ?? 'never'
-	);
+	// Attendee visibility is edited on the profile page now (avoids a duplicate control) —
+	// kept here read-only since the PUT endpoint replaces the whole preferences object.
+	const attendeeListVisibility: VisibilityValue =
+		data.generalPreferences?.show_me_on_attendee_list ?? 'never';
 	let isUpdatingGeneral = $state(false);
 
 	function handleCitySelect(city: CitySchema | null) {
@@ -110,14 +110,6 @@
 						label={m['accountSettingsPage.general.cityLabel']()}
 						description={m['accountSettingsPage.general.cityDescription']()}
 					/>
-				</div>
-
-				<!-- Privacy Settings -->
-				<div class="flex items-start gap-2">
-					<Eye class="mt-0.5 h-5 w-5 text-muted-foreground" aria-hidden="true" />
-					<div class="flex-1">
-						<AttendeeVisibilitySelect bind:value={attendeeListVisibility} />
-					</div>
 				</div>
 
 				<!-- Save Button -->
