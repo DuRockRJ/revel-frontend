@@ -219,7 +219,7 @@
 					{m['orgAdmin.settings.platformFees.fixedLabel']()}
 				</div>
 				<div class="mt-1 rounded-md border border-border bg-muted px-3 py-2 text-sm">
-					€{data.organization.platform_fee_fixed}
+					R${data.organization.platform_fee_fixed}
 				</div>
 				<p class="mt-1 text-xs text-muted-foreground">
 					{m['orgAdmin.settings.platformFees.fixedHelp']()}
