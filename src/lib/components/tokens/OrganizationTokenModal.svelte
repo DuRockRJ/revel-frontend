@@ -20,7 +20,7 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { RadioGroup, RadioGroupItem } from '$lib/components/ui/radio-group';
 	import { AlertCircle, Loader2 } from 'lucide-svelte';
-	import { durationOptions } from '$lib/utils/tokens';
+	import { getDurationOptions } from '$lib/utils/tokens';
 	import DateTimePicker from '$lib/components/forms/DateTimePicker.svelte';
 
 	interface Props {
@@ -162,7 +162,7 @@
 				<div class="space-y-2">
 					<Label>{m['organizationTokenModal.duration']()}</Label>
 					<RadioGroup bind:value={duration}>
-						{#each durationOptions as option}
+						{#each getDurationOptions() as option}
 							<div class="flex items-center space-x-2">
 								<RadioGroupItem value={option.value.toString()} id={`duration-${option.value}`} />
 								<Label for={`duration-${option.value}`} class="font-normal">

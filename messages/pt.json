@@ -3989,6 +3989,11 @@
 		"nameOptional": "Nome (opcional)",
 		"displayName": "Um nome de exibição para ajudar você a organizar seus tokens",
 		"duration": "Duração",
+		"durationHour1": "1 hora",
+		"durationDay1": "1 dia",
+		"durationDay7": "7 dias",
+		"durationDay30": "30 dias",
+		"durationNever": "Nunca",
 		"expirationDate": "Data de expiração",
 		"noExpiration": "Deixe vazio para não expirar",
 		"maxUses": "Número máximo de usos",
@@ -3997,6 +4002,15 @@
 		"grantStaff": "Conceder acesso de equipe",
 		"securityWarning": "Aviso de segurança:",
 		"error": "Erro:"
+	},
+	"tokenExpiration": {
+		"never": "Nunca",
+		"expired": "Expirado",
+		"lessThanHour": "Menos de 1 hora",
+		"hourSingular": "{count} hora",
+		"hourPlural": "{count} horas",
+		"daySingular": "{count} dia",
+		"dayPlural": "{count} dias"
 	},
 	"organizationsPage": {
 		"title": "Descobrir organizações - DuRock RJ"
