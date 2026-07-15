@@ -115,16 +115,11 @@
 	const hasBillingProfile = $derived(billingProfile !== null && billingProfile !== undefined);
 
 	const isBillingComplete = $derived(
-		hasBillingProfile &&
-			!!billingProfile?.billing_name &&
-			!!billingProfile?.vat_country_code &&
-			!!billingProfile?.billing_address
+		hasBillingProfile && !!billingProfile?.billing_name && !!billingProfile?.billing_address
 	);
 
-	const isSelfBillingAgreed = $derived(billingProfile?.self_billing_agreed ?? false);
-
 	// Payout eligibility
-	const isPayoutEligible = $derived(isStripeFullySetup && isBillingComplete && isSelfBillingAgreed);
+	const isPayoutEligible = $derived(isStripeFullySetup && isBillingComplete);
 
 	// Copy referral link
 	let linkCopied = $state(false);
@@ -199,7 +194,7 @@
 			<p class="mt-1 text-sm text-muted-foreground">{m['referral.setupDescription']()}</p>
 
 			<div class="mt-4 space-y-3">
-				{#each [{ done: isStripeFullySetup, label: m['referral.stepStripe']() }, { done: isBillingComplete, label: m['referral.stepBilling']() }, { done: isSelfBillingAgreed, label: m['referral.stepSelfBilling']() }] as step}
+				{#each [{ done: isStripeFullySetup, label: m['referral.stepStripe']() }, { done: isBillingComplete, label: m['referral.stepBilling']() }] as step}
 					<div class="flex items-center gap-3">
 						{#if step.done}
 							<CircleCheck
@@ -393,7 +388,7 @@
 					<p class="mt-1 text-sm text-muted-foreground">{m['billing.form.description']()}</p>
 				</div>
 			</div>
-			<BillingProfileForm authToken={accessToken} showSelfBilling={true} />
+			<BillingProfileForm authToken={accessToken} />
 		</section>
 
 		<!-- Link to Payouts -->
