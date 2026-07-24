@@ -22,6 +22,7 @@
 	import { OrganizationDescription } from '$lib/components/organizations';
 	import { getImageUrl } from '$lib/utils/url';
 	import { formatCityRegion } from '$lib/utils/city';
+	import { buildWhatsappLink } from '$lib/utils/whatsapp';
 	import { createQuery } from '@tanstack/svelte-query';
 	import {
 		eventpublicdiscoveryListEvents,
@@ -266,7 +267,7 @@
 								{/if}
 								{#if organization.whatsapp_url}
 									<a
-										href={organization.whatsapp_url}
+										href={buildWhatsappLink(organization.whatsapp_url)}
 										target="_blank"
 										rel="noopener noreferrer"
 										class="text-muted-foreground transition-colors hover:text-green-600"
