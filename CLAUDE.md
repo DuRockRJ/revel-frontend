@@ -1024,3 +1024,11 @@ When working on issues or new features, follow this collaborative workflow:
 - Test keyboard navigation and screen reader compatibility for all UI components
 - Follow the backend's philosophy of clean, type-safe, well-tested code
 - **Chain subagents** for complex features - e.g., project-manager → component-creator → accessibility-checker → testing-helper
+- **This is a branded fork (DuRock RJ), not upstream Revel/Let's Revel.** An `upstream`
+  remote (`letsrevel/revel-frontend`) exists for pulling bugfixes only. When syncing from
+  it (cherry-pick or otherwise), **never bring in changes that touch branding** (logos,
+  colors, copy, the "Let's Revel"/"Revel" name) **or that would overwrite/conflict with the
+  `pt` translations** (`messages/pt.json`). Pure logic/bugfix changes are fine; anything
+  customer-facing in English or upstream-branded must be skipped or adapted, never merged
+  wholesale. Any new user-facing string a cherry-pick introduces must get a `messages/pt.json`
+  entry before it ships — never leave it falling back to English.
