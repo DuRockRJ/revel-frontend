@@ -65,7 +65,10 @@ export function canCheckIn(ticket: any): boolean {
  */
 export function needsPaymentConfirmation(ticket: any): boolean {
 	const method = ticket.tier?.payment_method;
-	return ticket.status === 'pending' && (method === 'offline' || method === 'at_the_door');
+	return (
+		ticket.status === 'pending' &&
+		(method === 'offline' || method === 'at_the_door' || method === 'pix')
+	);
 }
 
 /**
@@ -73,7 +76,10 @@ export function needsPaymentConfirmation(ticket: any): boolean {
  */
 export function canConfirmPayment(ticket: any): boolean {
 	const method = ticket.tier?.payment_method;
-	return ticket.status === 'pending' && (method === 'offline' || method === 'at_the_door');
+	return (
+		ticket.status === 'pending' &&
+		(method === 'offline' || method === 'at_the_door' || method === 'pix')
+	);
 }
 
 /**
@@ -81,24 +87,28 @@ export function canConfirmPayment(ticket: any): boolean {
  */
 export function canManageTicket(ticket: any): boolean {
 	const method = ticket.tier?.payment_method;
-	return method === 'offline' || method === 'at_the_door' || method === 'free';
+	return method === 'offline' || method === 'at_the_door' || method === 'free' || method === 'pix';
 }
 
 /**
- * Check if payment can be unconfirmed (active ticket with offline/at_the_door payment)
+ * Check if payment can be unconfirmed (active ticket with offline/at_the_door/pix payment)
  */
 export function canUnconfirmPayment(ticket: any): boolean {
 	const method = ticket.tier?.payment_method;
-	return ticket.status === 'active' && (method === 'offline' || method === 'at_the_door');
+	return (
+		ticket.status === 'active' &&
+		(method === 'offline' || method === 'at_the_door' || method === 'pix')
+	);
 }
 
 /**
- * Check if a ticket's tier is PWYC with offline/at_the_door payment
+ * Check if a ticket's tier is PWYC with offline/at_the_door/pix payment
  */
 export function isPwycTicket(ticket: any): boolean {
+	const method = ticket.tier?.payment_method;
 	return (
 		ticket.tier?.price_type === 'pwyc' &&
-		(ticket.tier?.payment_method === 'offline' || ticket.tier?.payment_method === 'at_the_door')
+		(method === 'offline' || method === 'at_the_door' || method === 'pix')
 	);
 }
 
@@ -138,6 +148,8 @@ export function getPaymentMethodLabel(method: string): string {
 			return m['eventTicketsAdmin.paymentAtDoor']();
 		case 'free':
 			return m['eventTicketsAdmin.paymentFree']();
+		case 'pix':
+			return m['eventTicketsAdmin.paymentPix']();
 		default:
 			return method;
 	}

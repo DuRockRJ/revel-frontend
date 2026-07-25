@@ -1750,6 +1750,7 @@
 		"paymentOffline": "Offline",
 		"paymentAtDoor": "Na entrada",
 		"paymentFree": "Gratuito",
+		"paymentPix": "Pix",
 		"noTicketsTitle": "Nenhum ingresso encontrado",
 		"noTicketsFiltered": "Tente ajustar seus filtros ou termo de busca",
 		"noTicketsEmpty": "Ainda não foram comprados ingressos para este evento",

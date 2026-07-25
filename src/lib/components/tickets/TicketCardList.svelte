@@ -24,6 +24,7 @@
 		Banknote,
 		Coins,
 		Gift,
+		QrCode,
 		ExternalLink,
 		UserPlus,
 		MoreVertical,
@@ -77,6 +78,8 @@
 		<Coins class="h-3 w-3" aria-hidden="true" />
 	{:else if method === 'free'}
 		<Gift class="h-3 w-3" aria-hidden="true" />
+	{:else if method === 'pix'}
+		<QrCode class="h-3 w-3" aria-hidden="true" />
 	{:else}
 		<CreditCard class="h-3 w-3" aria-hidden="true" />
 	{/if}

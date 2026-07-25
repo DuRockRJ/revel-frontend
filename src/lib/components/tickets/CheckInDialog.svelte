@@ -76,7 +76,9 @@
 	const needsPwycInput = $derived(
 		!!ticket &&
 			ticket.tier?.price_type === 'pwyc' &&
-			(ticket.tier?.payment_method === 'offline' || ticket.tier?.payment_method === 'at_the_door')
+			(ticket.tier?.payment_method === 'offline' ||
+				ticket.tier?.payment_method === 'at_the_door' ||
+				ticket.tier?.payment_method === 'pix')
 	);
 
 	/**

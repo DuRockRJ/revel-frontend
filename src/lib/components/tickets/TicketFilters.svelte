@@ -185,6 +185,16 @@
 			>
 				{m['eventTicketsAdmin.paymentFree']()}
 			</button>
+			<button
+				type="button"
+				onclick={() => onPaymentMethodFilter('pix')}
+				class="rounded-md border px-3 py-1 text-sm font-medium transition-colors {selectedPaymentMethod ===
+				'pix'
+					? 'border-primary bg-primary text-primary-foreground'
+					: 'border-input bg-background hover:bg-accent hover:text-accent-foreground'}"
+			>
+				{m['eventTicketsAdmin.paymentPix']()}
+			</button>
 		</div>
 	</div>
 </div>
