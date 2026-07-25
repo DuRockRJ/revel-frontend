@@ -165,6 +165,8 @@
 				return hasRefund ? m['cancelTicket.paymentMethodOnline']() : null;
 			case 'offline':
 				return hasRefund ? m['cancelTicket.paymentMethodOffline']() : null;
+			case 'pix':
+				return hasRefund ? m['cancelTicket.paymentMethodPix']() : null;
 			case 'at_the_door':
 				return m['cancelTicket.paymentMethodAtTheDoor']();
 			case 'free':

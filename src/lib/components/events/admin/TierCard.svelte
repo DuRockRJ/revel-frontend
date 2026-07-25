@@ -90,7 +90,8 @@
 			online: 'Online (Stripe)',
 			offline: 'Offline',
 			at_the_door: 'At the Door',
-			external: 'External Link'
+			external: 'External Link',
+			pix: 'Pix'
 		};
 		const pm = tier.payment_method ?? 'online';
 		return methods[pm] || pm.replace(/_/g, ' ');

@@ -398,6 +398,10 @@
 										{ticketsInGroup > 1
 											? m['myTicketModal.pendingOfflinePlural']()
 											: m['myTicketModal.pendingOffline']()}
+									{:else if ticket.tier?.payment_method === 'pix'}
+										{ticketsInGroup > 1
+											? m['myTicketModal.pendingPixPlural']()
+											: m['myTicketModal.pendingPix']()}
 									{:else}
 										{ticketsInGroup > 1
 											? m['myTicketModal.pendingGenericPlural']()

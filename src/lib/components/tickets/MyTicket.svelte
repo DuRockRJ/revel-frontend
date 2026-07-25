@@ -189,6 +189,8 @@
 								{m['myTicket.pendingOnline']()}
 							{:else if ticket.tier?.payment_method === 'offline'}
 								{m['myTicket.pendingOffline']()}
+							{:else if ticket.tier?.payment_method === 'pix'}
+								{m['myTicket.pendingPix']()}
 							{:else}
 								{m['myTicket.pendingGeneric']()}
 							{/if}

@@ -188,7 +188,7 @@
 			tier.payment_method === 'online'
 	);
 
-	// Can reserve offline/at-the-door ticket
+	// Can reserve offline/at-the-door/pix ticket
 	const canReserve = $derived(
 		hasId &&
 			isAuthenticated &&
@@ -196,7 +196,9 @@
 			effectiveEligible &&
 			salesStatus.active &&
 			availabilityStatus.available &&
-			(tier.payment_method === 'offline' || tier.payment_method === 'at_the_door')
+			(tier.payment_method === 'offline' ||
+				tier.payment_method === 'at_the_door' ||
+				tier.payment_method === 'pix')
 	);
 
 	// Check if user has required membership tier for restricted tickets

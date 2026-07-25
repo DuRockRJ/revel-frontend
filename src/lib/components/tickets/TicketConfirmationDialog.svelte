@@ -117,6 +117,7 @@
 	const isOfflinePayment = $derived(
 		tier.payment_method === 'offline' || tier.payment_method === 'at_the_door'
 	);
+	const isPixPayment = $derived(tier.payment_method === 'pix');
 
 	// Seat assignment mode
 	const seatAssignmentMode = $derived<SeatAssignmentMode>(
@@ -201,7 +202,7 @@
 	// Dialog title
 	const dialogTitle = $derived.by(() => {
 		if (isFree) return m['ticketConfirmationDialog.titleClaimFree']();
-		if (isOfflinePayment) return m['ticketConfirmationDialog.titleReserve']();
+		if (isOfflinePayment || isPixPayment) return m['ticketConfirmationDialog.titleReserve']();
 		if (isPwyc) return m['ticketConfirmationDialog.titleGetTicket']();
 		return m['ticketConfirmationDialog.titleConfirmPurchase']();
 	});
@@ -209,7 +210,7 @@
 	// Dialog icon component
 	const dialogIcon = $derived.by(() => {
 		if (isFree) return Ticket;
-		if (isOfflinePayment) return Wallet;
+		if (isOfflinePayment || isPixPayment) return Wallet;
 		if (isOnlinePayment) return CreditCard;
 		return DollarSign;
 	});
@@ -499,6 +500,8 @@
 			<DialogDescription>
 				{#if isFree}
 					{m['ticketConfirmationDialog.descClaimFree']()}
+				{:else if isPixPayment}
+					{m['ticketConfirmationDialog.descReservePix']()}
 				{:else if isOfflinePayment}
 					{tier.payment_method === 'at_the_door'
 						? m['ticketConfirmationDialog.descReserveAtDoor']()
@@ -763,7 +766,7 @@
 						{/if}
 					{:else if isFree}
 						{m['ticketConfirmationDialog.claimTicket']()}
-					{:else if isOfflinePayment}
+					{:else if isOfflinePayment || isPixPayment}
 						{m['ticketConfirmationDialog.reserveTicket']()}
 					{:else if isPwyc}
 						{m['ticketConfirmationDialog.continueToPayment']()}
