@@ -50,6 +50,9 @@
 	// Scheduled revenue-report delivery requires a billing email to send to.
 	const billingEmailMissing = $derived(!data.organization.billing_email?.trim());
 
+	// Pix payment key
+	let pixKey = $state(data.organization.pix_key || '');
+
 	// Social media state
 	let instagramUrl = $state(data.organization.instagram_url || '');
 	let facebookUrl = $state(data.organization.facebook_url || '');
@@ -73,6 +76,7 @@
 		acceptNewMembers = data.organization.accept_membership_requests || false;
 		contactMethod = data.organization.contact_method || 'none';
 		reportCadence = data.organization.revenue_report_cadence || 'none';
+		pixKey = data.organization.pix_key || '';
 		instagramUrl = data.organization.instagram_url || '';
 		facebookUrl = data.organization.facebook_url || '';
 		youtubeUrl = data.organization.youtube_url || '';
@@ -601,6 +605,29 @@
 				</div>
 			</section>
 		{/if}
+
+		<!-- Pix Payment -->
+		<section class="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+			<h2 class="text-lg font-semibold">{m['orgAdmin.settings.pix.heading']()}</h2>
+			<p class="text-sm text-muted-foreground">{m['orgAdmin.settings.pix.description']()}</p>
+
+			<div>
+				<label for="pix_key" class="block text-sm font-medium">
+					{m['orgAdmin.settings.pix.keyLabel']()}
+				</label>
+				<input
+					type="text"
+					id="pix_key"
+					name="pix_key"
+					bind:value={pixKey}
+					placeholder={m['orgAdmin.settings.pix.keyPlaceholder']()}
+					class="mt-1 flex w-full rounded-md border-2 border-gray-300 bg-white px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 sm:max-w-md"
+				/>
+				<p class="mt-1 text-xs text-muted-foreground">
+					{m['orgAdmin.settings.pix.keyHelp']()}
+				</p>
+			</div>
+		</section>
 
 		<!-- Actions -->
 		<div class="flex items-center justify-end gap-3">

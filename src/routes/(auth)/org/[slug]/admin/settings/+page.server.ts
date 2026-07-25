@@ -49,6 +49,8 @@ export const actions: Actions = {
 		const cadenceRaw = formData.get('revenue_report_cadence') as string | null;
 		const slug = params.slug;
 
+		const pixKey = formData.get('pix_key') as string;
+
 		// Social media fields
 		const instagramUrl = formData.get('instagram_url') as string;
 		const facebookUrl = formData.get('facebook_url') as string;
@@ -90,6 +92,9 @@ export const actions: Actions = {
 		if (contactEmail && contactEmail.trim()) {
 			updateData.contact_email = contactEmail.trim();
 		}
+
+		// Pix key - always include to allow clearing (disables the Pix payment method)
+		updateData.pix_key = pixKey?.trim() || '';
 
 		// Social media fields - always include in payload to allow clearing
 		updateData.instagram_url = instagramUrl?.trim() || null;

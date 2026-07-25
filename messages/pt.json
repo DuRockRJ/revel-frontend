@@ -3073,6 +3073,13 @@
 				"contactMethodFormHelp": "Mostrar um botão que abre um formulário de mensagem dentro do aplicativo. As mensagens são enviadas por e-mail para seu e-mail de contato verificado.",
 				"contactMethodVerifyHint": "Verifique seu e-mail de contato acima para ativar as opções de Link de e-mail ou Formulário de contato."
 			},
+			"pix": {
+				"heading": "Pagamento via Pix",
+				"description": "Cadastre sua chave Pix para poder vender ingressos com pagamento via Pix. O QR code é gerado automaticamente na hora da compra, com o pagamento indo direto para esta chave.",
+				"keyLabel": "Chave Pix",
+				"keyPlaceholder": "CPF, CNPJ, e-mail, telefone ou chave aleatória",
+				"keyHelp": "Deixe em branco para desativar o método de pagamento Pix nos tipos de ingresso desta organização."
+			},
 			"social": {
 				"heading": "Links de redes sociais",
 				"description": "Adicione seus links de redes sociais para ajudar as pessoas a se conectarem com sua organização."
