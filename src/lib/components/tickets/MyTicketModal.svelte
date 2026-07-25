@@ -16,10 +16,12 @@
 		Armchair,
 		ChevronLeft,
 		ChevronRight,
-		X
+		X,
+		QrCode
 	} from 'lucide-svelte';
 	import QRCode from 'qrcode';
 	import { formatDateTime } from '$lib/utils/date';
+	import PixPaymentModal from '$lib/components/events/PixPaymentModal.svelte';
 
 	interface Props {
 		open: boolean;
@@ -51,6 +53,7 @@
 
 	let showCancelDialog = $state(false);
 	let ticketIdToCancel = $state<string | null>(null);
+	let showPixModal = $state(false);
 
 	// Normalize to array and filter out undefined/null values
 	const ticketArray = $derived(
@@ -465,6 +468,16 @@
 										{/if}
 									</div>
 								{/if}
+
+								{#if ticket.pix_payload && ticket.pix_qr_code_data_uri}
+									<button
+										onclick={() => (showPixModal = true)}
+										class="mt-3 inline-flex items-center gap-2 rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+									>
+										<QrCode class="h-4 w-4" aria-hidden="true" />
+										{m['myTicketModal.viewPixQrCode']()}
+									</button>
+								{/if}
 							</div>
 						</div>
 					</div>
@@ -571,5 +584,14 @@
 		bind:open={showCancelDialog}
 		ticketId={ticketIdToCancel}
 		onCancelled={handleTicketCancelled}
+	/>
+{/if}
+
+{#if ticket?.pix_payload && ticket?.pix_qr_code_data_uri}
+	<PixPaymentModal
+		bind:open={showPixModal}
+		payload={ticket.pix_payload}
+		qrCodeDataUri={ticket.pix_qr_code_data_uri}
+		onClose={() => (showPixModal = false)}
 	/>
 {/if}

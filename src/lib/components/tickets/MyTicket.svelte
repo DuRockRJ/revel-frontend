@@ -5,10 +5,11 @@
 	import TicketStatusBadge from './TicketStatusBadge.svelte';
 	import MarkdownContent from '$lib/components/common/MarkdownContent.svelte';
 	import DownloadPdfButton from './DownloadPdfButton.svelte';
-	import { Ticket, Calendar, MapPin, User, Armchair } from 'lucide-svelte';
+	import { Ticket, Calendar, MapPin, User, Armchair, QrCode } from 'lucide-svelte';
 	import { formatDateTime } from '$lib/utils/date';
 	import QRCode from 'qrcode';
 	import { onMount } from 'svelte';
+	import PixPaymentModal from '$lib/components/events/PixPaymentModal.svelte';
 
 	interface Props {
 		ticket: EventTicketSchemaActual;
@@ -36,6 +37,7 @@
 
 	let qrCodeDataUrl = $state<string | null>(null);
 	let isGenerating = $state(false);
+	let showPixModal = $state(false);
 
 	// Generate QR code on mount
 	onMount(async () => {
@@ -228,6 +230,16 @@
 								{/if}
 							</button>
 						{/if}
+
+						{#if ticket.pix_payload && ticket.pix_qr_code_data_uri}
+							<button
+								onclick={() => (showPixModal = true)}
+								class="mt-3 inline-flex items-center gap-2 rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+							>
+								<QrCode class="h-4 w-4" aria-hidden="true" />
+								{m['myTicket.viewPixQrCode']()}
+							</button>
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -310,3 +322,12 @@
 		</div>
 	</div>
 </Card>
+
+{#if ticket.pix_payload && ticket.pix_qr_code_data_uri}
+	<PixPaymentModal
+		bind:open={showPixModal}
+		payload={ticket.pix_payload}
+		qrCodeDataUri={ticket.pix_qr_code_data_uri}
+		onClose={() => (showPixModal = false)}
+	/>
+{/if}
