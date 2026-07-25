@@ -109,13 +109,17 @@ export function formatEventLocation(event: EventDetailSchema): string | undefine
  * Get event logo with fallback hierarchy:
  * 1. Event's logo
  * 2. Event series' logo (if event is part of a series)
- * 3. Organization's logo
+ * 3. Organization's logo (unless `includeOrgFallback` is false)
  *
  * @param event Event data (can be MinimalEventSchema, EventInListSchema, or EventDetailSchema)
+ * @param includeOrgFallback Whether to fall back to the organization's logo (default true).
+ *   The event detail page passes false: showing the org logo there reads as "this is the
+ *   organization's event" when really it just means nobody uploaded event art yet.
  * @returns Logo URL path (relative) or null if no logo available
  */
 export function getEventLogo(
-	event: MinimalEventSchema | EventDetailSchema | EventInListSchema
+	event: MinimalEventSchema | EventDetailSchema | EventInListSchema,
+	includeOrgFallback = true
 ): string | null {
 	// First priority: Event's own logo
 	if (event.logo) {
@@ -128,7 +132,7 @@ export function getEventLogo(
 	}
 
 	// Third priority: Organization logo (may not exist in MinimalEventSchema)
-	if ('organization' in event && event.organization?.logo) {
+	if (includeOrgFallback && 'organization' in event && event.organization?.logo) {
 		return event.organization.logo;
 	}
 
@@ -139,13 +143,16 @@ export function getEventLogo(
  * Get event logo thumbnail with fallback hierarchy (optimized for small displays):
  * 1. Event's logo_thumbnail_url
  * 2. Event series' logo_thumbnail_url (if event is part of a series)
- * 3. Organization's logo_thumbnail_url
+ * 3. Organization's logo_thumbnail_url (unless `includeOrgFallback` is false)
  *
  * @param event Event data (can be MinimalEventSchema, EventInListSchema, or EventDetailSchema)
+ * @param includeOrgFallback Whether to fall back to the organization's logo thumbnail (default
+ *   true). See {@link getEventLogo} for why the event detail page passes false.
  * @returns Logo thumbnail URL path (relative) or null if no thumbnail available
  */
 export function getEventLogoThumbnail(
-	event: MinimalEventSchema | EventDetailSchema | EventInListSchema
+	event: MinimalEventSchema | EventDetailSchema | EventInListSchema,
+	includeOrgFallback = true
 ): string | null {
 	const e = event as any;
 
@@ -160,7 +167,7 @@ export function getEventLogoThumbnail(
 	}
 
 	// Third priority: Organization logo thumbnail
-	if (e.organization?.logo_thumbnail_url) {
+	if (includeOrgFallback && e.organization?.logo_thumbnail_url) {
 		return e.organization.logo_thumbnail_url;
 	}
 
