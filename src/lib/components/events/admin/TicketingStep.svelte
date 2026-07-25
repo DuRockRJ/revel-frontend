@@ -25,6 +25,7 @@
 		eventId: string;
 		organizationSlug: string;
 		organizationStripeConnected: boolean;
+		organizationPixConfigured: boolean;
 		formData: EventFormData;
 		onUpdate: (updates: Partial<EventFormData>) => void;
 		onBack: () => void;
@@ -37,6 +38,7 @@
 		eventId,
 		organizationSlug,
 		organizationStripeConnected,
+		organizationPixConfigured,
 		formData,
 		onUpdate,
 		onBack,
@@ -290,6 +292,7 @@
 		{eventId}
 		{organizationSlug}
 		{organizationStripeConnected}
+		{organizationPixConfigured}
 		{membershipTiers}
 		eventVenueId={formData.venue_id || null}
 		onClose={handleCloseTierForm}

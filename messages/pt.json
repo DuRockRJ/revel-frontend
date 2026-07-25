@@ -6663,6 +6663,8 @@
 	"tierForm.paymentHelpOffline": "Ingressos marcados como pagos manualmente pelos administradores",
 	"tierForm.paymentHelpAtTheDoor": "Pagamento coletado no local durante o check-in",
 	"tierForm.paymentHelpOnline": "Pagamento online via Stripe",
+	"tierForm.pix": "Pix",
+	"tierForm.paymentHelpPix": "QR code Pix gerado na hora da compra; o organizador confirma o pagamento manualmente",
 	"tierForm.external": "Link externo",
 	"tierForm.paymentHelpExternal": "Vendido em outra plataforma (ex.: Sympla, Eventbrite) — o participante é redirecionado para comprar lá",
 	"tierForm.externalTicketUrl": "Link de compra externo",

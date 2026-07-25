@@ -759,6 +759,7 @@
 							{eventId}
 							organizationSlug={organization.slug}
 							organizationStripeConnected={organization.is_stripe_connected}
+							organizationPixConfigured={organization.pix_configured}
 							{formData}
 							onUpdate={updateFormData}
 							onBack={() => handleTabChange('details')}

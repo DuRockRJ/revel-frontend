@@ -35,6 +35,7 @@
 		eventId: string;
 		organizationSlug: string;
 		organizationStripeConnected: boolean;
+		organizationPixConfigured: boolean;
 		membershipTiers?: MembershipTierSchema[];
 		eventVenueId?: string | null; // Pre-fill venue from event
 		onClose: () => void;
@@ -45,6 +46,7 @@
 		eventId,
 		organizationSlug,
 		organizationStripeConnected,
+		organizationPixConfigured,
 		membershipTiers = [],
 		eventVenueId = null,
 		onClose
@@ -144,8 +146,9 @@
 	// Form state
 	let name = $state(tier?.name ?? '');
 	let description = $state(tier?.description ?? '');
-	let paymentMethod = $state<'free' | 'offline' | 'at_the_door' | 'online' | 'external'>(
-		(tier?.payment_method as 'free' | 'offline' | 'at_the_door' | 'online' | 'external') ?? 'free'
+	let paymentMethod = $state<'free' | 'offline' | 'at_the_door' | 'online' | 'external' | 'pix'>(
+		(tier?.payment_method as 'free' | 'offline' | 'at_the_door' | 'online' | 'external' | 'pix') ??
+			'free'
 	);
 	let priceType = $state<'fixed' | 'pwyc'>((tier?.price_type as 'fixed' | 'pwyc') ?? 'fixed');
 	let price = $state(tier?.price ? String(tier.price) : '0');
@@ -512,6 +515,10 @@
 						{m['tierForm.onlineStripe']()}
 						{!organizationStripeConnected ? m['tierForm.notConnectedSuffix']() : ''}
 					</option>
+					<option value="pix" disabled={!organizationPixConfigured}>
+						{m['tierForm.pix']()}
+						{!organizationPixConfigured ? m['tierForm.notConnectedSuffix']() : ''}
+					</option>
 					<option value="external">{m['tierForm.external']()}</option>
 				</select>
 				<p class="mt-1 text-xs text-muted-foreground">
@@ -523,6 +530,8 @@
 						{m['tierForm.paymentHelpAtTheDoor']()}
 					{:else if paymentMethod === 'online'}
 						{m['tierForm.paymentHelpOnline']()}
+					{:else if paymentMethod === 'pix'}
+						{m['tierForm.paymentHelpPix']()}
 					{:else if paymentMethod === 'external'}
 						{m['tierForm.paymentHelpExternal']()}
 					{/if}
