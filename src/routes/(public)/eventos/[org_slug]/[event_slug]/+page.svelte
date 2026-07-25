@@ -27,6 +27,7 @@
 	import MyTicketModal from '$lib/components/tickets/MyTicketModal.svelte';
 	import GuestRsvpDialog from '$lib/components/events/GuestRsvpDialog.svelte';
 	import GuestTicketDialog from '$lib/components/events/GuestTicketDialog.svelte';
+	import PixPaymentModal from '$lib/components/events/PixPaymentModal.svelte';
 	import { SeoHead } from '$lib/seo';
 	import {
 		isRSVP,
@@ -177,6 +178,9 @@
 	// Modal states
 	let showTicketTierModal = $state(false);
 	let showMyTicketModal = $state(false);
+	let showPixPaymentModal = $state(false);
+	let pixPayload = $state('');
+	let pixQrCodeDataUri = $state('');
 	let showGuestRsvpDialog = $state(false);
 	let showGuestTicketDialog = $state(false);
 	let selectedTierForGuest = $state<TierSchemaWithId | null>(null);
@@ -263,7 +267,7 @@
 	async function handleCheckoutSuccess(response: BatchCheckoutResponse) {
 		if (!response) return;
 
-		// Check if we got tickets directly (free/offline payment)
+		// Check if we got tickets directly (free/offline/Pix payment)
 		if (response.tickets && response.tickets.length > 0) {
 			// Close the tier modal
 			closeTicketTierModal();
@@ -273,6 +277,15 @@
 
 			// Also invalidate TanStack Query cache for other components
 			queryClient.invalidateQueries({ queryKey: ['event-status', event.id] });
+
+			// Pix payment - show the QR code/payload instead of a plain toast, since the
+			// buyer still needs to actually pay before the ticket is confirmed.
+			if (response.pix_payload && response.pix_qr_code_data_uri) {
+				pixPayload = response.pix_payload;
+				pixQrCodeDataUri = response.pix_qr_code_data_uri;
+				showPixPaymentModal = true;
+				return;
+			}
 
 			// Show success toast
 			const ticketCount = response.tickets.length;
@@ -989,6 +1002,16 @@
 		}}
 	/>
 {/if}
+
+<!-- Pix Payment Modal -->
+<PixPaymentModal
+	bind:open={showPixPaymentModal}
+	payload={pixPayload}
+	qrCodeDataUri={pixQrCodeDataUri}
+	onClose={() => {
+		showPixPaymentModal = false;
+	}}
+/>
 
 <!-- Guest RSVP Dialog -->
 {#if !data.isAuthenticated && event.can_attend_without_login && !event.requires_ticket}
