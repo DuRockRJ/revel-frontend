@@ -3080,7 +3080,7 @@
 				"description": "Cadastre sua chave Pix para poder vender ingressos com pagamento via Pix. O QR code é gerado automaticamente na hora da compra, com o pagamento indo direto para esta chave.",
 				"keyLabel": "Chave Pix",
 				"keyPlaceholder": "CPF, CNPJ, e-mail, telefone ou chave aleatória",
-				"keyHelp": "Deixe em branco para desativar o método de pagamento Pix nos tipos de ingresso desta organização."
+				"keyHelp": "Deixe em branco para desativar o método de pagamento Pix nos tipos de ingresso desta organização. Se a chave for um número de telefone, inclua o código do país (ex.: +5521999999999)."
 			},
 			"social": {
 				"heading": "Links de redes sociais",

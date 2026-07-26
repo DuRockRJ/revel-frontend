@@ -154,7 +154,7 @@
 	let price = $state(tier?.price ? String(tier.price) : '0');
 	let pwycMin = $state(tier?.pwyc_min ? String(tier.pwyc_min) : '1');
 	let pwycMax = $state(tier?.pwyc_max ? String(tier.pwyc_max) : '');
-	let currency = $state(tier?.currency ?? 'EUR');
+	let currency = $state(tier?.currency ?? 'BRL');
 	let vatRateOverride = $state(tier?.vat_rate != null ? String(tier.vat_rate) : '');
 	let manualPaymentInstructions = $state(tier?.manual_payment_instructions ?? '');
 	let externalTicketUrl = $state(tier?.external_ticket_url ?? '');
